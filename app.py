@@ -1,147 +1,145 @@
 import streamlit as st
-import unidecode
+import csv
+import os
+from datetime import datetime
 
-# --- 0. FUNCIÓN DE LIMPIEZA DE TEXTO ---
-def quitar_acentos(texto):
-    """Convierte el texto a minúsculas y elimina acentos (diacríticos) y la 'ñ'."""
-    return unidecode.unidecode(texto).lower()
+# --- CONFIGURACIÓN INICIAL ---
+st.set_page_config(page_title="Soporte Tasy FLENI", page_icon="🏥", layout="centered")
 
-# --- 1. BASE DE DATOS DE CONOCIMIENTO (TASY_DATA) ---
+# Archivo donde se guardarán las consultas para análisis del equipo
+LOG_FILE = "registro_consultas_tasy.csv"
 
-TASY_DATA = {
-    "Login": [
-        "URL: https://tasy.fleni.org.ar/#/login",
-        "Colocamos nuestro usuario y contraseña",
-        "Verificar siempre estar en el establecimiento (Belgrano/ Escobar), sector correspondiente y perfil designado (Hospitalización Multi/Enfermeria).",
-        "Sin esos datos no voy a poder visualizar pacientes y/o registrar."
-    ],
-    "Visualizar Pacientes": [
-        "Se puede usar Panel de perspectiva clínica, eligiendo el sector.",
-        "Para ver la agenda personal: Desde historia clínica, consulta, agenda de servicios.",
-        "Se pueden buscar pacientes por número de atención o nombre."
-    ],
-    "Nota Clínica / Evolución": [
-        "En el ítem Nota Clínica, haz clic en 'Añadir' para una nueva nota.",
-        "Selecciona la especialidad desde 'tipo de nota clínica' si vas a usar plantillas.",
-        "Recuerda siempre 'Guardar' y 'Liberar' para finalizar la nota clínica y hacerla visible."
-    ],
-    "APAP (Signos Vitales y Balance Hídrico)": [
-        "APAP (Análisis de parámetros asistenciales) es un ítem de visualización (no de registro).",
-        "Se visualiza lo que se cargó en signos vitales y balance hídrico (si se marcó APAP al registrar).",
-        "Para cargar Balance Hídrico, ve a la solapa 'Ingresos y egresos' y haz clic en 'Añadir'.",
-        "Para cargar Signos Vitales, haz clic en 'Añadir', rellena los campos y da clic en 'APAP' si quieres que se visualice allí, luego 'Liberar'."
-    ],
-    "ADEP (Administración de Medicación)": [
-        "ADEP muestra los horarios de medicación pendiente de administrar.",
-        "Para registrar la administración, haz clic derecho y selecciona 'Administrar / revertir evento'.",
-        "Los valores registrados de glucemia en ADEP impactan en APAP y Signos Vitales."
-    ],
-    "Evaluaciones / Escalas": [
-        "Este ítem permite realizar escalas y ver las que hayan realizado otros profesionales.",
-        "Para realizar una nueva evaluación, haz clic en 'Añadir' y selecciona la evaluación que desees.",
-        "Si necesitas agregar archivos/imágenes, primero 'Guarda' sin liberar, ve a la solapa 'Anexos', agrega el archivo y luego 'Libera' la evaluación."
-    ],
-    "Diagnósticos": [
-        "En el perfil multiprofesional, solamente se pueden visualizar los diagnósticos, no se podrán editar.",
-        "Se pueden consultar los diagnósticos de la atención y los diagnósticos históricos del paciente."
-    ],
-    "Antecedentes de salud": [
-        "Puedes visualizar y agregar antecedentes de salud, eligiendo la solapa deseada y haciendo clic en añadir.",
-        "Al hacer clic en 'exhibir en alertas del paciente', este dato se visualizará en el pop up de alertas al ingresar por primera vez a la HCE.",
-        "En el caso de alergias o errores, el registro se inactiva y justifica la acción si ya fue liberado."
-    ],
-    "Informe Final": [
-        "Para realizar el informe final, se utiliza la función 'central de informes'.",
-        "Para que se envíe manualmente el informe al paciente, el estatus tiene que ser 'en interpretación liberada' (que ya tiene adjunto el informe).",
-        "Si no se visualiza que el paciente tiene mail cargado, avisar a secretaría."
-    ],
-    "Errores/Inactivar": [
-        "Si necesitas inactivar una Nota Clínica, selecciónala y haz clic sobre inactivar, justificando el motivo.",
-        "En caso de error en Signos Vitales o Pendientes de Enfermería, selecciona el registro e inactiva justificando la acción.",
-        "El registro no se pierde, queda inactivado con su correspondiente justificación."
-    ]
-}
+# --- FUNCIONES DE BACKEND ---
 
-# --- 2. LÓGICA DE BÚSQUEDA (search_logic) ---
+def log_interaction(rol, pregunta, respuesta):
+    """Guarda la interacción para futuros análisis del equipo."""
+    file_exists = os.path.isfile(LOG_FILE)
+    with open(LOG_FILE, mode='a', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        if not file_exists:
+            writer.writerow(["Fecha", "Hora", "Rol", "Pregunta", "Respuesta_Bot"])
+        
+        now = datetime.now()
+        writer.writerow([now.date(), now.strftime("%H:%M:%S"), rol, pregunta, respuesta])
 
-def buscar_en_manual(consulta):
+def obtener_contexto_por_rol(rol):
+    """Define qué manuales priorizar según el rol seleccionado."""
+    if rol == "Enfermería":
+        return """
+        [PRIORIDAD: MANUAL ENFERMERÍA]
+        Temas clave: Signos vitales, ADEP (Medicación), Balance Hídrico, Pendientes de Enfermería.
+        Recordatorio: En ADEP, 'Guardar' es borrador, 'Liberar' es publicar.
+        Legacy: Para ver historial viejo, consultar SIDCA desde botón derecho (CES).
+        """
+    elif rol == "Médico / Multi":
+        return """
+        [PRIORIDAD: MANUAL HOSPITALIZACIÓN MULTI]
+        Temas clave: Evoluciones (Notas Clínicas), Informe Final, CPOE, Agenda.
+        Recordatorio: El Informe Final requiere estatus 'Realizado' antes de ejecutar el PDF.
+        Legacy: SIDCA disponible para consultas históricas.
+        """
+    return ""
+
+# --- SYSTEM PROMPT (CEREBRO) ---
+def generar_system_prompt(rol):
+    base_prompt = f"""
+    Actúa como un experto en soporte del sistema Tasy para FLENI. Tu usuario actual es un: {rol}.
+    
+    OBJETIVOS:
+    1. **Guiar con Rutas:** Usa formato de flechas para los menús (ej: **Historia Clínica > ADEP > Administrar**).
+    2. **Gestión del Cambio:** Si el usuario parece frustrado o confuso, recuerda con empatía que Tasy requiere más pasos de validación que el sistema anterior para garantizar la seguridad del paciente.
+    3. **Errores Frecuentes:**
+       - Siempre distingue entre GUARDAR (Borrador) y LIBERAR (Finalizar).
+       - Recuerda verificar el Sector y Perfil en la esquina superior derecha.
+    4. **Tono:** Profesional, paciente y didáctico.
+    
+    Si te preguntan por algo del sistema anterior, recuérdales que pueden acceder a la "Consulta Electrónica de Salud (CES - SIDCA)" haciendo clic derecho en el fondo blanco de la historia clínica.
     """
-    Busca palabras clave en la consulta del usuario después de normalizar (quitar acentos).
-    """
-    consulta_normalizada = quitar_acentos(consulta) 
+    return base_prompt
+
+# --- INTERFAZ DE USUARIO (FRONTEND) ---
+
+st.title("🏥 Soporte Tasy FLENI")
+
+# 1. VERIFICAR ESTADO DE SESIÓN (¿Ya eligió rol?)
+if "rol_usuario" not in st.session_state:
+    st.session_state.rol_usuario = None
+
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+# 2. PANTALLA DE BIENVENIDA / SELECCIÓN (Si no hay rol definido)
+if st.session_state.rol_usuario is None:
+    st.markdown("### 👋 ¡Hola! Para poder ayudarte mejor, por favor indícame tu perfil:")
+    st.info("Esta información nos ayuda a darte las rutas exactas de tu menú en Tasy.")
     
-    # Mapeo de palabras clave a temas (todas sin acentos)
-    mapeo_palabras_clave = {
-        ("login", "ingresar", "url"): "Login",
-        ("pacientes", "agenda", "camas", "listado", "perspectiva clinica"): "Visualizar Pacientes",
-        ("nota clinica", "evolucion", "evolucionar", "plantilla", "liberar"): "Nota Clínica / Evolución",
-        ("apap", "signos vitales", "balance hidrico", "bh"): "APAP (Signos Vitales y Balance Hídrico)",
-        ("adep", "medicacion", "medicar", "glucemia", "administrar", "revertir evento"): "ADEP (Administración de Medicación)",
-        ("evaluaciones", "escalas", "evaluacion", "anexos"): "Evaluaciones / Escalas",
-        ("diagnostico", "diagnosticos", "editar diagnosticos"): "Diagnósticos",
-        ("informe final", "informe de alta", "central de informes"): "Informe Final",
-        ("antecedentes", "alergias", "alerta", "cirugias"): "Antecedentes de salud",
-        ("error", "inactivar", "eliminar", "justificar"): "Errores/Inactivar"
-    }
-
-    temas_encontrados = set()
-    for palabras, tema in mapeo_palabras_clave.items():
-        if any(palabra in consulta_normalizada for palabra in palabras):
-            temas_encontrados.add(tema)
-
-    resultados = []
-    for tema in temas_encontrados:
-        resultados.append(f"## 📌 Tema: {tema}")
-        for info in TASY_DATA.get(tema, []):
-            resultados.append(f"* {info}")
-
-    if not resultados:
-        return "Disculpa, no encontré información específica para esa consulta. Por favor, intenta con palabras clave más generales."
+    col1, col2 = st.columns(2)
     
-    return "\n".join(resultados)
+    with col1:
+        if st.button("Soy Enfermería 💉", use_container_width=True):
+            st.session_state.rol_usuario = "Enfermería"
+            st.session_state.messages.append({"role": "assistant", "content": "Hola colega de Enfermería. ¿En qué te trabaste? (Ej: '¿Cómo cargo un balance hídrico?', 'No veo mi paciente', 'Error al liberar signos vitales')."})
+            st.rerun()
+            
+    with col2:
+        if st.button("Soy Médico / Multi 🩺", use_container_width=True):
+            st.session_state.rol_usuario = "Médico / Multi"
+            st.session_state.messages.append({"role": "assistant", "content": "Hola Doctor/a o Licenciado/a. Estoy listo para ayudarte con Evoluciones, Informe Final o Agenda. ¿Cuál es tu consulta?"})
+            st.rerun()
 
-# --- 3. CONFIGURACIÓN DE LA INTERFAZ (FRONT-END) ---
+# 3. PANTALLA DE CHAT (Solo si ya eligió rol)
+else:
+    # Barra lateral con utilidades
+    with st.sidebar:
+        st.write(f"Perfil actual: **{st.session_state.rol_usuario}**")
+        if st.button("Cambiar de Perfil"):
+            st.session_state.rol_usuario = None
+            st.session_state.messages = []
+            st.rerun()
+        st.divider()
+        st.caption("Admin: Descargar reporte de consultas")
+        # Aquí podrías poner un botón para descargar el CSV si eres admin
 
-st.set_page_config(page_title="Soporte Tasy FLENI Bot", layout="centered")
+    # Mostrar historial
+    for msg in st.session_state.messages:
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
 
-st.title("🤖 Soporte Tasy FLENI")
-st.markdown("---")
-st.subheader("Asistente Virtual")
-st.markdown("Escribe tu pregunta y te ayudaré a resolver dudas en Tasy.")
+    # Input de usuario
+    if prompt := st.chat_input("Escribe tu duda sobre Tasy aquí..."):
+        
+        # Mostrar mensaje usuario
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
 
-# Interacción del Usuario
-consulta_usuario = st.text_input("Ingresa tu pregunta sobre Tasy (ej: Como cargo el balance hidrico? o Como libero la nota clinica?)")
+        # Procesar respuesta (SIMULACIÓN DE LLM)
+        with st.chat_message("assistant"):
+            with st.spinner("Analizando manuales y rutas..."):
+                
+                # AQUI CONECTARIAS TU LLM REAL (OpenAI, etc)
+                # Usando st.session_state.rol_usuario para filtrar el contexto
+                
+                # Respuesta Mockup Inteligente basada en tus documentos
+                respuesta_texto = ""
+                
+                # Ejemplo de lógica de respuesta basada en tus manuales:
+                if "informe final" in prompt.lower() and st.session_state.rol_usuario == "Médico / Multi":
+                    respuesta_texto = "Para realizar el **Informe Final**:\n\n1. Ve a la función **Central de Informes**.\n2. Asegúrate que el estatus sea **Realizado**[cite: 324].\n3. Haz clic derecho > **Ejecutar** > **Incluir interpretación PDF**[cite: 325].\n\n**Nota cultural:** A diferencia del sistema anterior, aquí debes liberar manualmente la interpretación para que se pueda enviar por mail."
+                
+                elif "balance" in prompt.lower() and st.session_state.rol_usuario == "Enfermería":
+                    respuesta_texto = "Para el **Balance Hídrico**:\n\n1. Ve a APAP o Balance Hídrico > Solapa **Ingresos y Egresos**[cite: 109].\n2. Clic en **Añadir**.\n3. Selecciona el ítem a la izquierda y usa la **flecha hacia la derecha** para asignarlo[cite: 113].\n4. Confirma en el pop-up.\n\nRecuerda que esto impacta automáticamente en la visualización del APAP."
+                
+                elif "sidca" in prompt.lower() or "historia vieja" in prompt.lower():
+                    respuesta_texto = "Entiendo que necesites ver datos antiguos. Tasy permite consultar **SIDCA** sin salir de la pantalla:\n\n1. Haz clic derecho en el fondo blanco de la Historia Clínica.\n2. Selecciona **CES - Consulta Electrónica de Salud**.\n3. Esto abrirá la visualización de lo cargado en el sistema anterior."
 
-if consulta_usuario:
-    st.info(f"Buscando respuesta para: **{consulta_usuario}**")
-    
-    # Llama a la función de lógica
-    respuesta_bot = buscar_en_manual(consulta_usuario)
-    
-    # Muestra la respuesta del bot
-    st.success("Respuesta del Bot Basada en Manuales:")
-    st.markdown(respuesta_bot)
+                else:
+                    respuesta_texto = f"Entiendo tu consulta sobre '{prompt}'. Como estás en perfil {st.session_state.rol_usuario}, te sugiero revisar que estés en el Sector correcto (esquina superior derecha)[cite: 4, 188]. ¿Podrías darme más detalles del error?"
 
-# --- 4. PIE DE PÁGINA AMIGABLE (Mensaje de Soporte Final) ---
-st.markdown("---")
-st.markdown("""
-### 💡 Soporte Inicial Tasy FLENI - Tips Rápidos 🚀
+                st.markdown(respuesta_texto)
+                
+                # LOGGING: Guardar la data para el equipo
+                log_interaction(st.session_state.rol_usuario, prompt, respuesta_texto)
 
-Antes de llamar, ¡revisa estos puntos!
-
-* **💻 Navegador Ideal:** Usa siempre **Google Chrome**.
-* **🧹 Limpieza:** Si algo no carga, prueba a **limpiar la caché** (`Ctrl + H`).
-* **👤 Perfil:** Verifica que tu **Log In** esté en el **establecimiento y perfil correcto** (Ej: Hospitalización Multi/Enfermería).
-* **🔍 Zoom:** ¿Pantalla cortada? Ajusta el zoom: **`Ctrl + +`** (agrandar) o **`Ctrl + -`** (minimizar).
-
----
-**¿Aún tienes dudas?**
-
-* 🖋️ **Firmas Digitales:** Envía tu firma en **formato JPG (fondo blanco)** a **soportesidca@fleni.org.ar**. Recuerda: **Sin firma, los médicos no pueden hacer recetas.**
-* 📞 **Soporte Telefónico:** Llama al interno **5006**.
-* 🎫 **Alta de Usuarios/VPN:** Deja un ticket en **solicitudes.fleni.org**.
-""")
-
-st.caption("Hecho con Streamlit y Python.")
-
+        st.session_state.messages.append({"role": "assistant", "content": respuesta_texto})
 
