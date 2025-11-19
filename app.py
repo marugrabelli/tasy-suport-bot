@@ -1,4 +1,11 @@
 import streamlit as st
+import unidecode
+
+# --- 0. FUNCIÓN DE LIMPIEZA DE TEXTO (NUEVA) ---
+def quitar_acentos(texto):
+    """Convierte el texto a minúsculas y elimina acentos (diacríticos) y la 'ñ'."""
+    # unidecode.unidecode convierte letras acentuadas (á, é, ñ) a su equivalente simple (a, e, n)
+    return unidecode.unidecode(texto).lower()
 
 # --- 1. BASE DE DATOS DE CONOCIMIENTO (TASY_DATA) ---
 
@@ -10,7 +17,7 @@ TASY_DATA = {
         "Sin esos datos no voy a poder visualizar pacientes y/o registrar."
     ],
     "Visualizar Pacientes": [
-        "Utilizar Panel de perspectiva clínica y elegir el sector.",
+        "Se puede usar Panel de perspectiva clínica, eligiendo el sector.",
         "Para ver la agenda personal: Desde historia clínica, consulta, agenda de servicios.",
         "Se pueden buscar pacientes por número de atención o nombre."
     ],
@@ -22,12 +29,31 @@ TASY_DATA = {
     "APAP (Signos Vitales y Balance Hídrico)": [
         "APAP (Análisis de parámetros asistenciales) es un ítem de visualización (no de registro).",
         "Se visualiza lo que se cargó en signos vitales y balance hídrico (si se marcó APAP al registrar).",
-        "Para cargar Balance Hídrico, ve a la solapa 'Ingresos y egresos' y haz clic en 'Añadir'."
+        "Para cargar Balance Hídrico, ve a la solapa 'Ingresos y egresos' y haz clic en 'Añadir'.",
+        "Para cargar Signos Vitales, haz clic en 'Añadir', rellena los campos y da clic en 'APAP' si quieres que se visualice allí, luego 'Liberar'."
     ],
     "ADEP (Administración de Medicación)": [
         "ADEP muestra los horarios de medicación pendiente de administrar.",
         "Para registrar la administración, haz clic derecho y selecciona 'Administrar / revertir evento'.",
         "Los valores registrados de glucemia en ADEP impactan en APAP y Signos Vitales."
+    ],
+    "Evaluaciones / Escalas": [
+        "Este ítem permite realizar escalas y ver las que hayan realizado otros profesionales.",
+        "Para realizar una nueva evaluación, haz clic en 'Añadir' y selecciona la evaluación que desees.",
+        "Si necesitas agregar archivos/imágenes, primero 'Guarda' sin liberar, ve a la solapa 'Anexos', agrega el archivo y luego 'Libera' la evaluación."
+    ],
+    "Diagnósticos": [
+        "En el perfil multiprofesional, solamente se pueden visualizar los diagnósticos, no se podrán editar."
+    ],
+    "Antecedentes de salud": [
+        "Puedes visualizar y agregar antecedentes de salud, eligiendo la solapa deseada y haciendo clic en añadir.",
+        "Al hacer clic en 'exhibir en alertas del paciente', este dato se visualizará en el pop up de alertas al ingresar por primera vez a la HCE.",
+        "En el caso de alergias o errores, el registro se inactiva y justifica la acción si ya fue liberado."
+    ],
+    "Informe Final": [
+        "Para realizar el informe final, se utiliza la función 'central de informes'.",
+        "Para que se envíe manualmente el informe al paciente, el estatus tiene que ser 'en interpretación liberada' (que ya tiene adjunto el informe).",
+        "Si no se visualiza que el paciente tiene mail cargado, avisar a secretaría."
     ],
     "Errores/Inactivar": [
         "Si necesitas inactivar una Nota Clínica, selecciónala y haz clic sobre inactivar, justificando el motivo.",
@@ -40,26 +66,32 @@ TASY_DATA = {
 
 def buscar_en_manual(consulta):
     """
-    Busca palabras clave en la consulta del usuario y devuelve la información relevante del diccionario TASY_DATA.
+    Busca palabras clave en la consulta del usuario después de normalizar (quitar acentos).
     """
-    consulta_lower = consulta.lower()
-    resultados = []
+    # 1. Normalizar la consulta del usuario (Quitar acentos y minúsculas)
+    consulta_normalizada = quitar_acentos(consulta) 
     
-    # Mapeo de palabras clave a temas
+    # Nota: Los términos del mapeo (clave) deben escribirse sin acentos aquí abajo:
     mapeo_palabras_clave = {
         ("login", "ingresar", "url"): "Login",
-        ("pacientes", "agenda", "camas", "listado", "perspectiva clínica"): "Visualizar Pacientes",
-        ("nota clínica", "evolución", "evolucionar", "plantilla", "liberar"): "Nota Clínica / Evolución",
-        ("apap", "signos vitales", "balance hídrico", "bh"): "APAP (Signos Vitales y Balance Hídrico)",
-        ("adep", "medicación", "medicar", "glucemia", "administrar", "revertir evento"): "ADEP (Administración de Medicación)",
+        ("pacientes", "agenda", "camas", "listado", "perspectiva clinica"): "Visualizar Pacientes",
+        ("nota clinica", "evolucion", "evolucionar", "plantilla", "liberar"): "Nota Clínica / Evolución",
+        ("apap", "signos vitales", "balance hidrico", "bh"): "APAP (Signos Vitales y Balance Hídrico)",
+        ("adep", "medicacion", "medicar", "glucemia", "administrar", "revertir evento"): "ADEP (Administración de Medicación)",
+        ("evaluaciones", "escalas", "evaluacion", "anexos"): "Evaluaciones / Escalas",
+        ("diagnostico", "diagnosticos", "editar diagnosticos"): "Diagnósticos",
+        ("informe final", "informe de alta", "central de informes"): "Informe Final",
+        ("antecedentes", "alergias", "alerta", "cirugias"): "Antecedentes de salud",
         ("error", "inactivar", "eliminar", "justificar"): "Errores/Inactivar"
     }
-
+    
+    # Resto de la lógica de búsqueda...
     temas_encontrados = set()
     for palabras, tema in mapeo_palabras_clave.items():
-        if any(palabra in consulta_lower for palabra in palabras):
+        if any(palabra in consulta_normalizada for palabra in palabras):
             temas_encontrados.add(tema)
 
+    resultados = []
     for tema in temas_encontrados:
         resultados.append(f"## 📌 Tema: {tema}")
         for info in TASY_DATA.get(tema, []):
@@ -80,7 +112,7 @@ st.subheader("Asistente Virtual de Hospitalización")
 st.markdown("Escribe tu pregunta y te ayudaré a encontrar la información clave en los manuales de **Hospitalización Multi** y **Enfermería**.")
 
 # Interacción del Usuario
-consulta_usuario = st.text_input("Ingresa tu pregunta sobre Tasy (ej: ¿Cómo cargo el Balance Hídrico? o ¿Cómo libero la nota clínica?)")
+consulta_usuario = st.text_input("Ingresa tu pregunta sobre Tasy (ej: Como cargo el balance hidrico? o Como libero la nota clinica?)")
 
 if consulta_usuario:
     st.info(f"Buscando respuesta para: **{consulta_usuario}**")
@@ -94,3 +126,4 @@ if consulta_usuario:
 
 st.markdown("---")
 st.caption("Hecho con Streamlit y Python.")
+
