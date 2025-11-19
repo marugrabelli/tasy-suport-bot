@@ -106,7 +106,6 @@ st.set_page_config(page_title="Soporte Tasy FLENI Bot", layout="centered")
 
 st.title("🤖 Soporte Tasy FLENI")
 st.markdown("---")
-# LÍNEAS MODIFICADAS:
 st.subheader("Asistente Virtual")
 st.markdown("Escribe tu pregunta y te ayudaré a resolver dudas en Tasy.")
 
@@ -138,9 +137,11 @@ Antes de llamar, ¡revisa estos puntos!
 ---
 **¿Aún tienes dudas?**
 
+* 🖋️ **Firmas Digitales:** Envía tu firma en **formato JPG (fondo blanco)** a **soportesidca@fleni.org.ar**. Recuerda: **Sin firma, los médicos no pueden hacer recetas.**
 * 📞 **Soporte Telefónico:** Llama al interno **5006**.
 * 🎫 **Alta de Usuarios/VPN:** Deja un ticket en **solicitudes.fleni.org**.
 """)
 
 st.caption("Hecho con Streamlit y Python.")
+
 
