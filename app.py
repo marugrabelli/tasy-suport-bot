@@ -106,8 +106,9 @@ st.set_page_config(page_title="Soporte Tasy FLENI Bot", layout="centered")
 
 st.title("🤖 Soporte Tasy FLENI")
 st.markdown("---")
-st.subheader("Asistente Virtual de Hospitalización")
-st.markdown("Escribe tu pregunta y te ayudaré a encontrar la información clave en los manuales de **Hospitalización Multi** y **Enfermería**.")
+# LÍNEAS MODIFICADAS:
+st.subheader("Asistente Virtual")
+st.markdown("Escribe tu pregunta y te ayudaré a resolver dudas en Tasy.")
 
 # Interacción del Usuario
 consulta_usuario = st.text_input("Ingresa tu pregunta sobre Tasy (ej: Como cargo el balance hidrico? o Como libero la nota clinica?)")
@@ -142,3 +143,4 @@ Antes de llamar, ¡revisa estos puntos!
 """)
 
 st.caption("Hecho con Streamlit y Python.")
+
