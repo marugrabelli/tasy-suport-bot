@@ -4,7 +4,6 @@ import unidecode
 # --- 0. FUNCIÓN DE LIMPIEZA DE TEXTO ---
 def quitar_acentos(texto):
     """Convierte el texto a minúsculas y elimina acentos (diacríticos) y la 'ñ'."""
-    # unidecode.unidecode convierte letras acentuadas (á, é, ñ) a su equivalente simple (a, e, n)
     return unidecode.unidecode(texto).lower()
 
 # --- 1. BASE DE DATOS DE CONOCIMIENTO (TASY_DATA) ---
@@ -43,7 +42,8 @@ TASY_DATA = {
         "Si necesitas agregar archivos/imágenes, primero 'Guarda' sin liberar, ve a la solapa 'Anexos', agrega el archivo y luego 'Libera' la evaluación."
     ],
     "Diagnósticos": [
-        "En el perfil multiprofesional, solamente se pueden visualizar los diagnósticos, no se podrán editar."
+        "En el perfil multiprofesional, solamente se pueden visualizar los diagnósticos, no se podrán editar.",
+        "Se pueden consultar los diagnósticos de la atención y los diagnósticos históricos del paciente."
     ],
     "Antecedentes de salud": [
         "Puedes visualizar y agregar antecedentes de salud, eligiendo la solapa deseada y haciendo clic en añadir.",
@@ -70,7 +70,7 @@ def buscar_en_manual(consulta):
     """
     consulta_normalizada = quitar_acentos(consulta) 
     
-    # Nota: Los términos del mapeo deben escribirse sin acentos:
+    # Mapeo de palabras clave a temas (todas sin acentos)
     mapeo_palabras_clave = {
         ("login", "ingresar", "url"): "Login",
         ("pacientes", "agenda", "camas", "listado", "perspectiva clinica"): "Visualizar Pacientes",
@@ -80,4 +80,20 @@ def buscar_en_manual(consulta):
         ("evaluaciones", "escalas", "evaluacion", "anexos"): "Evaluaciones / Escalas",
         ("diagnostico", "diagnosticos", "editar diagnosticos"): "Diagnósticos",
         ("informe final", "informe de alta", "central de informes"): "Informe Final",
-        ("antecedentes", "alergias", "
+        ("antecedentes", "alergias", "alerta", "cirugias"): "Antecedentes de salud",
+        ("error", "inactivar", "eliminar", "justificar"): "Errores/Inactivar"
+    }
+
+    temas_encontrados = set()
+    for palabras, tema in mapeo_palabras_clave.items():
+        if any(palabra in consulta_normalizada for palabra in palabras):
+            temas_encontrados.add(tema)
+
+    resultados = []
+    for tema in temas_encontrados:
+        resultados.append(f"## 📌 Tema: {tema}")
+        for info in TASY_DATA.get(tema, []):
+            resultados.append(f"* {info}")
+
+    if not resultados:
+        return "Dis
