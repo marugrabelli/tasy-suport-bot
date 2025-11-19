@@ -4,9 +4,9 @@ import os
 from datetime import datetime
 
 # --- 1. CONFIGURACIÓN DE LA PÁGINA Y ESTILOS ---
-st.set_page_config(page_title="Soporte Tasy FLENI", page_icon="🏥", layout="wide")
+st.set_page_config(page_title="Flenisito - Soporte Tasy", page_icon="🏥", layout="wide")
 
-# Estilos CSS para limpiar la interfaz
+# Estilos CSS
 st.markdown("""
     <style>
     .stChatMessage { border-radius: 10px; }
@@ -16,16 +16,33 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # Archivo de logs
-LOG_FILE = "registro_consultas_tasy.csv"
+LOG_FILE = "registro_consultas_flenisito.csv"
+
+# --- MENSAJE DE PIE DE PÁGINA (ESTÁNDAR) ---
+MENSAJE_PIE = """
+---
+### 💡 Antes de llamar, ¡revisa estos puntos!
+
+* **💻 Navegador Ideal:** Usa siempre **Google Chrome**.
+* **🧹 Limpieza:** Si algo no carga, prueba a **limpiar la caché** (`Ctrl + H`).
+* **👤 Perfil:** Verifica que tu **Log In** esté en el **establecimiento y perfil correcto** (Ej: Hospitalización Multi/Enfermería).
+* **🔍 Zoom:** ¿Pantalla cortada? Ajusta el zoom: **`Ctrl + +`** (agrandar) o **`Ctrl + -`** (minimizar).
+
+---
+**¿Aún tienes dudas?**
+
+* 🖋️ **Firmas Digitales:** Envía tu firma en **formato JPG (fondo blanco)** a **soportesidca@fleni.org.ar**. Recuerda: **Sin firma, los médicos no pueden hacer recetas.**
+* 📞 **Soporte Telefónico:** Llama al interno **5006**.
+* 🎫 **Alta de Usuarios/VPN:** Deja un ticket en **solicitudes.fleni.org**.
+"""
 
 # --- 2. FUNCIONES DE BACKEND (LOGGING) ---
 def log_interaction(rol, pregunta, respuesta):
-    """Guarda la interacción en un CSV para análisis posterior del equipo."""
+    """Guarda la interacción en un CSV para análisis posterior."""
     file_exists = os.path.isfile(LOG_FILE)
     try:
         with open(LOG_FILE, mode='a', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
-            # Si es archivo nuevo, crear encabezados
             if not file_exists:
                 writer.writerow(["Fecha", "Hora", "Rol", "Pregunta", "Respuesta_Bot"])
             
@@ -34,7 +51,7 @@ def log_interaction(rol, pregunta, respuesta):
     except Exception as e:
         st.error(f"Error al guardar log: {e}")
 
-# --- 3. BASE DE CONOCIMIENTO (EL CEREBRO DEL BOT) ---
+# --- 3. BASE DE CONOCIMIENTO ---
 base_de_conocimiento = {
     # === TEMAS GENERALES ===
     "login": {
@@ -47,7 +64,7 @@ base_de_conocimiento = {
         Verifica en la esquina superior derecha:
         1.  **Establecimiento:** ¿Estás en Belgrano o Escobar?
         2.  **Perfil:** ¿Es el correcto (Hospitalización Multi vs Enfermería)?
-        3.  **Sector:** Debes elegir el sector en el filtro para visualizar camas. Sin estos datos no podrás registrar ni ver pacientes.
+        3.  **Sector:** Debes elegir el sector en el filtro para visualizar camas.
         """
     },
     "navegacion": {
@@ -97,284 +114,6 @@ base_de_conocimiento = {
         ### 💧 Balance Hídrico
         
         **Visualización:** Solapa "Análisis de balance" (Izquierda: Total | Medio: Turno | Derecha: Detalle).
-        
-        **Cómo Cargar (Ingresos/Egresos):**
-        1.  Ve a la solapa **Ingresos y Egresos**.
-        2.  Clic en **Añadir**.
-        3.  Lado izquierdo: Selecciona Grupo y Tipo.
-        4.  **PASO CLAVE:** Clic en la **Flecha Derecha** para pasarlo al lado derecho de la pantalla.
-        5.  Se abre pop-up: detalla volumen y confirma con **Finalizar**.
-        """
-    },
-    "adep": {
-        "contenido": """
-        ### 💊 ADEP (Administración de Medicación)
-        
-        **Registrar Administración:**
-        1.  Botón derecho sobre el horario pendiente > **Administrar / revertir evento**.
-        2.  Opcional: Agregar comentario > Clic Ok.
-        
-        **Medicación Suspendida:**
-        * Usar el filtro y marcar el check "medicación suspendida" > Filtrar.
-        
-        **Glucemia (Protocolo):**
-        * En "Exámenes y procedimientos" > Clic derecho > Registrar valor.
-        * El sistema sugiere corrección. Confirmar desde "control de glucemia".
-        """
-    },
-    "dispositivos": {
-        "contenido": """
-        ### 💉 Dispositivos (Sondas, Vías)
-        
-        **Nuevo Dispositivo:**
-        * Gráfico de dispositivos > Nuevo dispositivo > Elegir tipo y fecha prevista de retiro.
-        
-        **Retirar o Rotar:**
-        * Clic en **Acciones de dispositivo**.
-        * Elegir "Retirar" (con justificación) o "Sustituir" (para rotación).
-        """
-    },
-    "pendientes": {
-        "contenido": """
-        ### 📋 Pendientes de Enfermería
-        
-        * **Añadir:** Clic en añadir para nuevo pendiente.
-        * **Borrar/Corregir:**
-            * Si no está liberado: Eliminar.
-            * Si está liberado: Inactivar justificando acción.
-        """
-    },
-
-    # === PERFIL MÉDICO / MULTI ===
-    "agenda": {
-        "contenido": """
-        ### 📅 Gestión de Agenda (Turnos)
-        
-        **Rutas:**
-        * **Agenda del día:** HCE > Consulta > Agenda de servicios.
-        * **Turnos libres:** Pantalla principal > Agenda de servicio.
-        
-        **Cómo filtrar correctamente:**
-        1.  **Por Especialidad:** Agenda de servicios > Consultar Datos > **Filtro avanzado** > Seleccionar agendas > Filtrar.
-        2.  **Por Profesional:** Usar la lupa en campo "Profesional ejecutor".
-        
-        **⚠️ Solución a Errores:**
-        * "No veo nada": Tienes que seleccionar previamente la agenda desde el filtro.
-        * "Datos mezclados": Debes usar **Limpiar filtros** antes de una nueva búsqueda.
-        """
-    },
-    "nota clinica": {
-        "contenido": """
-        ### 📝 Notas Clínicas (Evoluciones)
-        
-        **Crear Nota:**
-        1.  Clic en **Añadir**.
-        2.  Seleccionar **Tipo de nota clínica** (Tu especialidad).
-        3.  Para el Alta: Usar tipo "Resumen de HC".
-        
-        **Duplicar:**
-        * Clic derecho sobre nota anterior > Duplicar.
-        * **Ojo:** Si duplicas la nota de otro, borra su firma, ya que trae la del profesional original.
-        
-        **Importante:**
-        * Siempre **Liberar** para finalizar. Si solo guardas, queda invisible para el resto.
-        """
-    },
-    "informe final": {
-        "contenido": """
-        ### 🏁 Informe Final (Alta)
-        
-        **Ruta:** Central de informes (Menu principal o llamada externa).
-        
-        **Pasos para PDF:**
-        1.  El estatus debe ser **"Realizado"**.
-        2.  Clic derecho > **Ejecutar** > **Incluir interpretación PDF**.
-        3.  Seleccionar PDF, asignar médico y OK.
-        
-        **Enviar por Email:**
-        * El estatus debe estar en "Interpretación liberada".
-        * Clic derecho > Enviar > Email.
-        """
-    },
-    "cpoe": {
-        "contenido": """
-        ### 💊 CPOE y Pedidos
-        
-        * **Ver Medicación:** Árbol HCE > CPOE.
-        * **Dejar Recomendaciones:** Desplegar listado por servicio > Check en las deseadas > Liberar y confirmar.
-        * **Justificaciones/Pedidos:** Ítem "Justificaciones/Solicitudes" > Añadir > Elegir tipo > Guardar y Liberar.
-        """
-    },
-    "justificaciones": {
-        "contenido": """
-        ### 📄 Justificaciones y Solicitudes
-        
-        Uso: Generar reportes (ej: pedido psicopedagogía).
-        1.  Clic **Añadir** > Seleccionar tipo.
-        2.  Completar, Guardar y **Liberar**.
-        3.  Para imprimir: Seleccionar registro > Reportes > Visualizar.
-        """
-    },
-    "ged": {
-        "contenido": """
-        ### 📂 Gestión de Documentos (GED)
-        
-        **Uso:** Ver adjuntos de admisión o cargar archivos externos.
-        * **Ver:** Clic en Archivo para visualizar adjunto.
-        * **Cargar:** Clic Añadir > Clasificar tipo de archivo para facilitar búsqueda.
-        """
-    },
-    "evaluaciones": {
-        "contenido": """
-        ### 📊 Evaluaciones y Escalas
-        
-        * **Nueva:** Añadir > Seleccionar evaluación > Completar > Guardar y Liberar.
-        * **Adjuntar Imágenes:** Guardar (sin liberar) > Solapa Anexos > Agregar archivo > Liberar.
-        """
-    }
-}
-
-# --- 4. MOTOR DE BÚSQUEDA INTELIGENTE ---
-def buscar_solucion(consulta, rol):
-    q = consulta.lower()
-    
-    # Mapeo de palabras clave a claves del diccionario
-    # 1. Login y Accesos
-    if any(x in q for x in ["login", "ingresar", "usuario", "contraseña", "no veo paciente", "perfil"]):
-        return base_de_conocimiento["login"]["contenido"]
-    
-    # 2. Navegación / Pacientes
-    if any(x in q for x in ["buscar paciente", "sector", "cama", "alerta", "resumen"]):
-        return base_de_conocimiento["navegacion"]["contenido"]
-        
-    # 3. SIDCA / Historia Vieja
-    if any(x in q for x in ["sidca", "historia vieja", "anterior", "ces", "consulta electronica"]):
-        return base_de_conocimiento["sidca"]["contenido"]
-
-    # --- TEMAS DE ENFERMERÍA ---
-    if any(x in q for x in ["signos", "vitales", "presion", "temperatura", "apap", "respiratoria"]):
-        return base_de_conocimiento["signos vitales"]["contenido"]
-        
-    if any(x in q for x in ["balance", "hidrico", "ingreso", "egreso", "liquido"]):
-        return base_de_conocimiento["balance hidrico"]["contenido"]
-        
-    if any(x in q for x in ["adep", "administrar", "medicacion", "droga", "glucemia", "revertir"]):
-        return base_de_conocimiento["adep"]["contenido"]
-        
-    if any(x in q for x in ["dispositivo", "sonda", "via", "cateter", "equipo"]):
-        return base_de_conocimiento["dispositivos"]["contenido"]
-
-    if any(x in q for x in ["pendiente", "tarea"]):
-        return base_de_conocimiento["pendientes"]["contenido"]
-
-    # --- TEMAS MULTI ---
-    if any(x in q for x in ["agenda", "turno", "citado", "filtro"]):
-        return base_de_conocimiento["agenda"]["contenido"]
-        
-    if any(x in q for x in ["nota", "evolucion", "escribir", "duplicar", "plantilla"]):
-        return base_de_conocimiento["nota clinica"]["contenido"]
-        
-    if any(x in q for x in ["informe", "final", "alta", "epicrisis", "pdf", "mail"]):
-        return base_de_conocimiento["informe final"]["contenido"]
-        
-    if any(x in q for x in ["cpoe", "indicacion", "prescripcion", "gases", "recomendacion"]):
-        return base_de_conocimiento["cpoe"]["contenido"]
-        
-    if any(x in q for x in ["justificacion", "pedido", "solicitud", "orden"]):
-        return base_de_conocimiento["justificaciones"]["contenido"]
-
-    if any(x in q for x in ["ged", "archivo", "adjunto", "documento"]):
-        return base_de_conocimiento["ged"]["contenido"]
-
-    if any(x in q for x in ["evaluacion", "escala", "score", "imagen"]):
-        return base_de_conocimiento["evaluaciones"]["contenido"]
-
-    # Respuesta por defecto si no entiende
-    msg = "⚠️ No encuentro una ruta exacta para esa consulta en los manuales.\n\n"
-    if rol == "Enfermería":
-        msg += "Temas disponibles para Enfermería: **Signos Vitales, Balance Hídrico, ADEP, Glucemia, Dispositivos, Pendientes**."
-    else:
-        msg += "Temas disponibles para Multi: **Agenda, Notas Clínicas, Informe Final, CPOE, Justificaciones, GED**."
-    return msg
-
-# --- 5. INTERFAZ DE USUARIO (FRONTEND) ---
-
-st.title("🏥 Soporte Tasy FLENI")
-st.markdown("**Asistente Virtual para Hospitalización Multi y Enfermería**")
-
-# Inicializar estado de sesión
-if "rol_usuario" not in st.session_state:
-    st.session_state.rol_usuario = None
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-
-# --- PANTALLA 1: SELECCIÓN DE ROL (ONBOARDING) ---
-if st.session_state.rol_usuario is None:
-    st.info("👋 ¡Hola! Para darte las rutas correctas del menú, por favor selecciona tu perfil:")
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        if st.button("💉 Soy Enfermería"):
-            st.session_state.rol_usuario = "Enfermería"
-            st.session_state.messages.append({"role": "assistant", "content": "Hola colega. Puedo ayudarte con **Signos Vitales, Balance, ADEP y Dispositivos**. ¿Qué necesitas?"})
-            st.rerun()
-            
-    with col2:
-        if st.button("🩺 Soy Médico / Multi"):
-            st.session_state.rol_usuario = "Médico / Multi"
-            st.session_state.messages.append({"role": "assistant", "content": "Hola Doctor/a o Licenciado/a. Estoy listo para guiarte en **Agenda, Notas Clínicas, Informe Final y CPOE**. ¿Cuál es tu consulta?"})
-            st.rerun()
-
-# --- PANTALLA 2: CHAT PRINCIPAL ---
-else:
-    # Sidebar con herramientas
-    with st.sidebar:
-        st.success(f"Perfil: **{st.session_state.rol_usuario}**")
-        
-        st.markdown("---")
-        st.markdown("### 💡 Tips Rápidos")
-        st.caption("1. **Liberar** es publicar. **Guardar** es borrador.")
-        st.caption("2. Verifica siempre **Sector** y **Establecimiento**.")
-        
-        st.markdown("---")
-        if st.button("🔄 Cambiar de Perfil"):
-            st.session_state.rol_usuario = None
-            st.session_state.messages = []
-            st.rerun()
-        
-        if st.button("🗑️ Borrar Chat"):
-            st.session_state.messages = []
-            # Reiniciamos con el saludo correspondiente
-            saludo = "Hola colega." if st.session_state.rol_usuario == "Enfermería" else "Hola Doctor/a."
-            st.session_state.messages.append({"role": "assistant", "content": f"{saludo} ¿En qué más puedo ayudarte?"})
-            st.rerun()
-
-    # Mostrar historial de chat
-    for msg in st.session_state.messages:
-        with st.chat_message(msg["role"]):
-            st.markdown(msg["content"])
-
-    # Capturar input del usuario
-    if prompt := st.chat_input("Escribe tu consulta aquí... (Ej: 'Cómo cargo un balance', 'Problema con agenda')"):
-        
-        # 1. Mostrar mensaje usuario
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
-
-        # 2. Procesar y buscar respuesta
-        with st.chat_message("assistant"):
-            with st.spinner("Buscando en manuales..."):
-                
-                respuesta = buscar_solucion(prompt, st.session_state.rol_usuario)
-                st.markdown(respuesta)
-                
-                # 3. Guardar en Log (CSV)
-                log_interaction(st.session_state.rol_usuario, prompt, respuesta)
-        
-        # 4. Guardar en historial
-        st.session_state.messages.append({"role": "assistant", "content": respuesta})
 
 
 
