@@ -1,7 +1,7 @@
 import streamlit as st
 import unidecode
 
-# --- 0. FUNCIÓN DE LIMPIEZA DE TEXTO (NUEVA) ---
+# --- 0. FUNCIÓN DE LIMPIEZA DE TEXTO ---
 def quitar_acentos(texto):
     """Convierte el texto a minúsculas y elimina acentos (diacríticos) y la 'ñ'."""
     # unidecode.unidecode convierte letras acentuadas (á, é, ñ) a su equivalente simple (a, e, n)
@@ -68,10 +68,9 @@ def buscar_en_manual(consulta):
     """
     Busca palabras clave en la consulta del usuario después de normalizar (quitar acentos).
     """
-    # 1. Normalizar la consulta del usuario (Quitar acentos y minúsculas)
     consulta_normalizada = quitar_acentos(consulta) 
     
-    # Nota: Los términos del mapeo (clave) deben escribirse sin acentos aquí abajo:
+    # Nota: Los términos del mapeo deben escribirse sin acentos:
     mapeo_palabras_clave = {
         ("login", "ingresar", "url"): "Login",
         ("pacientes", "agenda", "camas", "listado", "perspectiva clinica"): "Visualizar Pacientes",
@@ -81,49 +80,4 @@ def buscar_en_manual(consulta):
         ("evaluaciones", "escalas", "evaluacion", "anexos"): "Evaluaciones / Escalas",
         ("diagnostico", "diagnosticos", "editar diagnosticos"): "Diagnósticos",
         ("informe final", "informe de alta", "central de informes"): "Informe Final",
-        ("antecedentes", "alergias", "alerta", "cirugias"): "Antecedentes de salud",
-        ("error", "inactivar", "eliminar", "justificar"): "Errores/Inactivar"
-    }
-    
-    # Resto de la lógica de búsqueda...
-    temas_encontrados = set()
-    for palabras, tema in mapeo_palabras_clave.items():
-        if any(palabra in consulta_normalizada for palabra in palabras):
-            temas_encontrados.add(tema)
-
-    resultados = []
-    for tema in temas_encontrados:
-        resultados.append(f"## 📌 Tema: {tema}")
-        for info in TASY_DATA.get(tema, []):
-            resultados.append(f"* {info}")
-
-    if not resultados:
-        return "Disculpa, no encontré información específica para esa consulta. Por favor, intenta con palabras clave más generales."
-    
-    return "\n".join(resultados)
-
-# --- 3. CONFIGURACIÓN DE LA INTERFAZ (FRONT-END) ---
-
-st.set_page_config(page_title="Soporte Tasy FLENI Bot", layout="centered")
-
-st.title("🤖 Soporte Tasy FLENI")
-st.markdown("---")
-st.subheader("Asistente Virtual de Hospitalización")
-st.markdown("Escribe tu pregunta y te ayudaré a encontrar la información clave en los manuales de **Hospitalización Multi** y **Enfermería**.")
-
-# Interacción del Usuario
-consulta_usuario = st.text_input("Ingresa tu pregunta sobre Tasy (ej: Como cargo el balance hidrico? o Como libero la nota clinica?)")
-
-if consulta_usuario:
-    st.info(f"Buscando respuesta para: **{consulta_usuario}**")
-    
-    # Llama a la función de lógica
-    respuesta_bot = buscar_en_manual(consulta_usuario)
-    
-    # Muestra la respuesta del bot
-    st.success("Respuesta del Bot Basada en Manuales:")
-    st.markdown(respuesta_bot)
-
-st.markdown("---")
-st.caption("Hecho con Streamlit y Python.")
-
+        ("antecedentes", "alergias", "
