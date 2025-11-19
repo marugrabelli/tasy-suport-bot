@@ -1,5 +1,5 @@
 import streamlit as st
-import pandas as pd
+#import pandas as pd
 
 # --- CONTENIDO DE LOS MANUALES PARA LA BÚSQUEDA (BACK-END) ---
 
@@ -50,4 +50,5 @@ def buscar_en_manual(consulta):
     Busca palabras clave en la consulta del usuario y devuelve la información relevante.
     """
     consulta_lower = consulta.lower()
+
     resultados = []
