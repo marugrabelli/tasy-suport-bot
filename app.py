@@ -1,6 +1,9 @@
 import streamlit as st
 #import pandas as pd
 
+st.title("¡El Bot Funciona! (TEST DE CARGA)")
+st.success("Si ves este mensaje, significa que Streamlit está operando correctamente en tu celular/PC.")
+
 # --- CONTENIDO DE LOS MANUALES PARA LA BÚSQUEDA (BACK-END) ---
 
 # NOTA: Para este ejemplo inicial, el contenido está simplificado y estructurado en diccionarios.
@@ -52,3 +55,4 @@ def buscar_en_manual(consulta):
     consulta_lower = consulta.lower()
 
     resultados = []
+
