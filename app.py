@@ -330,6 +330,7 @@ else:
         
         # 4. Guardar en historial
         st.session_state.messages.append({"role": "assistant", "content": respuesta})
-```
+
+
 
 
