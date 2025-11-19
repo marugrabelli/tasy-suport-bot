@@ -96,4 +96,49 @@ def buscar_en_manual(consulta):
             resultados.append(f"* {info}")
 
     if not resultados:
-        return "Dis
+        return "Disculpa, no encontré información específica para esa consulta. Por favor, intenta con palabras clave más generales."
+    
+    return "\n".join(resultados)
+
+# --- 3. CONFIGURACIÓN DE LA INTERFAZ (FRONT-END) ---
+
+st.set_page_config(page_title="Soporte Tasy FLENI Bot", layout="centered")
+
+st.title("🤖 Soporte Tasy FLENI")
+st.markdown("---")
+st.subheader("Asistente Virtual de Hospitalización")
+st.markdown("Escribe tu pregunta y te ayudaré a encontrar la información clave en los manuales de **Hospitalización Multi** y **Enfermería**.")
+
+# Interacción del Usuario
+consulta_usuario = st.text_input("Ingresa tu pregunta sobre Tasy (ej: Como cargo el balance hidrico? o Como libero la nota clinica?)")
+
+if consulta_usuario:
+    st.info(f"Buscando respuesta para: **{consulta_usuario}**")
+    
+    # Llama a la función de lógica
+    respuesta_bot = buscar_en_manual(consulta_usuario)
+    
+    # Muestra la respuesta del bot
+    st.success("Respuesta del Bot Basada en Manuales:")
+    st.markdown(respuesta_bot)
+
+# --- 4. PIE DE PÁGINA AMIGABLE (Mensaje de Soporte Final) ---
+st.markdown("---")
+st.markdown("""
+### 💡 Soporte Inicial Tasy FLENI - Tips Rápidos 🚀
+
+Antes de llamar, ¡revisa estos puntos!
+
+* **💻 Navegador Ideal:** Usa siempre **Google Chrome**.
+* **🧹 Limpieza:** Si algo no carga, prueba a **limpiar la caché** (`Ctrl + H`).
+* **👤 Perfil:** Verifica que tu **Log In** esté en el **establecimiento y perfil correcto** (Ej: Hospitalización Multi/Enfermería).
+* **🔍 Zoom:** ¿Pantalla cortada? Ajusta el zoom: **`Ctrl + +`** (agrandar) o **`Ctrl + -`** (minimizar).
+
+---
+**¿Aún tienes dudas?**
+
+* 📞 **Soporte Telefónico:** Llama al interno **5006**.
+* 🎫 **Alta de Usuarios/VPN:** Deja un ticket en **solicitudes.fleni.org**.
+""")
+
+st.caption("Hecho con Streamlit y Python.")
