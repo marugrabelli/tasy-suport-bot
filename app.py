@@ -1,16 +1,4 @@
-Aquí tienes el **script final completo y listo para ejecutar**.
 
-Este código integra:
-
-1.  **Onboarding:** Selección obligatoria de perfil (Enfermería vs. Multi) .
-2.  **Base de Conocimiento:** Todo el contenido de los manuales procesado y estructurado .
-3.  **Lógica de Negocio:** Distinción entre "Guardar" y "Liberar" , manejo de filtros de Agenda , y rutas exactas.
-4.  **Gestión del Cambio:** Explicación de SIDCA (CES) para datos históricos .
-5.  **Analytics:** Registro automático de consultas en un archivo CSV.
-
-Copia este código en un archivo llamado `app.py` y ejecútalo con `streamlit run app.py`.
-
-```python
 import streamlit as st
 import csv
 import os
@@ -343,4 +331,5 @@ else:
         # 4. Guardar en historial
         st.session_state.messages.append({"role": "assistant", "content": respuesta})
 ```
+
 
