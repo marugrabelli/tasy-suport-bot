@@ -69,17 +69,17 @@
     
     "response_template_nota_clinica": {
       "title": "Notas Clinicas (Evoluciones) 📝",
-      "description": "Este item permite generar la **Nota Clinica** de tu disciplina y consultar las evoluciones previas de otros profesionales. Es esencial para dejar registro de la evolucion diaria del paciente.",
+      "description": "Este item permite generar la **evolucion** de tu profesion y consultar las evoluciones previas de otros profesionales. Es esencial para dejar registro de la evolucion diaria del paciente.",
       "path_to_item": {
         "Hospitalizacion Enfermeria": "HCE ➡️ Nota Clinica",
         "Hospitalizacion Multiprofesional": "HCE ➡️ Nota Clinica"
       },
       "actions": [
         "**Comenzar una nueva nota** ➕: Clic en **Anadir**.",
-        "**Usar Plantilla** 📄: En el pop-up, selecciona **Tipo de nota clinica** para elegir la plantilla de tu especialidad.",
+        "**Usar Plantilla** 📄: Selecciona **Tipo de nota clinica** en el lado izquierdo y luego haz click en lado derecho, aparecera un pop-up. Ahi elegi la plantilla de tu especialidad.",
         "**Finalizar y Publicar** 🔓: Completa los datos y haz clic en **Liberar**.",
         "**Duplicar nota previa** 👯: Clic derecho sobre la nota deseada ➡️ **Duplicar nota clinica** (permite modificar solo los datos necesarios).",
-        "**Resumen de HC (Medico/Multi)** 📋: Usa el tipo de nota **Resumen de HC** para la evolucion de cada disciplina involucrada para el medico de alta."
+        "**Resumen de HC (Medico/Multi)** 📋: Usa el tipo de nota clinica (lado izq) **Resumen de HC** para la evolucion de cada disciplina involucrada para el medico de alta."
       ],
       "possible_errors": [
         {
@@ -92,7 +92,7 @@
         },
         {
           "error": "Al duplicar una nota, aparece la firma de otro profesional.",
-          "solution": "Si duplicaste una nota que no es tuya, es necesario **borrar la firma** que trae del profesional original y colocar la tuya."
+          "solution": "Si duplicaste una nota que no es tuya, es necesario **borrar la firma** que trae del profesional original "
         }
       ],
       "tips": [
@@ -107,10 +107,10 @@
     },
     
     "response_template_evaluaciones": {
-        "title": "Evaluaciones / Escalas (PLACEHOLDER)",
-        "description": "Este item permite realizar escalas y ver las que hayan realizado otros profesionales. Debes hacer clic en **Anadir** y luego **Guardar y Liberar**.",
+        "title": "Evaluaciones / Escalas ",
+        "description": "Este item permite realizar escalas/evaluaciones y ver las que hayan realizado otros profesionales. ",
         "path_to_item": {"Hospitalizacion Enfermeria": "HCE ➡️ Evaluaciones / Escalas", "Hospitalizacion Multiprofesional": "HCE ➡️ Evaluaciones"},
-        "actions": ["Clic en **Anadir**, selecciona la evaluacion, completa campos y luego **Guardar y Liberar**."],
+        "actions": ["Clic en **Anadir**, selecciona tipo de evaluacion(lado izq), completa campos y luego **Guardar y Liberar**."],
         "possible_errors": [],
         "tips": ["Puedes duplicar evaluaciones previas para solo modificar los datos necesarios."],
         "video_link": {"title": "Sin video", "url": "#"},
@@ -118,7 +118,7 @@
     },
 
     "response_template_informe_final": {
-        "title": "Informe Final / Epicrisis (PLACEHOLDER)",
+        "title": "Informe Final ",
         "description": "Para generar el Informe Final, se utiliza la funcion **Central de Informes** desde el menu principal o la llamada externa.",
         "path_to_item": {"Hospitalizacion Enfermeria": "No Aplica", "Hospitalizacion Multiprofesional": "Funcion Central de Informes ➡️ Informe Final"},
         "actions": ["El estatus debe ser 'realizado'. Clic derecho > Ejecutar > Incluir interpretacion PDF."],
@@ -132,7 +132,7 @@
     },
 
     "response_template_ged": {
-        "title": "GED / Gestion de Documentos (PLACEHOLDER)",
+        "title": "GED / Gestion de Documentos ",
         "description": "Este item se usa para adjuntar archivos correspondientes al paciente. Es la via para cargar **Informes Iniciales**.",
         "path_to_item": {"Hospitalizacion Enfermeria": "HCE ➡️ Gestion de Documentos", "Hospitalizacion Multiprofesional": "HCE ➡️ Gestion de Documentos"},
         "actions": ["Clic en **Anadir**, sube el archivo y **clasificalo** como 'Informe Inicial' o el tipo correspondiente."],
