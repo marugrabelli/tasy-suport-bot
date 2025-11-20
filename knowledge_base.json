@@ -21,7 +21,8 @@
         "Evaluaciones": "response_template_evaluaciones",
         "Informe Final": "response_template_informe_final",
         "GED": "response_template_ged"
-      },
+      }
+      // CORRECCIÓN: Se elimina la coma que sobraba aquí.
     },
     
     "tags_enfermeria": {
