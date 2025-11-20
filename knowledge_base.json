@@ -134,7 +134,7 @@
         "path_to_item": {"Hospitalización Enfermería": "HCE ➡️ Gestión de Documentos", "Hospitalización Multiprofesional": "HCE ➡️ Gestión de Documentos"},
         "actions": ["Clic en **Añadir**, sube el archivo y **clasifícalo** como 'informe inicial'."],
         "possible_errors": [],
-        "tips": ["Pendiente de tips específicos."],
+        "tips": ["Pendiente."],
         "video_link": {"title": "Sin video", "url": "#"},
         "footer": "¿Deseas consultar otro tema?"
     },
@@ -145,7 +145,7 @@
         "path_to_item": {"Hospitalización Enfermería": "HCE ➡️ Signos Vitales", "Hospitalización Multiprofesional": "HCE ➡️ APAP (Solo visualización)"},
         "actions": ["Clic en **Añadir**, completa campos y luego **Guardar y Liberar**."],
         "possible_errors": [],
-        "tips": ["Pendiente de tips específicos."],
+        "tips": ["Pendiente."],
         "video_link": {"title": "Sin video", "url": "#"},
         "footer": "¿Deseas consultar otro tema?"
     }
