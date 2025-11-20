@@ -21,7 +21,7 @@
         "Evaluaciones": "response_template_evaluaciones",
         "Informe Final": "response_template_informe_final",
         "GED": "response_template_ged"
-      }
+      },
     },
     
     "tags_enfermeria": {
