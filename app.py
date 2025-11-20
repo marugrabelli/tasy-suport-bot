@@ -13,10 +13,10 @@ MANUAL_ENFERMERIA = "manual enfermeria (2).docx"
 MANUAL_MEDICOS = "Manual_Medicos.docx"
 MANUAL_OTROS = "Manual Otros profesionales.docx"
 
-# Definición de Tags de Enfermería: Nombre exacto, Consulta que lanza, y Respuesta a mostrar
-# Cada tag tiene un color pastel único.
+# --- 1.1 DEFINICIÓN DE TAGS POR PERFIL ---
+
+# 💉 Enfermería Tags (12 Tags - 3 columnas)
 ENFERMERIA_TAGS = {
-    # Grupo ADEP/Signos/Balance
     "Cargar Glucemia": {"color": "#FFC0CB", "query": "cargar glucemia", "response_key": "adep"},
     "Ver Glucemia": {"color": "#ADD8E6", "query": "ver glucemia", "response_key": "adep"},
     "Cargar Signos Vitales": {"color": "#90EE90", "query": "cargar signos vitales", "response_key": "signos vitales"},
@@ -24,15 +24,25 @@ ENFERMERIA_TAGS = {
     "Balance por Turno": {"color": "#F08080", "query": "balance por turno", "response_key": "balance hidrico"},
     "Balance por Día": {"color": "#FFA07A", "query": "balance por dia", "response_key": "balance hidrico"},
     "Adm. Medicación si Dolor": {"color": "#DDA0DD", "query": "adm medicación si dolor", "response_key": "adep"},
-    
-    # Grupo Dispositivos/Login/Pase
     "Agregar un Nuevo Catéter": {"color": "#FAFAD2", "query": "agregar un nuevo catéter", "response_key": "dispositivos"},
     "Retirar Catéter": {"color": "#B0C4DE", "query": "retirar catéter", "response_key": "dispositivos"},
     "Contraseña y Usuario NO Coinciden": {"color": "#AFEEEE", "query": "contraseña y usuario no coinciden", "response_key": "login"},
     "Pase de Guardia": {"color": "#FFDAB9", "query": "pase de guardia", "response_key": "navegacion"},
-    
-    # Grupo Otros
     "Otros (Pendientes/Escalas)": {"color": "#20B2AA", "query": "otros temas enfermeria", "response_key": "pendientes_eval"},
+}
+
+# 🩺 Médico/a Tags (3 Tags - 3 columnas)
+MEDICOS_TAGS = {
+    "Evolucionar": {"color": "#4682B4", "query": "evolucionar medico", "response_key": "nota clinica"},
+    "Cargar Antecedentes del Paciente": {"color": "#6A5ACD", "query": "cargar antecedentes", "response_key": "antecedentes_multi"},
+    "Epicrisis / Informe Final": {"color": "#DC143C", "query": "epicrisis informe final", "response_key": "informe final"},
+}
+
+# 👥 Otros Profesionales Tags (3 Tags - 3 columnas)
+OTROS_TAGS = {
+    "Cargar Informe Inicial": {"color": "#9ACD32", "query": "cargar informe inicial", "response_key": "ged"},
+    "Cargar Informe Final": {"color": "#FF8C00", "query": "cargar informe final", "response_key": "informe final"},
+    "Evolucionar": {"color": "#48D1CC", "query": "evolucionar otros", "response_key": "nota clinica"},
 }
 
 # Mapping para CSS: Se genera dinámicamente el mapping de color a clase
@@ -40,7 +50,11 @@ COLOR_MAP = {
     "#FFC0CB": "tag-pink", "#ADD8E6": "tag-lightblue", "#90EE90": "tag-lightgreen", 
     "#87CEFA": "tag-skyblue", "#F08080": "tag-lightcoral", "#FFA07A": "tag-lightsalmon", 
     "#DDA0DD": "tag-thistle", "#FAFAD2": "tag-lightyellow", "#B0C4DE": "tag-slategray", 
-    "#AFEEEE": "tag-turquoise", "#FFDAB9": "tag-peach", "#20B2AA": "tag-seafoam"
+    "#AFEEEE": "tag-turquoise", "#FFDAB9": "tag-peach", "#20B2AA": "tag-seafoam",
+    
+    # Colores Médico/Otros
+    "#4682B4": "tag-steel-blue", "#6A5ACD": "tag-slate-blue", "#DC143C": "tag-crimson",
+    "#9ACD32": "tag-yellow-green", "#FF8C00": "tag-dark-orange", "#48D1CC": "tag-medium-turquoise"
 }
 
 
@@ -71,7 +85,6 @@ st.markdown(f"""
     
     /* Estilos para los tags compactos */
     div[data-testid*="stHorizontalBlock"] > div[data-testid*="stVerticalBlock"] > div[data-testid*="column"] > div {{
-        /* Asegura que el contenedor de la columna no tenga padding excesivo */
         padding: 5px 2px;
     }}
     
@@ -85,7 +98,7 @@ st.markdown(f"""
         font-size: 0.9em; 
         padding-top: 5px;
         padding-bottom: 5px;
-        height: 100%; /* Permite que el contenido se ajuste si el texto es largo */
+        height: 100%;
     }}
     
     /* Generación dinámica de clases de colores */
@@ -126,22 +139,20 @@ def log_interaction(rol, pregunta, respuesta):
     except Exception as e:
         pass
 
-# Función para mostrar los botones de tags de Enfermería
-def show_enfermeria_tags():
-    st.markdown("### 🔍 Selecciona un Tema de Soporte de Enfermería:")
+# Función para mostrar los botones de tags según el perfil
+def show_tags(tag_list, columns_count, title):
+    st.markdown(f"### 🔍 {title}")
     
-    # Crea una cuadrícula de 3 columnas para que los botones sean más pequeños
-    num_columns = 3
-    cols = st.columns(num_columns)
+    cols = st.columns(columns_count)
     
-    for i, (label, data) in enumerate(ENFERMERIA_TAGS.items()):
+    for i, (label, data) in enumerate(tag_list.items()):
         
         # Mapea el color del tag a la clase CSS
         hex_color = data['color']
         css_class = COLOR_MAP[hex_color]
-        button_key = f"tag_enfermeria_{label.replace(' ', '_').replace('/', '_').replace('.', '')}"
+        button_key = f"tag_{label.replace(' ', '_').replace('/', '_').replace('.', '').lower()}"
         
-        with cols[i % num_columns]:
+        with cols[i % columns_count]:
             st.markdown(
                 f'<div class="{css_class}">', 
                 unsafe_allow_html=True
@@ -159,25 +170,22 @@ def show_enfermeria_tags():
 def show_navigation_buttons(rol):
     st.markdown('<div class="nav-button-container">', unsafe_allow_html=True)
     
-    # Botón 1: Volver un paso atrás (a la nube de tags o a la entrada libre)
     col_back, col_msg = st.columns(2)
     
+    # Lógica de "Volver a Escribir Consulta" (o Volver a Tags si es Enfermería)
     if rol == "Enfermería":
         back_label = "💉 Volver a Opciones de Enfermería"
-        with col_back:
-            if st.button(back_label, key="nav_back_enfermeria", use_container_width=True):
-                st.session_state.conversation_step = "tags"
-                st.session_state.response_key = None
-                st.session_state.last_prompt = None
-                st.rerun()
-    else: # Perfiles Médico y Otros Profesionales (Vuelven al input de texto)
+        target_step = "tags"
+    else: # Perfiles Médico y Otros Profesionales
         back_label = "⬅️ Volver a Escribir una Consulta"
-        with col_back:
-            if st.button(back_label, key="nav_back_free", use_container_width=True):
-                st.session_state.conversation_step = "free_input"
-                st.session_state.response_key = None
-                st.session_state.last_prompt = None
-                st.rerun()
+        target_step = "free_input"
+    
+    with col_back:
+        if st.button(back_label, key="nav_back_unified", use_container_width=True):
+            st.session_state.conversation_step = target_step
+            st.session_state.response_key = None
+            st.session_state.last_prompt = None
+            st.rerun()
 
     # Botón 2: Dejar mensaje (Cambia al modo de input libre y notifica)
     with col_msg:
@@ -190,7 +198,7 @@ def show_navigation_buttons(rol):
 
     st.markdown('</div>', unsafe_allow_html=True)
 
-# --- 3. BASE DE CONOCIMIENTO (TOTALMENTE LIMPIA DE CITES) ---
+# --- 3. BASE DE CONOCIMIENTO (Limpia y con nuevas claves para Médico/Otros) ---
 base_de_conocimiento = {
     # === TEMAS GENERALES ===
     "login": {
@@ -220,13 +228,19 @@ base_de_conocimiento = {
         "contenido": "### 📋 Pendientes de Enfermería y Evaluaciones/Escalas\n\n**Rutas:**\n* **Pendientes:** Ítem **Pendientes de Enfermería**.\n* **Evaluaciones:** Ítem **Evaluaciones / Escalas**.\n\n**Gestión de Pendientes (Otros):**\n* **Añadir:** Botón Añadir para crear un nuevo pendiente.\n* Para corregir un pendiente ya liberado, se debe **inactivar** y justificar la acción.\n        \n**Gestión de Evaluaciones/Escalas:**\n* Clic **Añadir** > Selecciona la evaluación que desees.\n* Completa, **Guarda y Libera**."
     },
     
-    # === PERFIL MÉDICO / MULTI (Mantenemos por consistencia) ===
-    "agenda": {"contenido": "La gestión de agenda requiere ingresar a Agenda de Servicio en el menú principal. Recuerda limpiar los filtros si vas a hacer una nueva búsqueda."},
-    "nota clinica": {"contenido": "Las Notas Clínicas (Evoluciones) se crean haciendo clic en Añadir, seleccionando el tipo de nota (plantilla) y luego Liberar."},
-    "informe final": {"contenido": "Para generar el Informe Final, usa la función Central de informes. El estatus debe estar como 'realizado' para ejecutar la inclusión del PDF."},
-    "cpoe": {"contenido": "Las recomendaciones se indican en CPOE. Para pedidos y justificativas, usa el ítem Justificaciones/Solicitudes haciendo clic en Añadir."},
-    "ged": {"contenido": "Gestión de Documentos (GED) permite visualizar archivos de admisión (Anexos) y cargar documentos propios (Documentos). Usa Añadir y clasifica el archivo."},
-    "evaluaciones_multi": {"contenido": "Las Evaluaciones y Escalas se encuentran en el ítem 'Evaluaciones'. Puedes añadir, completar, guardar y liberar el registro."},
+    # === PERFIL MÉDICO / OTROS (Clave: nota clinica) ===
+    "nota clinica": {
+        "contenido": "### 📝 Notas Clínicas (Evoluciones)\n\n**Ruta:** Ítem **Nota Clínica**.\n\n**Pasos para Evolucionar:**\n1. Clic en **Añadir**.\n2. Elige **Tipo de nota clínica** (Tu especialidad) para usar plantillas.\n3. Completa los datos y **Liberar** para finalizar.\n\n**Tips:**\n* **Duplicar:** Clic derecho sobre nota previa > Duplicar nota clínica.\n* **Corregir:** Selecciona la nota > Clic sobre **Inactivar** y justifica el motivo."
+    },
+    "antecedentes_multi": {
+        "contenido": "### 📜 Cargar/Ver Antecedentes del Paciente\n\n**Ruta:** Ítem **Antecedentes de Salud**.\n\n**Visualizar:** Haz clic en la solapa deseada (Alergias, Hábitos, Patológicas, etc.) para ver la información cargada.\n\n**Cargar:**\n1. Elige la solapa.\n2. Haz clic en **Añadir**.\n3. Completa el registro, **Guarda y Libera**.\n* Si marcas 'exhibir en alertas', aparecerá en el pop-up de seguridad al ingresar a la HCE."
+    },
+    "informe final": {
+        "contenido": "### 🏁 Informe Final / Epicrisis\n\n**Ruta:** Función **Central de informes** (desde el menú principal).\n\n**Pasos para PDF:**\n1. El estatus del informe debe ser **'realizado'**.\n2. Clic derecho > **Ejecutar** > **Incluir interpretación PDF**.\n3. Asigna el médico responsable y OK.\n\n**Epicrisis/Resumen HC (Médico):** Utiliza el tipo de nota 'Resumen de HC' en Notas Clínicas."
+    },
+    "ged": {
+        "contenido": "### 📂 Cargar Informe Inicial (GED)\n\n**Ruta:** Ítem **Gestión de Documentos**.\n\n**Pasos para Cargar:**\n1. Botón **Añadir**.\n2. Sube el archivo.\n3. **Clasifica** el archivo (selecciona 'informe inicial' en el tipo de archivo).\n4. **Liberar** para que sea visible."
+    },
 }
 
 
@@ -235,27 +249,25 @@ base_de_conocimiento = {
 def buscar_solucion(consulta, rol):
     q = consulta.lower()
     
-    # Mapeo de búsqueda libre a claves de respuesta
+    # Búsqueda General
     if any(x in q for x in ["contraseña", "usuario", "no veo paciente", "perfil"]): return base_de_conocimiento["login"]["contenido"]
     if any(x in q for x in ["pase de guardia", "resumen", "cama", "sector"]): return base_de_conocimiento["navegacion"]["contenido"]
     if any(x in q for x in ["sidca", "historia vieja", "anterior", "ces"]): return base_de_conocimiento["sidca"]["contenido"]
 
-    # Enfermería
+    # Enfermería (Modo libre cae en el general)
     if rol == "Enfermería":
-        if any(x in q for x in ["signos", "vitales", "presion", "temperatura", "apap", "respiratoria"]): return base_de_conocimiento["signos vitales"]["contenido"]
+        if any(x in q for x in ["signos", "vitales", "apap", "respiratoria"]): return base_de_conocimiento["signos vitales"]["contenido"]
         if any(x in q for x in ["balance", "hidrico", "ingreso", "egreso", "liquido"]): return base_de_conocimiento["balance hidrico"]["contenido"]
-        if any(x in q for x in ["adep", "administrar", "medicacion", "droga", "glucemia", "revertir"]): return base_de_conocimiento["adep"]["contenido"]
-        if any(x in q for x in ["dispositivo", "sonda", "via", "cateter", "equipo", "rotar"]): return base_de_conocimiento["dispositivos"]["contenido"]
-        if any(x in q for x in ["pendiente", "tarea", "evaluacion", "escala", "score", "otros temas"]): return base_de_conocimiento["pendientes_eval"]["contenido"]
+        if any(x in q for x in ["adep", "administrar", "medicacion", "glucemia"]): return base_de_conocimiento["adep"]["contenido"]
+        if any(x in q for x in ["dispositivo", "sonda", "cateter", "equipo"]): return base_de_conocimiento["dispositivos"]["contenido"]
+        if any(x in q for x in ["pendiente", "tarea", "evaluacion", "escala", "otros temas"]): return base_de_conocimiento["pendientes_eval"]["contenido"]
     
-    # Médico / Otros Profesionales
+    # Médico / Otros Profesionales (Modo libre cae en el específico)
     if rol in ["Médico", "Otros profesionales"]:
-        if any(x in q for x in ["agenda", "turno", "citado", "filtro"]): return base_de_conocimiento["agenda"]["contenido"]
-        if any(x in q for x in ["nota", "evolucion", "escribir", "duplicar", "plantilla"]): return base_de_conocimiento["nota clinica"]["contenido"]
-        if any(x in q for x in ["informe", "final", "alta", "epicrisis", "pdf", "mail"]): return base_de_conocimiento["informe final"]["contenido"]
-        if any(x in q for x in ["cpoe", "indicacion", "prescripcion", "gases", "recomendacion", "justificacion", "pedido", "solicitud", "orden"]): return base_de_conocimiento["cpoe"]["contenido"]
-        if any(x in q for x in ["ged", "archivo", "adjunto", "documento"]): return base_de_conocimiento["ged"]["contenido"]
-        if any(x in q for x in ["evaluacion", "escala", "score", "imagen", "adjuntar"]): return base_de_conocimiento["evaluaciones_multi"]["contenido"]
+        if any(x in q for x in ["evolucionar", "nota", "escribir", "duplicar", "plantilla"]): return base_de_conocimiento["nota clinica"]["contenido"]
+        if any(x in q for x in ["antecedentes", "cargar antecedentes"]): return base_de_conocimiento["antecedentes_multi"]["contenido"]
+        if any(x in q for x in ["informe final", "epicrisis", "cargar informe"]): return base_de_conocimiento["informe final"]["contenido"]
+        if any(x in q for x in ["cargar informe inicial", "ged", "documento"]): return base_de_conocimiento["ged"]["contenido"]
 
     # Default si no encuentra en modo libre
     return "⚠️ No encontré un tema exacto para esa consulta. Te sugiero usar las opciones guiadas o revisar los manuales descargables."
@@ -340,8 +352,8 @@ if st.session_state.conversation_step == "onboarding":
             st.session_state.rol_usuario = "Médico"
             st.session_state.manual_file = MANUAL_MEDICOS
             st.session_state.manual_label = "Manual de Médicos Completo"
-            st.session_state.messages.append({"role": "assistant", "content": "Hola Doctor/a. Estoy listo para guiarte. Pregúntame sobre **Agenda, Notas, Informe Final y CPOE**."})
-            st.session_state.conversation_step = "free_input"
+            st.session_state.messages.append({"role": "assistant", "content": "Hola Doctor/a. Por favor, selecciona el tema o escribe tu consulta:"})
+            st.session_state.conversation_step = "tags" # Va a la nube de tags
             st.rerun()
 
     with col3:
@@ -349,8 +361,8 @@ if st.session_state.conversation_step == "onboarding":
             st.session_state.rol_usuario = "Otros profesionales"
             st.session_state.manual_file = MANUAL_OTROS
             st.session_state.manual_label = "Manual de Otros Profesionales Completo"
-            st.session_state.messages.append({"role": "assistant", "content": "¡Bienvenido/a! Te asisto con **Agenda, Notas Clínicas, GED y Evaluaciones**. Por favor, ingresa tu consulta:"})
-            st.session_state.conversation_step = "free_input"
+            st.session_state.messages.append({"role": "assistant", "content": "¡Bienvenido/a! Por favor, selecciona el tema o ingresa tu consulta:"})
+            st.session_state.conversation_step = "tags" # Va a la nube de tags
             st.rerun()
 
 # --- 2. MOSTRAR HISTORIAL ---
@@ -359,57 +371,62 @@ if st.session_state.rol_usuario is not None:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
 
-# --- 3. FLUJO DE ENFERMERÍA: TAGS Y RESPUESTAS ESTRUCTURADAS ---
-if st.session_state.rol_usuario == "Enfermería":
+# --- 3. FLUJO GUIADO POR TAGS (Enfermería, Médico, Otros) ---
+if st.session_state.conversation_step == "tags":
     
-    # A. MOSTRAR TAGS
-    if st.session_state.conversation_step == "tags":
-        show_enfermeria_tags()
-        
-        # Opciones para el usuario (si elige escribir, se pasa a modo libre)
-        st.markdown("---")
-        prompt = st.chat_input("O escribe directamente aquí 'Otros' o tu consulta...")
-        
-        if prompt:
-            st.session_state.conversation_step = "free_input" 
-            st.rerun()
+    current_rol = st.session_state.rol_usuario
+    
+    if current_rol == "Enfermería":
+        show_tags(ENFERMERIA_TAGS, 3, "Temas Específicos de Enfermería")
+    elif current_rol == "Médico":
+        show_tags(MEDICOS_TAGS, 3, "Temas Frecuentes de Médicos")
+    elif current_rol == "Otros profesionales":
+        show_tags(OTROS_TAGS, 3, "Temas Frecuentes de Otros Profesionales")
+    
+    # Opciones para el usuario (si elige escribir, se pasa a modo libre)
+    st.markdown("---")
+    prompt = st.chat_input("O escribe directamente aquí 'Otros' o tu consulta...")
+    
+    if prompt:
+        st.session_state.conversation_step = "free_input" 
+        st.rerun()
 
-    # B. MOSTRAR RESPUESTA ESTRUCTURADA POR TAG
-    elif st.session_state.response_key is not None:
-        
-        key = st.session_state.response_key
-        prompt_from_tag = st.session_state.last_prompt
-        
-        # 1. Renderiza el prompt del usuario (simulado)
-        if prompt_from_tag:
-            with st.chat_message("user"):
-                st.markdown(prompt_from_tag.capitalize())
-            st.session_state.messages.append({"role": "user", "content": prompt_from_tag})
-        
-        # 2. Renderiza la respuesta del bot
-        with st.chat_message("assistant"):
-            with st.spinner("Flenisito está buscando la solución..."):
-                respuesta_core = base_de_conocimiento.get(key, "⚠️ No se encontró la ruta para ese tema. Por favor, intenta de nuevo.")
-                st.markdown(respuesta_core)
-                
-                # 3. Pie de página (Descarga y Navegación)
-                st.markdown("---")
-                
-                # Botón de descarga (Manual de Enfermería)
-                if "manual_file" in st.session_state and os.path.exists(st.session_state.manual_file):
-                    with open(st.session_state.manual_file, "rb") as f:
-                        st.download_button(
-                            label=f"📥 Descargar **{st.session_state.manual_label}**",
-                            data=f,
-                            file_name=os.path.basename(st.session_state.manual_file),
-                            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                            key=f"descarga_{datetime.now().timestamp()}"
-                        )
-                
-                # Contenido del pie de página con tamaño de letra reducido
-                with st.container():
-                    st.markdown('<div class="footer-content">', unsafe_allow_html=True)
-                    st.markdown("""
+# --- 4. MOSTRAR RESPUESTA ESTRUCTURADA POR TAG ---
+elif st.session_state.response_key is not None:
+    
+    key = st.session_state.response_key
+    prompt_from_tag = st.session_state.last_prompt
+    
+    # 1. Renderiza el prompt del usuario (simulado)
+    if prompt_from_tag:
+        with st.chat_message("user"):
+            st.markdown(prompt_from_tag.capitalize())
+        st.session_state.messages.append({"role": "user", "content": prompt_from_tag})
+    
+    # 2. Renderiza la respuesta del bot
+    with st.chat_message("assistant"):
+        with st.spinner("Flenisito está buscando la solución..."):
+            respuesta_core = base_de_conocimiento.get(key, "⚠️ No se encontró la ruta para ese tema. Por favor, intenta de nuevo.")
+            st.markdown(respuesta_core)
+            
+            # 3. Pie de página (Descarga y Navegación)
+            st.markdown("---")
+            
+            # Botón de descarga 
+            if "manual_file" in st.session_state and os.path.exists(st.session_state.manual_file):
+                with open(st.session_state.manual_file, "rb") as f:
+                    st.download_button(
+                        label=f"📥 Descargar **{st.session_state.manual_label}**",
+                        data=f,
+                        file_name=os.path.basename(st.session_state.manual_file),
+                        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                        key=f"descarga_{datetime.now().timestamp()}"
+                    )
+            
+            # Contenido del pie de página con tamaño de letra reducido
+            with st.container():
+                st.markdown('<div class="footer-content">', unsafe_allow_html=True)
+                st.markdown("""
 ### 💡 Antes de llamar, ¡revisa estos puntos!
 
 * **💻 Navegador Ideal:** Usa siempre **Google Chrome**.
@@ -424,22 +441,27 @@ if st.session_state.rol_usuario == "Enfermería":
 * 📞 **Soporte Telefónico:** Llama al interno **5006**.
 * 🎫 **Alta de Usuarios/VPN:** Deja un ticket en **solicitudes.fleni.org**.
 """)
-                    st.markdown('</div>', unsafe_allow_html=True)
+                st.markdown('</div>', unsafe_allow_html=True)
 
-                # Botones de navegación (Volver a tags o dejar mensaje)
-                show_navigation_buttons(st.session_state.rol_usuario)
+            # Botones de navegación (Volver a tags o dejar mensaje)
+            show_navigation_buttons(st.session_state.rol_usuario)
 
-                # 4. Log y Mensajes de Sesión
-                if prompt_from_tag:
-                    log_interaction(st.session_state.rol_usuario, prompt_from_tag, respuesta_core)
-                    st.session_state.messages.append({"role": "assistant", "content": respuesta_core})
-                    st.session_state.response_key = None # Finaliza el procesamiento de la respuesta
+            # 4. Log y Mensajes de Sesión
+            if prompt_from_tag:
+                log_interaction(st.session_state.rol_usuario, prompt_from_tag, respuesta_core)
+                st.session_state.messages.append({"role": "assistant", "content": respuesta_core})
+                st.session_state.response_key = None # Finaliza el procesamiento de la respuesta
 
-# --- 4. FLUJO DE MÉDICO/OTROS Y MODO LIBRE (FREE INPUT) ---
-elif st.session_state.conversation_step == "free_input":
+# --- 5. MODO LIBRE (FREE INPUT) ---
+elif st.session_state.conversation_step == "free_input" or st.session_state.conversation_step == "viewing_response":
     
-    prompt = st.chat_input("Escribe tu consulta aquí...")
-
+    # Si viene de viewing_response, solo mostramos los botones de navegación y no el chat_input
+    if st.session_state.conversation_step == "free_input":
+        prompt = st.chat_input("Escribe tu consulta aquí...")
+    else:
+        prompt = None # Evita que se muestre el input_chat después de una respuesta en modo libre
+    
+    # 5.1 Si hay un prompt nuevo (escribió)
     if prompt:
         # 1. Añade el prompt al historial
         st.session_state.messages.append({"role": "user", "content": prompt})
@@ -496,7 +518,6 @@ elif st.session_state.conversation_step == "free_input":
                 st.session_state.conversation_step = "viewing_response" 
                 st.rerun()
 
-# --- 5. VISUALIZACIÓN DE RESPUESTA LIBRE (Para que los botones de navegación aparezcan) ---
-elif st.session_state.conversation_step == "viewing_response":
-    # Muestra los botones de navegación después de una respuesta de modo libre
-    show_navigation_buttons(st.session_state.rol_usuario)
+    # 5.2 Si estamos en viewing_response (no hay prompt, solo se renderizan los botones)
+    elif st.session_state.conversation_step == "viewing_response":
+        show_navigation_buttons(st.session_state.rol_usuario)
