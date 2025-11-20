@@ -15,6 +15,7 @@ MANUAL_OTROS = "Manual Otros profesionales.docx"
 
 # Definición de Tags de Enfermería: Nombre exacto, Consulta que lanza, y Respuesta a mostrar
 # Cada tag tiene un color pastel único.
+# Se mantienen las claves de respuesta y se añade "Otros"
 ENFERMERIA_TAGS = {
     # Grupo ADEP/Signos/Balance
     "Cargar Glucemia": {"color": "#FFC0CB", "query": "cargar glucemia", "response_key": "adep"},
@@ -69,12 +70,23 @@ st.markdown(f"""
         color: white;
     }}
     
-    /* Estilos para los botones de tags (colores pastel) */
+    /* Estilos para los tags compactos */
+    div[data-testid*="stHorizontalBlock"] > div[data-testid*="stVerticalBlock"] > div[data-testid*="column"] > div {{
+        /* Asegura que el contenedor de la columna no tenga padding excesivo */
+        padding: 5px 2px;
+    }}
+    
     div[data-testid*="column"] > button {{
+        /* Estilo general del botón del tag */
         margin-bottom: 8px;
         color: #333333 !important; /* Texto oscuro para contraste */
         font-weight: bold;
         border: 1px solid #ddd;
+        /* Reducir el tamaño de fuente y padding del botón para hacerlo más compacto */
+        font-size: 0.9em; 
+        padding-top: 5px;
+        padding-bottom: 5px;
+        height: 100%; /* Permite que el contenido se ajuste si el texto es largo */
     }}
     
     /* Generación dinámica de clases de colores */
@@ -119,8 +131,9 @@ def log_interaction(rol, pregunta, respuesta):
 def show_enfermeria_tags():
     st.markdown("### 🔍 Selecciona un Tema de Soporte de Enfermería:")
     
-    # Crea una cuadrícula de 2 columnas para los botones
-    cols = st.columns(2)
+    # Crea una cuadrícula de 3 columnas para que los botones sean más pequeños
+    num_columns = 3
+    cols = st.columns(num_columns)
     
     for i, (label, data) in enumerate(ENFERMERIA_TAGS.items()):
         
@@ -129,7 +142,7 @@ def show_enfermeria_tags():
         css_class = COLOR_MAP[hex_color]
         button_key = f"tag_enfermeria_{label.replace(' ', '_').replace('/', '_').replace('.', '')}"
         
-        with cols[i % 2]:
+        with cols[i % num_columns]:
             st.markdown(
                 f'<div class="{css_class}">', 
                 unsafe_allow_html=True
@@ -182,132 +195,39 @@ def show_navigation_buttons(rol):
 base_de_conocimiento = {
     # === TEMAS GENERALES ===
     "login": {
-        "contenido": """
-### 🔐 Acceso y Login
-
-**Ruta:** URL: https://tasy.fleni.org.ar/#/login
-
-**⚠️ Solución a Errores Frecuentes (Contraseña / Usuario):**
-* **Verifica el Perfil:** Revisa la esquina superior derecha para confirmar que estás en el perfil correcto (Hospitalización Multi o Enfermería).
-* **Verifica el Sector:** Es obligatorio seleccionar el sector correspondiente para visualizar pacientes.
-* **Cerrar Sesión:** Haz clic siempre en "Salir" (Logout).
-        """
+        [cite_start]"contenido": "### 🔐 Acceso y Login\n\n**Ruta:** URL: https://tasy.fleni.org.ar/#/login\n\n**⚠️ Solución a Errores Frecuentes (Contraseña / Usuario):**\n* **Verifica el Perfil:** Revisa la esquina superior derecha para confirmar que estás en el perfil correcto (Hospitalización Multi o Enfermería).\n* **Verifica el Sector:** Es obligatorio seleccionar el sector correspondiente para visualizar pacientes [cite: 5, 6][cite_start].\n* **Cerrar Sesión:** Haz clic siempre en 'Salir' (Logout)[cite: 8]."
     },
     "navegacion": {
-        "contenido": """
-### 🧭 Navegación y Búsqueda (Pase de Guardia)
-
-**Función:** La función Perspectiva Clínica permite ver el listado de camas.
-
-**Pase de Guardia:**
-* [cite_start]El **Resumen Electrónico** es el ítem ideal para el pase de guardia, ya que agrupa toda la información necesaria del paciente brevemente[cite: 179].
-* [cite_start]Para ingresar a la HCE, haz doble clic sobre el nombre del paciente[cite: 162].
-        """
+        [cite_start]"contenido": "### 🧭 Navegación y Búsqueda (Pase de Guardia)\n\n**Función:** La función Perspectiva Clínica permite ver el listado de camas.\n\n**Pase de Guardia:**\n* El **Resumen Electrónico** es el ítem ideal para el pase de guardia, ya que agrupa toda la información necesaria del paciente brevemente [cite: 31][cite_start].\n* Para ingresar a la HCE, haz doble clic sobre el nombre del paciente[cite: 14]."
     },
     "sidca": {
-        "contenido": """
-### 🕰️ Consulta Histórica (SIDCA)
-
-**Pasos:**
-1. Desde cualquier parte de la HCE del paciente.
-2. Haz **clic derecho** en el fondo blanco de la pantalla.
-3. [cite_start]Selecciona **CES - Consulta Electrónica de Salud**[cite: 123, 325].
-4. [cite_start]Esto te dirigirá a SIDCA para visualizar los registros cargados de ese paciente[cite: 124, 326].
-        """
+        "contenido": "### 🕰️ Consulta Histórica (SIDCA)\n\n**Pasos:**\n1. Desde cualquier parte de la HCE del paciente.\n2. Haz **clic derecho** en el fondo blanco de la pantalla.\n3. [cite_start]Selecciona **CES - Consulta Electrónica de Salud**[cite: 177].\n4. [cite_start]Esto te dirigirá a SIDCA para visualizar los registros cargados de ese paciente[cite: 178]."
     },
 
     # === PERFIL ENFERMERÍA ===
     "signos vitales": {
-        "contenido": """
-### 🩺 Signos Vitales y Parámetros Respiratorios (Cargar/Ver)
-
-**Ruta para Cargar:**
-* Solapa **Signos Vitales** > Botón **Añadir**.
-
-**Pasos Clave:**
-1. Rellena los campos y verifica la hora del control.
-2. [cite_start]**IMPORTANTE:** Marca la casilla **APAP** si quieres que el dato sea visible en la grilla general (Análisis de Parámetros Asistenciales)[cite: 188].
-3. [cite_start]**Liberar** para finalizar la acción[cite: 194].
-
-**Visualización (Ver Signos):**
-* [cite_start]Desde la misma solapa puedes visualizar los datos previamente cargados, aplicando el filtro si necesitas ver registros anteriores[cite: 184, 187].
-        """
+        [cite_start]"contenido": "### 🩺 Signos Vitales y Parámetros Respiratorios (Cargar/Ver)\n\n**Ruta para Cargar:**\n* Solapa **Signos Vitales** > Botón **Añadir**[cite: 37].\n\n**Pasos Clave:**\n1. [cite_start]Rellena los campos y verifica la hora del control[cite: 41].\n2. [cite_start]**IMPORTANTE:** Marca la casilla **APAP** si quieres que el dato sea visible en la grilla general (Análisis de Parámetros Asistenciales)[cite: 40].\n3. [cite_start]**Liberar** permite publicar en la historia clínica y ser visible para todos [cite: 46][cite_start].\n\n**Visualización (Ver Signos):**\n* Puedes visualizar los datos previamente cargados mirando fecha, hora, y aplicando filtros[cite: 36, 39]."
     },
     "balance hidrico": {
-        "contenido": """
-### 💧 Balance Hídrico (Por Turno / Día)
-
-**Ruta para Cargar:**
-* Solapa de **Ingresos y egresos**.
-
-**Pasos para Cargar:**
-1. Clic en **Añadir**.
-2. [cite_start]Selecciona el Grupo y Tipo (Ingresos o Egresos) y haz clic en la **Flecha Derecha (➡️)** para agregarlo[cite: 259, 261].
-3. [cite_start]Ingresa el volumen y confirma con **Finalizar**[cite: 263, 264].
-
-**Visualización:**
-* [cite_start]La solapa **Análisis de balance** muestra el detalle del balance total del paciente, el balance por turno y el detalle de cada turno seleccionado[cite: 253, 256].
-        """
+        [cite_start]"contenido": "### 💧 Balance Hídrico (Por Turno / Día)\n\n**Ruta para Cargar:**\n* Solapa de **Ingresos y egresos**[cite: 109].\n\n**Pasos para Cargar:**\n1. [cite_start]Clic en **Añadir**[cite: 110].\n2. [cite_start]Selecciona el Grupo y Tipo (Ingresos o Egresos) y haz clic en la **Flecha Derecha (➡️)** para agregarlo[cite: 111, 113].\n3. [cite_start]Ingresa el volumen y confirma con **Finalizar** [cite: 115, 116][cite_start].\n\n**Visualización:**\n* La solapa **Análisis de balance** muestra el detalle del balance total, por turno y el detalle de cada turno seleccionado[cite: 105, 106, 107, 108]."
     },
     "adep": {
-        "contenido": """
-### 💊 ADEP (Glucemia y Medicación)
-
-**Rutas:**
-* **Medicamentos:** Ítem **ADEP** en el árbol lateral.
-* **Glucemia (Cargar/Ver):** Ítem **Exámenes y procedimientos** dentro de ADEP.
-
-**Pasos (Administrar Medicación):**
-1. Busca el horario pendiente (lado derecho).
-2. [cite_start]**Clic derecho** sobre el horario > **Administrar / revertir evento**[cite: 219].
-3. [cite_start]Da OK para confirmar[cite: 221].
-
-**Pasos (Cargar Glucemia):**
-1. [cite_start]En "Exámenes y procedimientos", clic derecho > se registra el valor de glucemia[cite: 239].
-2. [cite_start]Los valores de glucemia cargados en ADEP impactan en APAP y Signos Vitales[cite: 242].
-        """
+        [cite_start]"contenido": "### 💊 ADEP (Glucemia y Medicación)\n\n**Rutas:**\n* **Medicamentos:** Ítem **ADEP** en el árbol lateral [cite: 64][cite_start].\n* **Glucemia (Cargar/Ver):** Ítem **Exámenes y procedimientos** (Glucemia con protocolo)[cite: 89, 90].\n\n**Pasos (Administrar Medicación):**\n1. [cite_start]Busca el horario pendiente (lado derecho)[cite: 65].\n2. [cite_start]**Clic derecho** > **Administrar / revertir evento**[cite: 71].\n3. [cite_start]Da OK para confirmar el registro[cite: 73].\n\n**Pasos (Cargar Glucemia):**\n1. [cite_start]En 'Exámenes y procedimientos', clic derecho e inicias el registro del valor de glucemia[cite: 91].\n2. [cite_start]Los valores de glucemia cargados en adep impactan en APAP y Signos Vitales[cite: 94]."
     },
     "dispositivos": {
-        "contenido": """
-### 💉 Dispositivos (Agregar y Retirar Catéteres/Vías)
-
-**Ruta:**
-* Ítem **Dispositivos/Equipos**.
-
-**Pasos (Agregar/Nuevo):**
-* [cite_start]Ve a "Gráfico de dispositivos" > Nuevo dispositivo > Elige el dispositivo y la fecha prevista de retiro o rotación[cite: 271, 272].
-
-**Pasos (Retirar):**
-* [cite_start]Clic en **Acciones de dispositivo** > Selecciona el dispositivo a retirar[cite: 274, 275].
-* [cite_start]Justifica el motivo de retirada y haz clic en Ok[cite: 276].
-* [cite_start]**Rotar:** Elige la acción **Sustituir**[cite: 277].
-        """
+        [cite_start]"contenido": "### 💉 Dispositivos (Agregar y Retirar Catéteres/Vías)\n\n**Ruta:**\n* Ítem **Dispositivos/Equipos** [cite: 119][cite_start].\n\n**Pasos (Agregar/Nuevo Catéter):**\n* Ve a 'Gráfico de dispositivos' > **Nuevo dispositivo** [cite: 123][cite_start].\n* Elige el dispositivo y la fecha prevista o estimada de retiro o rotación [cite: 124][cite_start].\n\n**Pasos (Retirar):**\n* Clic en **Acciones de dispositivo** [cite: 126][cite_start].\n* Selecciona el dispositivo a retirar [cite: 127][cite_start].\n* Justifica el motivo de retirada y haz clic en Ok[cite: 128]."
     },
     "pendientes_eval": {
-        "contenido": """
-### 📋 Pendientes de Enfermería y Evaluaciones/Escalas
-
-**Rutas:**
-* **Pendientes:** Ítem **Pendientes de Enfermería**.
-* **Evaluaciones:** Ítem **Evaluaciones / Escalas**.
-
-**Gestión de Pendientes (Otros):**
-* [cite_start]**Añadir:** Botón Añadir para crear un nuevo pendiente[cite: 283].
-* [cite_start]Para corregir un pendiente ya liberado, se debe **inactivar** y justificar la acción[cite: 285].
-        
-**Gestión de Evaluaciones/Escalas:**
-* [cite_start]Clic **Añadir** > Selecciona la evaluación que desees[cite: 203].
-* [cite_start]Completa, **Guarda y Libera**[cite: 204].
-        """
+        [cite_start]"contenido": "### 📋 Pendientes de Enfermería y Evaluaciones/Escalas\n\n**Rutas:**\n* **Pendientes:** Ítem **Pendientes de Enfermería** [cite: 134][cite_start].\n* **Evaluaciones:** Ítem **Evaluaciones / Escalas** [cite: 50][cite_start].\n\n**Gestión de Pendientes (Otros):**\n* **Añadir:** Botón Añadir para crear un nuevo pendiente [cite: 135][cite_start].\n* Para corregir un pendiente ya liberado, se debe **inactivar** y justificar la acción [cite: 137][cite_start].\n        \n**Gestión de Evaluaciones/Escalas:**\n* Clic **Añadir** [cite: 51] > [cite_start]Selecciona la evaluación que desees [cite: 55][cite_start].\n* Completa, **Guarda y Libera**[cite: 56]."
     },
     
     # === PERFIL MÉDICO / MULTI (Mantenemos por consistencia) ===
-    "agenda": {"contenido": "La gestión de agenda requiere ingresar a Agenda de Servicio en el menú principal. Recuerda limpiar los filtros si vas a hacer una nueva búsqueda."},
-    "nota clinica": {"contenido": "Las Notas Clínicas (Evoluciones) se crean haciendo clic en Añadir, seleccionando el tipo de nota (plantilla) y luego Liberar."},
-    "informe final": {"contenido": "Para generar el Informe Final, usa la función Central de informes. El estatus debe estar como 'realizado' para ejecutar la inclusión del PDF."},
-    "cpoe": {"contenido": "Las recomendaciones se indican en CPOE. Para pedidos y justificativas, usa el ítem Justificaciones/Solicitudes haciendo clic en Añadir."},
-    "ged": {"contenido": "Gestión de Documentos (GED) permite visualizar archivos de admisión (Anexos) y cargar documentos propios. Usa Añadir y clasifica el archivo."},
-    "evaluaciones_multi": {"contenido": "Las Evaluaciones y Escalas se encuentran en el ítem 'Evaluaciones'. Puedes añadir, completar, guardar y liberar el registro."},
+    [cite_start]"agenda": {"contenido": "La gestión de agenda requiere ingresar a Agenda de Servicio en el menú principal[cite: 214]. [cite_start]Recuerda limpiar los filtros si vas a hacer una nueva búsqueda[cite: 219]."},
+    [cite_start]"nota clinica": {"contenido": "Las Notas Clínicas (Evoluciones) se crean haciendo clic en Añadir [cite: 153][cite_start], seleccionando el tipo de nota (plantilla) [cite: 153, 154] [cite_start]y luego Liberar[cite: 155]."},
+    [cite_start]"informe final": {"contenido": "Para generar el Informe Final, usa la función Central de informes[cite: 318]. [cite_start]El estatus debe estar como 'realizado' [cite: 324] [cite_start]para ejecutar la inclusión del PDF[cite: 325]."},
+    [cite_start]"cpoe": {"contenido": "Las recomendaciones se indican en CPOE[cite: 288, 290]. [cite_start]Para pedidos y justificativas, usa el ítem Justificaciones/Solicitudes haciendo clic en Añadir[cite: 269]."},
+    [cite_start]"ged": {"contenido": "Gestión de Documentos (GED) permite visualizar archivos de admisión (Anexos) y cargar documentos propios (Documentos)[cite: 180]. [cite_start]Usa Añadir [cite: 182] [cite_start]y clasifica el archivo[cite: 182]."},
+    [cite_start]"evaluaciones_multi": {"contenido": "Las Evaluaciones y Escalas se encuentran en el ítem 'Evaluaciones'[cite: 273]. [cite_start]Puedes añadir [cite: 274][cite_start], completar, guardar y liberar el registro[cite: 279]."},
 }
 
 
@@ -581,4 +501,3 @@ elif st.session_state.conversation_step == "free_input":
 elif st.session_state.conversation_step == "viewing_response":
     # Muestra los botones de navegación después de una respuesta de modo libre
     show_navigation_buttons(st.session_state.rol_usuario)
-
