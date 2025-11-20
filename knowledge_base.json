@@ -21,7 +21,6 @@
         "Evaluaciones": "response_template_evaluaciones",
         "Informe Final": "response_template_informe_final",
         "GED": "response_template_ged"
-        // Asegúrate de que todos los tags aquí tengan una clave de template.
       }
     },
     
@@ -32,12 +31,12 @@
       "response_mapping": {
         "Dispositivos": "response_template_dispositivos",
         "Signos Vitales": "response_template_signos_vitales"
-        // Asegúrate de que todos los tags aquí tengan una clave de template.
       }
     }
   },
   
   "response_templates": {
+    
     "response_template_dispositivos": {
       "title": "Dispositivos (Agregar y Retirar Catéteres/Vías) 🚀",
       "description": "Este ítem te permite **visualizar, agregar o retirar catéteres, vías y equipos** del paciente, asegurando un registro actualizado de todos los dispositivos.",
@@ -46,27 +45,109 @@
         "Hospitalización Multiprofesional": "No aplica, el registro de dispositivos/equipos se realiza desde Enfermería. Desde el perfil Multi solo se visualizaría indirectamente en el Resumen Electrónico o Antecedentes."
       },
       "actions": [
-        [cite_start]"**Agregar dispositivo** ➕: Ir a *Gráfico de dispositivo* ➡️ *Nuevo dispositivo* [cite: 271]",
-        [cite_start]"**Retirar dispositivo** ❌: Ir a *Acciones de dispositivo* ➡️ *Retirar* ➡️ *Justificar* el motivo y haz clic en Ok [cite: 275, 276]",
-        [cite_start]"**Rotar dispositivo** 🔄: Ir a *Acciones de dispositivo* ➡️ *Seleccionar dispositivo* ➡️ *Sustituir* [cite: 277]",
-        "**Ver listado de dispositivos** 📋: Desde la solapa *Dispositivos*. [cite_start]También puedes ver equipos desde la solapa *Equipos*[cite: 278, 281]."
+        "**Agregar dispositivo** ➕: Ir a *Gráfico de dispositivo* ➡️ *Nuevo dispositivo*",
+        "**Retirar dispositivo** ❌: Ir a *Acciones de dispositivo* ➡️ *Retirar* ➡️ *Justificar* el motivo y haz clic en Ok",
+        "**Rotar dispositivo** 🔄: Ir a *Acciones de dispositivo* ➡️ *Seleccionar dispositivo* ➡️ *Sustituir*",
+        "**Ver listado de dispositivos** 📋: Desde la solapa *Dispositivos*. También puedes ver equipos desde la solapa *Equipos*."
       ],
       "possible_errors": [
         {
           "error": "No puedo ver los dispositivos cargados.",
-          "solution": "Revisa el **filtro aplicado**. Limpia los filtros y verifica las fechas seleccionadas. [cite_start]La visualización del listado dependerá de los filtros aplicados[cite: 269, 280]."
+          "solution": "Revisa el **filtro aplicado**. Limpia los filtros y verifica las fechas seleccionadas. La visualización del listado dependerá de los filtros aplicados."
         }
       ],
       "tips": [
         "**Recuerda** registrar el retiro de los catéteres del paciente y colocar la fecha de finalización del mismo.",
-        [cite_start]"Puedes ver todos los dispositivos que **ha tenido** el paciente o solo los de **esta internación** usando el filtro[cite: 270]."
+        "Puedes ver todos los dispositivos que **ha tenido** el paciente o solo los de **esta internación** usando el filtro."
       ],
       "video_link": {
         "title": "▶️ Ver Video Explicativo",
         "url": "https://www.youtube.com/watchv=Y3ywicffOj4&list=RDY3ywicffOj4&start_radio=1"
       },
       "footer": "Espero que esta información haya sido útil. ¿Deseas consultar otro tema o regresar a la selección de perfil? 💬"
+    },
+    
+    "response_template_nota_clinica": {
+      "title": "Notas Clínicas (Evoluciones) 📝",
+      "description": "Este ítem permite generar la **Nota Clínica** de tu disciplina y consultar las evoluciones previas de otros profesionales. Es esencial para dejar registro de la evolución diaria del paciente.",
+      "path_to_item": {
+        "Hospitalización Enfermería": "HCE ➡️ Nota Clínica",
+        "Hospitalización Multiprofesional": "HCE ➡️ Nota Clínica"
+      },
+      "actions": [
+        "**Comenzar una nueva nota** ➕: Clic en **Añadir**.",
+        "**Usar Plantilla** 📄: En el pop-up, selecciona **Tipo de nota clínica** para elegir la plantilla de tu especialidad.",
+        "**Finalizar y Publicar** 🔓: Completa los datos y haz clic en **Liberar**.",
+        "**Duplicar nota previa** 👯: Clic derecho sobre la nota deseada ➡️ **Duplicar nota clínica** (permite modificar solo los datos necesarios).",
+        "**Resumen de HC (Médico/Multi)** 📋: Usa el tipo de nota **Resumen de HC** para la evolución de cada disciplina involucrada para el médico de alta."
+      ],
+      "possible_errors": [
+        {
+          "error": "Mi nota no es visible para otros profesionales.",
+          "solution": "Esto ocurre si solo la **Guardaste**. Debes recordar **Liberar** la nota clínica para finalizarla, de lo contrario no será visible ni efectiva."
+        },
+        {
+          "error": "Necesito corregir una nota ya liberada.",
+          "solution": "No se puede editar una nota liberada. Selecciona la nota, haz clic en **Inactivar** y justifica el motivo. El registro no se pierde, queda inactivado."
+        },
+        {
+          "error": "Al duplicar una nota, aparece la firma de otro profesional.",
+          "solution": "Si duplicaste una nota que no es tuya, es necesario **borrar la firma** que trae del profesional original y colocar la tuya."
+        }
+      ],
+      "tips": [
+        "Para editar o continuar en otro momento, utiliza el botón **Guardar**. De esta manera, solo tú ves el borrador.",
+        "Puedes usar el filtro (fecha, especialidad) para consultar notas clínicas previas."
+      ],
+      "video_link": {
+        "title": "▶️ Ver Video Explicativo de Nota Clínica (Pendiente)",
+        "url": "#"
+      },
+      "footer": "Espero que esta información haya sido útil. ¿Deseas consultar otro tema o regresar a la selección de perfil? 💬"
+    },
+    
+    "response_template_evaluaciones": {
+        "title": "Evaluaciones (PLACEHOLDER - PENDIENTE)",
+        "description": "Plantilla pendiente de desarrollo. Revisa el manual de Hospitalización Multiprofesional.",
+        "path_to_item": {"Hospitalización Enfermería": "HCE ➡️ Evaluaciones", "Hospitalización Multiprofesional": "HCE ➡️ Evaluaciones"},
+        "actions": ["Revisar el manual."],
+        "possible_errors": [],
+        "tips": ["Pendiente."],
+        "video_link": {"title": "Sin video", "url": "#"},
+        "footer": "¿Deseas consultar otro tema?"
+    },
+
+    "response_template_informe_final": {
+        "title": "Informe Final / Epicrisis (PLACEHOLDER - PENDIENTE)",
+        "description": "Plantilla pendiente de desarrollo. Revisa el manual de tu perfil.",
+        "path_to_item": {"Hospitalización Enfermería": "No Aplica", "Hospitalización Multiprofesional": "Función Central de Informes ➡️ Informe Final"},
+        "actions": ["Revisar el manual."],
+        "possible_errors": [],
+        "tips": ["Pendiente."],
+        "video_link": {"title": "Sin video", "url": "#"},
+        "footer": "¿Deseas consultar otro tema?"
+    },
+
+    "response_template_ged": {
+        "title": "GED / Gestión de Documentos (PLACEHOLDER - PENDIENTE)",
+        "description": "Plantilla pendiente de desarrollo. Este ítem se usa para adjuntar archivos.",
+        "path_to_item": {"Hospitalización Enfermería": "HCE ➡️ GED", "Hospitalización Multiprofesional": "HCE ➡️ GED"},
+        "actions": ["Revisar el manual."],
+        "possible_errors": [],
+        "tips": ["Pendiente."],
+        "video_link": {"title": "Sin video", "url": "#"},
+        "footer": "¿Deseas consultar otro tema?"
+    },
+    
+    "response_template_signos_vitales": {
+        "title": "Signos Vitales y APAP (PLACEHOLDER - PENDIENTE)",
+        "description": "Plantilla pendiente de desarrollo. Se usa para registrar signos y ver APAP.",
+        "path_to_item": {"Hospitalización Enfermería": "HCE ➡️ APAP", "Hospitalización Multiprofesional": "HCE ➡️ APAP"},
+        "actions": ["Revisar el manual."],
+        "possible_errors": [],
+        "tips": ["Pendiente."],
+        "video_link": {"title": "Sin video", "url": "#"},
+        "footer": "¿Deseas consultar otro tema?"
     }
-    // NOTA: Agregar aquí las nuevas plantillas (p. ej., response_template_nota_clinica)
   }
 }
