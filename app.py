@@ -11,8 +11,8 @@ st.set_page_config(page_title="Flenisito - Soporte Tasy", page_icon="🏥", layo
 # Archivos de Manuales
 LOG_FILE = "registro_consultas_flenisito.csv"
 MANUAL_ENFERMERIA = "manual enfermeria (2).docx" 
-MANUAL_MEDICOS = "Manual_Medicos.docx" # Usar el nombre de archivo real si es diferente
-MANUAL_OTROS = "Manual Otros profesionales.docx" # Usar el nombre de archivo real si es diferente
+MANUAL_MEDICOS = "Manual hospitalizacion multi.docx" # Asumiendo este es el archivo cargado para Médico/Multi
+MANUAL_OTROS = "Manual hospitalizacion multi.docx" # Usando el mismo archivo para Otros profesionales
 KNOWLEDGE_FILE = "knowledge_base.json" 
 
 # Cargar la Base de Conocimiento JSON
@@ -20,8 +20,7 @@ KNOWLEDGE_FILE = "knowledge_base.json"
 def load_knowledge_base():
     """Carga la base de conocimiento desde el archivo JSON al iniciar."""
     try:
-        # Nota importante: Si el error persiste, la codificación del archivo JSON en el servidor
-        # podría ser el problema. Asegurarse de que sea UTF-8.
+        # Se usa encoding='utf-8' para manejar correctamente caracteres especiales (tildes, ñ)
         with open(KNOWLEDGE_FILE, 'r', encoding='utf-8') as f:
             return json.load(f)
     except FileNotFoundError:
@@ -40,9 +39,9 @@ if KNOWLEDGE_BASE is None:
     st.stop()
 
 
-# Definición de Tags (Se mantiene para la interfaz)
+# Definición de Tags y Mappings
+# Estas claves ahora coinciden con los templates placeholder incluidos en el JSON
 ENFERMERIA_TAGS = {
-    # Mapeados a templates existentes en el JSON corregido:
     "Cargar Glucemia": {"color": "#FFC0CB", "query": "cargar glucemia", "response_key": "response_template_adep_glucemia"},
     "Ver Glucemia": {"color": "#ADD8E6", "query": "ver glucemia", "response_key": "response_template_adep_glucemia"},
     "Cargar Signos Vitales": {"color": "#90EE90", "query": "cargar signos vitales", "response_key": "response_template_signos_vitales"},
@@ -56,7 +55,7 @@ ENFERMERIA_TAGS = {
     "Contraseña y Usuario NO Coinciden": {"color": "#AFEEEE", "query": "contraseña y usuario no coinciden", "response_key": "response_template_login"},
     "Pase de Guardia": {"color": "#FFDAB9", "query": "pase de guardia", "response_key": "response_template_resumen_electronico"},
     
-    # CORRECCIÓN DE MAPPING: Apunta a Evaluaciones para usar un template existente.
+    # Apunta al template de evaluaciones
     "Otros (Pendientes/Escalas)": {"color": "#20B2AA", "query": "otros temas enfermeria", "response_key": "response_template_evaluaciones"},
 }
 
@@ -72,7 +71,7 @@ OTROS_TAGS = {
     "Evolucionar": {"color": "#48D1CC", "query": "evolucionar otros", "response_key": "response_template_nota_clinica"},
 }
 
-# Mapping para CSS: Se mantiene
+# Mapping para CSS
 COLOR_MAP = {
     "#FFC0CB": "tag-pink", "#ADD8E6": "tag-lightblue", "#90EE90": "tag-lightgreen", 
     "#87CEFA": "tag-skyblue", "#F08080": "tag-lightcoral", "#FFA07A": "tag-lightsalmon", 
@@ -157,6 +156,7 @@ def log_interaction(rol, pregunta, respuesta):
             now = datetime.now()
             writer.writerow([now.date(), now.strftime("%H:%M:%S"), rol, pregunta, "Respuesta cargada desde JSON"]) 
     except Exception as e:
+        # En caso de error de log, se ignora para no detener el bot
         pass
 
 def show_tags(tag_list, columns_count, title):
@@ -186,6 +186,7 @@ def render_footer():
     """Muestra el separador, el botón de descarga y el bloque de avisos."""
     st.markdown("---")
     
+    # Se añade lógica para descargar el manual específico del perfil
     if "manual_file" in st.session_state and os.path.exists(st.session_state.manual_file):
         with open(st.session_state.manual_file, "rb") as f:
             st.download_button(
@@ -221,15 +222,17 @@ def show_navigation_buttons(rol):
     
     col_back, col_msg = st.columns(2)
     
+    # Lógica para botón de volver atrás (tags o free_input)
     if rol == "Enfermería" and st.session_state.conversation_step != "free_input_after_msg":
         back_label = "💉 Volver a Opciones de Enfermería"
         target_step = "tags"
-    elif rol in ["Médico", "Otros profesionales"] or st.session_state.conversation_step == "free_input_after_msg":
-        back_label = "⬅️ Volver a Escribir una Consulta"
-        target_step = "free_input"
+    elif rol in ["Médico", "Otros profesionales"] and st.session_state.conversation_step != "free_input_after_msg":
+        back_label = "👥 Volver a Opciones Multiprofesionales"
+        target_step = "tags"
     else:
-        back_label = "⬅️ Volver al menú anterior"
-        target_step = "tags" 
+        # Si no está en tags, vuelve a la entrada libre
+        back_label = "⬅️ Volver a Escribir una Consulta"
+        target_step = "free_input" 
         
     
     with col_back:
@@ -258,7 +261,6 @@ def render_response(template_data, user_profile):
     a partir de la plantilla JSON.
     """
     if not template_data:
-        # Esto solo debería ocurrir si hay un template key válido pero el contenido es None.
         return "⚠️ Error al cargar la plantilla de respuesta."
 
     response = ""
@@ -327,8 +329,7 @@ def buscar_solucion(consulta, rol):
     
     template_key = None
 
-    # Mapeo de búsqueda libre a claves de respuesta JSON
-    # NOTA: Estas claves están validadas contra el JSON proporcionado
+    # Mapeo de búsqueda libre a claves de respuesta JSON (Globales)
     if any(x in q for x in ["contraseña", "usuario", "no veo paciente", "perfil", "login"]): 
         template_key = "response_template_login"
     if any(x in q for x in ["pase de guardia", "resumen", "cama", "sector", "navegacion"]): 
@@ -336,32 +337,45 @@ def buscar_solucion(consulta, rol):
     if any(x in q for x in ["sidca", "historia vieja", "anterior", "ces"]): 
         template_key = "response_template_sidca"
 
-    # Enfermería
+    # Enfermería (Lógica de prioridad para búsqueda libre)
     if rol == "Enfermería":
-        if any(x in q for x in ["signos", "vitales", "presion", "temperatura", "apap", "respiratoria"]): template_key = "response_template_signos_vitales"
-        if any(x in q for x in ["balance", "hidrico", "ingreso", "egreso", "liquido"]): template_key = "response_template_balance_hidrico"
-        
-        # Lógica para ADEP / Glucemia
-        if any(x in q for x in ["adep", "administrar", "medicacion", "droga", "revertir"]):
-             template_key = "response_template_adep_med"
+        # Glucemia (Tiene mayor prioridad que ADEP general si se menciona glucemia)
         if any(x in q for x in ["glucemia", "protocolo"]):
              template_key = "response_template_adep_glucemia"
-        
-        if any(x in q for x in ["dispositivo", "sonda", "via", "cateter", "equipo", "rotar"]): template_key = "response_template_dispositivos"
-        if any(x in q for x in ["pendiente", "tarea", "evaluacion", "escala", "score", "otros temas"]): template_key = "response_template_evaluaciones"
+        # Signos Vitales
+        elif any(x in q for x in ["signos", "vitales", "presion", "temperatura", "apap", "respiratoria"]): 
+            template_key = "response_template_signos_vitales"
+        # Balance Hídrico
+        elif any(x in q for x in ["balance", "hidrico", "ingreso", "egreso", "liquido"]): 
+            template_key = "response_template_balance_hidrico"
+        # ADEP (Medicamentos, dietas, etc., si no fue cubierto por glucemia)
+        elif any(x in q for x in ["adep", "administrar", "medicacion", "droga", "revertir"]): 
+            template_key = "response_template_adep_med"
+        # Dispositivos
+        elif any(x in q for x in ["dispositivo", "sonda", "via", "cateter", "equipo", "rotar"]): 
+            template_key = "response_template_dispositivos"
+        # Evaluaciones/Escalas
+        elif any(x in q for x in ["pendiente", "tarea", "evaluacion", "escala", "score", "otros temas"]): 
+            template_key = "response_template_evaluaciones"
     
     # Médico / Otros Profesionales
     if rol in ["Médico", "Otros profesionales"]:
-        if any(x in q for x in ["evolucionar", "nota", "escribir", "duplicar", "plantilla"]): template_key = "response_template_nota_clinica"
-        if any(x in q for x in ["antecedentes", "cargar antecedentes"]): template_key = "response_template_antecedentes_multi"
-        if any(x in q for x in ["informe final", "epicrisis", "cargar informe"]): template_key = "response_template_informe_final"
-        if any(x in q for x in ["cargar informe inicial", "ged", "documento"]): template_key = "response_template_ged"
+        if any(x in q for x in ["evolucionar", "nota", "escribir", "duplicar", "plantilla"]): 
+            template_key = "response_template_nota_clinica"
+        if any(x in q for x in ["antecedentes", "cargar antecedentes"]): 
+            template_key = "response_template_antecedentes_multi"
+        if any(x in q for x in ["informe final", "epicrisis", "cargar informe"]): 
+            template_key = "response_template_informe_final"
+        if any(x in q for x in ["cargar informe inicial", "ged", "documento"]): 
+            template_key = "response_template_ged"
 
+    # Si se encontró una clave, se busca la respuesta
     if template_key and KNOWLEDGE_BASE:
         template_data = KNOWLEDGE_BASE['response_templates'].get(template_key)
         if template_data:
             return render_response(template_data, rol)
     
+    # Si la búsqueda falló o la clave no existe, regresa el mensaje por defecto.
     return "⚠️ No encontré un tema exacto para esa consulta. Te sugiero usar las opciones guiadas o revisar los manuales descargables."
 
 
@@ -370,7 +384,7 @@ def buscar_solucion(consulta, rol):
 st.title("🏥 Flenisito")
 st.markdown("**Tu Asistente Virtual para Tasy en FLENI**")
 
-# Inicialización de Estados de Sesión (Se mantiene)
+# Inicialización de Estados de Sesión
 if "rol_usuario" not in st.session_state:
     st.session_state.rol_usuario = None
 if "messages" not in st.session_state:
@@ -382,7 +396,7 @@ if "conversation_step" not in st.session_state:
 if "last_prompt" not in st.session_state:
     st.session_state.last_prompt = None
 
-# LÓGICA DE BARRA LATERAL (Se mantiene)
+# LÓGICA DE BARRA LATERAL
 if st.session_state.rol_usuario is not None:
     with st.sidebar:
         st.success(f"Perfil activo: **{st.session_state.rol_usuario}**")
@@ -418,9 +432,9 @@ if st.session_state.rol_usuario is not None:
 
 # --- FLUJO PRINCIPAL ---
 
-# 1. ONBOARDING (Se mantiene)
+# 1. ONBOARDING
 if st.session_state.conversation_step == "onboarding":
-    # Muestra el logo o imagen de bienvenida si existe
+    # Muestra el logo o imagen de bienvenida si existe (usando las referencias cargadas previamente)
     if os.path.exists("image_39540a.png"):
         st.image("image_39540a.png", use_column_width="auto")
     elif os.path.exists("image_3950c3.png"):
@@ -457,13 +471,13 @@ if st.session_state.conversation_step == "onboarding":
             st.session_state.conversation_step = "tags"
             st.rerun()
 
-# --- 2. MOSTRAR HISTORIAL (Se mantiene) ---
+# --- 2. MOSTRAR HISTORIAL ---
 if st.session_state.rol_usuario is not None:
     for msg in st.session_state.messages:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
 
-# --- 3. FLUJO GUIADO POR TAGS (Se mantiene) ---
+# --- 3. FLUJO GUIADO POR TAGS ---
 if st.session_state.conversation_step == "tags":
     
     current_rol = st.session_state.rol_usuario
@@ -541,3 +555,4 @@ elif st.session_state.conversation_step in ["free_input", "viewing_response", "f
              st.markdown("") 
              render_footer()
              show_navigation_buttons(st.session_state.rol_usuario)
+
