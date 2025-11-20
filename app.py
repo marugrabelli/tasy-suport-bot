@@ -7,11 +7,11 @@ from datetime import datetime
 # --- 1. CONFIGURACIÓN DE LA PÁGINA Y ESTILOS ---
 st.set_page_config(page_title="Flenisito - Soporte Tasy", page_icon="🏥", layout="wide")
 
-# Archivos de Manuales (Asegúrate que existan en tu directorio/repo)
+# Archivos de Manuales (Verificación: Los nombres deben coincidir con GitHub)
 LOG_FILE = "registro_consultas_flenisito.csv"
 MANUAL_ENFERMERIA = "manual enfermeria (2).docx" 
-MANUAL_MEDICOS = "Manual_Medicos.docx"
-MANUAL_OTROS = "Manual Otros profesionales.docx" # Se asume este nombre basado en la imagen
+MANUAL_MEDICOS = "Manual_Medicos.docx" # <-- Este es el nombre correcto
+MANUAL_OTROS = "Manual Otros profesionales.docx" # Se mantiene el nombre del archivo en GitHub
 
 # Estilos CSS
 st.markdown("""
@@ -343,7 +343,7 @@ if st.session_state.rol_usuario is None:
     with col1:
         if st.button("💉 Soy **Enfermero/a**", key="btn_enfermeria"):
             st.session_state.rol_usuario = "Enfermería"
-            # Se guarda el manual correspondiente en el estado de sesión
+            # Asignación correcta
             st.session_state.manual_file = MANUAL_ENFERMERIA
             st.session_state.manual_label = "Manual de Enfermería Completo"
             st.session_state.messages.append({"role": "assistant", "content": "Hola colega. Soy Flenisito. Pregúntame sobre **Signos Vitales, Balance, ADEP o Dispositivos**."})
@@ -352,6 +352,7 @@ if st.session_state.rol_usuario is None:
     with col2:
         if st.button("🩺 Soy **Médico/a**", key="btn_medico"):
             st.session_state.rol_usuario = "Médico"
+            # Asignación correcta
             st.session_state.manual_file = MANUAL_MEDICOS
             st.session_state.manual_label = "Manual de Médicos Completo"
             st.session_state.messages.append({"role": "assistant", "content": "Hola Doctor/a. Estoy listo para guiarte en **Agenda, Notas, Informe Final y CPOE**."})
@@ -360,6 +361,7 @@ if st.session_state.rol_usuario is None:
     with col3:
         if st.button("👥 **Otros profesionales**", key="btn_otros"):
             st.session_state.rol_usuario = "Otros profesionales"
+            # Asignación correcta
             st.session_state.manual_file = MANUAL_OTROS
             st.session_state.manual_label = "Manual de Otros Profesionales Completo"
             st.session_state.messages.append({"role": "assistant", "content": "¡Bienvenido/a! Soy Flenisito. Te asisto con **Agenda, Notas Clínicas, GED y Evaluaciones**."})
@@ -382,8 +384,9 @@ else:
         if st.button("🔄 Cambiar de Perfil"):
             st.session_state.rol_usuario = None
             st.session_state.messages = []
-            del st.session_state.manual_file
-            del st.session_state.manual_label
+            if "manual_file" in st.session_state:
+                del st.session_state.manual_file
+                del st.session_state.manual_label
             st.rerun()
         if st.button("🗑️ Borrar Chat"):
             st.session_state.messages = []
@@ -425,7 +428,7 @@ else:
                 # 2. SECCIÓN DEL PIE DE PÁGINA: BOTÓN DE DESCARGA Y MENSAJE
                 st.markdown("---")
                 
-                # 2a. Botón de descarga (Ahora usa el archivo y label del perfil)
+                # 2a. Botón de descarga (Muestra el botón si el archivo existe)
                 if "manual_file" in st.session_state and os.path.exists(st.session_state.manual_file):
                     with open(st.session_state.manual_file, "rb") as f:
                         st.download_button(
@@ -460,6 +463,5 @@ else:
                 log_interaction(st.session_state.rol_usuario, prompt, respuesta_core)
                 
                 # Se guarda la respuesta en el historial
-                # Nota: Aquí guardamos solo la respuesta_core, el pie de página se regenera.
                 st.session_state.messages.append({"role": "assistant", "content": respuesta_core})
 
