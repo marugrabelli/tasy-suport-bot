@@ -36,7 +36,6 @@ if KNOWLEDGE_BASE is None:
 
 
 # Definición de Tags y Mappings
-# Colores ajustados a tonos pastel más suaves:
 ENFERMERIA_TAGS = {
     "Cargar Glucemia": {"color": "#FFC0CB", "query": "cargar glucemia", "response_key": "response_template_adep_glucemia"},
     "Ver Glucemia": {"color": "#AEC6E3", "query": "ver glucemia", "response_key": "response_template_adep_glucemia"},
@@ -46,8 +45,10 @@ ENFERMERIA_TAGS = {
     "Balance por Día": {"color": "#FFD699", "query": "balance por dia", "response_key": "response_template_balance_hidrico"},
     "Adm. Medicación si Dolor": {"color": "#D3BFE8", "query": "adm medicación si dolor", "response_key": "response_template_adep_med"},
     
+    # Mapeo crucial para Dispositivos
     "Agregar un Nuevo Catéter": {"color": "#FFFFD8", "query": "agregar un nuevo catéter", "response_key": "response_template_dispositivos"},
     "Retirar Catéter": {"color": "#C0D9E8", "query": "retirar catéter", "response_key": "response_template_dispositivos"},
+    
     "Contraseña y Usuario NO Coinciden": {"color": "#C4E8D6", "query": "contraseña y usuario no coinciden", "response_key": "response_template_login"},
     "Pase de Guardia": {"color": "#FFE9BF", "query": "pase de guardia", "response_key": "response_template_resumen_electronico"},
     
@@ -66,7 +67,7 @@ OTROS_TAGS = {
     "Evolucionar": {"color": "#A3E4D7", "query": "evolucionar otros", "response_key": "response_template_nota_clinica"},
 }
 
-# Mapping para CSS
+# Mapping para CSS (Se mantiene la paleta pastel)
 COLOR_MAP = {
     # Nuevos colores pastel
     "#FFC0CB": "tag-pink", "#AEC6E3": "tag-softblue", "#B4E4A2": "tag-softgreen", 
@@ -80,7 +81,7 @@ COLOR_MAP = {
 }
 
 
-# Estilos CSS (Se mantiene)
+# Estilos CSS (Se modificó el selector para mayor prioridad de color)
 st.markdown(f"""
     <style>
     .stChatMessage {{ border-radius: 10px; }}
@@ -107,7 +108,8 @@ st.markdown(f"""
         padding: 5px 2px;
     }}
     
-    div[data-testid*="column"] > button {{
+    /* Regla general para tags */
+    div[data-testid*="column"] > div[data-testid*="stMarkdown"] > div > button {{
         margin-bottom: 8px;
         color: #333333 !important; 
         font-weight: bold;
@@ -120,7 +122,8 @@ st.markdown(f"""
     
     {
         "".join([
-            # Aumento de Especificidad CSS: Apuntamos directamente al div que contiene la clase y usamos !important
+            # Selector de Alta Prioridad: Apunta al botón dentro del contenedor de la clase (div.{cls} button)
+            # Esto debe resolver el problema de la cascada de estilos y mostrar los colores.
             f"div.{cls} button {{ background-color: {hex_color} !important; border-color: {hex_color} !important; }}"
             for hex_color, cls in COLOR_MAP.items()
         ])
@@ -163,16 +166,17 @@ def show_tags(tag_list, columns_count, title):
     for i, (label, data) in enumerate(tag_list.items()):
         
         hex_color = data['color']
-        # Se obtiene el CSS class basado en el nuevo COLOR_MAP
+        # Se obtiene el CSS class basado en el COLOR_MAP
         css_class = next((cls for color, cls in COLOR_MAP.items() if color == hex_color), "") 
         button_key = f"tag_{label.replace(' ', '_').replace('/', '_').replace('.', '').lower()}"
         
         with cols[i % columns_count]:
-            # Se aplica la clase CSS al div contenedor del botón
+            # Aplicamos la clase CSS al div que contiene el botón
             st.markdown(
                 f'<div class="{css_class}">', 
                 unsafe_allow_html=True
             )
+            # El botón ahora está contenido dentro del div con la clase de color.
             if st.button(label, key=button_key, use_container_width=True):
                 st.session_state.response_key = data['response_key']
                 st.session_state.last_prompt = data['query']
