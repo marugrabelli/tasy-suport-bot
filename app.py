@@ -13,10 +13,9 @@ MANUAL_ENFERMERIA = "manual enfermeria (2).docx"
 MANUAL_MEDICOS = "Manual_Medicos.docx"
 MANUAL_OTROS = "Manual Otros profesionales.docx"
 
-# --- 1.1 DEFINICIÓN DE TAGS POR PERFIL ---
-
-# 💉 Enfermería Tags (12 Tags - 3 columnas)
+# Definición de Tags de Enfermería: Nombre exacto, Consulta que lanza, y Respuesta a mostrar
 ENFERMERIA_TAGS = {
+    # Grupo ADEP/Signos/Balance
     "Cargar Glucemia": {"color": "#FFC0CB", "query": "cargar glucemia", "response_key": "adep"},
     "Ver Glucemia": {"color": "#ADD8E6", "query": "ver glucemia", "response_key": "adep"},
     "Cargar Signos Vitales": {"color": "#90EE90", "query": "cargar signos vitales", "response_key": "signos vitales"},
@@ -24,21 +23,25 @@ ENFERMERIA_TAGS = {
     "Balance por Turno": {"color": "#F08080", "query": "balance por turno", "response_key": "balance hidrico"},
     "Balance por Día": {"color": "#FFA07A", "query": "balance por dia", "response_key": "balance hidrico"},
     "Adm. Medicación si Dolor": {"color": "#DDA0DD", "query": "adm medicación si dolor", "response_key": "adep"},
+    
+    # Grupo Dispositivos/Login/Pase
     "Agregar un Nuevo Catéter": {"color": "#FAFAD2", "query": "agregar un nuevo catéter", "response_key": "dispositivos"},
     "Retirar Catéter": {"color": "#B0C4DE", "query": "retirar catéter", "response_key": "dispositivos"},
     "Contraseña y Usuario NO Coinciden": {"color": "#AFEEEE", "query": "contraseña y usuario no coinciden", "response_key": "login"},
     "Pase de Guardia": {"color": "#FFDAB9", "query": "pase de guardia", "response_key": "navegacion"},
+    
+    # Grupo Otros
     "Otros (Pendientes/Escalas)": {"color": "#20B2AA", "query": "otros temas enfermeria", "response_key": "pendientes_eval"},
 }
 
-# 🩺 Médico/a Tags (3 Tags - 3 columnas)
+# Tags Médico/a
 MEDICOS_TAGS = {
     "Evolucionar": {"color": "#4682B4", "query": "evolucionar medico", "response_key": "nota clinica"},
     "Cargar Antecedentes del Paciente": {"color": "#6A5ACD", "query": "cargar antecedentes", "response_key": "antecedentes_multi"},
     "Epicrisis / Informe Final": {"color": "#DC143C", "query": "epicrisis informe final", "response_key": "informe final"},
 }
 
-# 👥 Otros Profesionales Tags (3 Tags - 3 columnas)
+# Tags Otros Profesionales
 OTROS_TAGS = {
     "Cargar Informe Inicial": {"color": "#9ACD32", "query": "cargar informe inicial", "response_key": "ged"},
     "Cargar Informe Final": {"color": "#FF8C00", "query": "cargar informe final", "response_key": "informe final"},
@@ -166,6 +169,43 @@ def show_tags(tag_list, columns_count, title):
             st.markdown('</div>', unsafe_allow_html=True)
 
 
+# Función para renderizar el pie de página (Manual, Avisos y Dudas)
+def render_footer():
+    """Muestra el separador, el botón de descarga y el bloque de avisos."""
+    st.markdown("---")
+    
+    # Botón de descarga 
+    if "manual_file" in st.session_state and os.path.exists(st.session_state.manual_file):
+        with open(st.session_state.manual_file, "rb") as f:
+            st.download_button(
+                label=f"📥 Descargar **{st.session_state.manual_label}**",
+                data=f,
+                file_name=os.path.basename(st.session_state.manual_file),
+                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                key=f"descarga_{datetime.now().timestamp()}"
+            )
+    
+    # Contenido del pie de página con tamaño de letra reducido
+    with st.container():
+        st.markdown('<div class="footer-content">', unsafe_allow_html=True)
+        st.markdown("""
+### 💡 Antes de llamar, ¡revisa estos puntos!
+
+* **💻 Navegador Ideal:** Usa siempre **Google Chrome**.
+* **🧹 Limpieza:** Si algo no carga, prueba a **limpiar la caché** (`Ctrl + H`).
+* **👤 Perfil:** Verifica que tu **Log In** esté en el **establecimiento y perfil correcto** (Ej: Hospitalización Multi/Enfermería).
+* **🔍 Zoom:** ¿Pantalla cortada? Ajusta el zoom: **`Ctrl + +`** (agrandar) o **`Ctrl + -`** (minimizar).
+
+---
+**¿Aún tienes dudas?**
+
+* 🖋️ **Firmas Digitales:** Envía tu firma en **formato JPG (fondo blanco)** a **soportesidca@fleni.org.ar**.
+* 📞 **Soporte Telefónico:** Llama al interno **5006**.
+* 🎫 **Alta de Usuarios/VPN:** Deja un ticket en **solicitudes.fleni.org**.
+""")
+        st.markdown('</div>', unsafe_allow_html=True)
+
+
 # Función para mostrar los botones de navegación al final de la respuesta
 def show_navigation_buttons(rol):
     st.markdown('<div class="nav-button-container">', unsafe_allow_html=True)
@@ -173,12 +213,19 @@ def show_navigation_buttons(rol):
     col_back, col_msg = st.columns(2)
     
     # Lógica de "Volver a Escribir Consulta" (o Volver a Tags si es Enfermería)
-    if rol == "Enfermería":
+    if rol == "Enfermería" and st.session_state.conversation_step != "free_input_after_msg":
+        # Si es Enfermería y no viene de haber escrito un mensaje libre recién, vuelve a tags
         back_label = "💉 Volver a Opciones de Enfermería"
         target_step = "tags"
-    else: # Perfiles Médico y Otros Profesionales
+    elif rol in ["Médico", "Otros profesionales"] or st.session_state.conversation_step == "free_input_after_msg":
+        # Si es Médico/Otros o si Enfermería acaba de escribir un mensaje libre, va a free_input
         back_label = "⬅️ Volver a Escribir una Consulta"
         target_step = "free_input"
+    else:
+        # Caso por defecto, volvemos a la última acción de tags/free_input
+        back_label = "⬅️ Volver al menú anterior"
+        target_step = "tags" # Default a tags si no hay otra información
+        
     
     with col_back:
         if st.button(back_label, key="nav_back_unified", use_container_width=True):
@@ -190,7 +237,7 @@ def show_navigation_buttons(rol):
     # Botón 2: Dejar mensaje (Cambia al modo de input libre y notifica)
     with col_msg:
         if st.button("💬 No encontré respuesta (Dejar mensaje)", key="nav_leave_msg", use_container_width=True):
-            st.session_state.conversation_step = "free_input"
+            st.session_state.conversation_step = "free_input_after_msg" # Nuevo estado para notificar
             st.session_state.response_key = None
             st.session_state.last_prompt = None
             st.session_state.messages.append({"role": "assistant", "content": "Entendido. Por favor, describe tu problema con más detalle para que podamos ayudarte a encontrar la respuesta o derivar tu consulta al equipo de soporte."})
@@ -198,7 +245,7 @@ def show_navigation_buttons(rol):
 
     st.markdown('</div>', unsafe_allow_html=True)
 
-# --- 3. BASE DE CONOCIMIENTO (Limpia y con nuevas claves para Médico/Otros) ---
+# --- 3. BASE DE CONOCIMIENTO (TOTALMENTE LIMPIA DE CITES) ---
 base_de_conocimiento = {
     # === TEMAS GENERALES ===
     "login": {
@@ -249,20 +296,20 @@ base_de_conocimiento = {
 def buscar_solucion(consulta, rol):
     q = consulta.lower()
     
-    # Búsqueda General
+    # Mapeo de búsqueda libre a claves de respuesta
     if any(x in q for x in ["contraseña", "usuario", "no veo paciente", "perfil"]): return base_de_conocimiento["login"]["contenido"]
     if any(x in q for x in ["pase de guardia", "resumen", "cama", "sector"]): return base_de_conocimiento["navegacion"]["contenido"]
     if any(x in q for x in ["sidca", "historia vieja", "anterior", "ces"]): return base_de_conocimiento["sidca"]["contenido"]
 
-    # Enfermería (Modo libre cae en el general)
+    # Enfermería
     if rol == "Enfermería":
-        if any(x in q for x in ["signos", "vitales", "apap", "respiratoria"]): return base_de_conocimiento["signos vitales"]["contenido"]
+        if any(x in q for x in ["signos", "vitales", "presion", "temperatura", "apap", "respiratoria"]): return base_de_conocimiento["signos vitales"]["contenido"]
         if any(x in q for x in ["balance", "hidrico", "ingreso", "egreso", "liquido"]): return base_de_conocimiento["balance hidrico"]["contenido"]
-        if any(x in q for x in ["adep", "administrar", "medicacion", "glucemia"]): return base_de_conocimiento["adep"]["contenido"]
-        if any(x in q for x in ["dispositivo", "sonda", "cateter", "equipo"]): return base_de_conocimiento["dispositivos"]["contenido"]
-        if any(x in q for x in ["pendiente", "tarea", "evaluacion", "escala", "otros temas"]): return base_de_conocimiento["pendientes_eval"]["contenido"]
+        if any(x in q for x in ["adep", "administrar", "medicacion", "droga", "glucemia", "revertir"]): return base_de_conocimiento["adep"]["contenido"]
+        if any(x in q for x in ["dispositivo", "sonda", "via", "cateter", "equipo", "rotar"]): return base_de_conocimiento["dispositivos"]["contenido"]
+        if any(x in q for x in ["pendiente", "tarea", "evaluacion", "escala", "score", "otros temas"]): return base_de_conocimiento["pendientes_eval"]["contenido"]
     
-    # Médico / Otros Profesionales (Modo libre cae en el específico)
+    # Médico / Otros Profesionales
     if rol in ["Médico", "Otros profesionales"]:
         if any(x in q for x in ["evolucionar", "nota", "escribir", "duplicar", "plantilla"]): return base_de_conocimiento["nota clinica"]["contenido"]
         if any(x in q for x in ["antecedentes", "cargar antecedentes"]): return base_de_conocimiento["antecedentes_multi"]["contenido"]
@@ -286,7 +333,7 @@ if "messages" not in st.session_state:
 if "response_key" not in st.session_state:
     st.session_state.response_key = None # Contiene la clave de la respuesta si se seleccionó un tag
 if "conversation_step" not in st.session_state:
-    st.session_state.conversation_step = "onboarding" # onboarding, tags, free_input, viewing_response
+    st.session_state.conversation_step = "onboarding" # onboarding, tags, free_input, viewing_response, free_input_after_msg
 if "last_prompt" not in st.session_state:
     st.session_state.last_prompt = None # Guarda la última consulta para el log
 
@@ -409,41 +456,8 @@ elif st.session_state.response_key is not None:
             respuesta_core = base_de_conocimiento.get(key, "⚠️ No se encontró la ruta para ese tema. Por favor, intenta de nuevo.")
             st.markdown(respuesta_core)
             
-            # 3. Pie de página (Descarga y Navegación)
-            st.markdown("---")
-            
-            # Botón de descarga 
-            if "manual_file" in st.session_state and os.path.exists(st.session_state.manual_file):
-                with open(st.session_state.manual_file, "rb") as f:
-                    st.download_button(
-                        label=f"📥 Descargar **{st.session_state.manual_label}**",
-                        data=f,
-                        file_name=os.path.basename(st.session_state.manual_file),
-                        mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                        key=f"descarga_{datetime.now().timestamp()}"
-                    )
-            
-            # Contenido del pie de página con tamaño de letra reducido
-            with st.container():
-                st.markdown('<div class="footer-content">', unsafe_allow_html=True)
-                st.markdown("""
-### 💡 Antes de llamar, ¡revisa estos puntos!
-
-* **💻 Navegador Ideal:** Usa siempre **Google Chrome**.
-* **🧹 Limpieza:** Si algo no carga, prueba a **limpiar la caché** (`Ctrl + H`).
-* **👤 Perfil:** Verifica que tu **Log In** esté en el **establecimiento y perfil correcto** (Ej: Hospitalización Multi/Enfermería).
-* **🔍 Zoom:** ¿Pantalla cortada? Ajusta el zoom: **`Ctrl + +`** (agrandar) o **`Ctrl + -`** (minimizar).
-
----
-**¿Aún tienes dudas?**
-
-* 🖋️ **Firmas Digitales:** Envía tu firma en **formato JPG (fondo blanco)** a **soportesidca@fleni.org.ar**.
-* 📞 **Soporte Telefónico:** Llama al interno **5006**.
-* 🎫 **Alta de Usuarios/VPN:** Deja un ticket en **solicitudes.fleni.org**.
-""")
-                st.markdown('</div>', unsafe_allow_html=True)
-
-            # Botones de navegación (Volver a tags o dejar mensaje)
+            # 3. Pie de página y Navegación
+            render_footer() # Llama a la función que renderiza el pie y el botón de descarga
             show_navigation_buttons(st.session_state.rol_usuario)
 
             # 4. Log y Mensajes de Sesión
@@ -453,13 +467,15 @@ elif st.session_state.response_key is not None:
                 st.session_state.response_key = None # Finaliza el procesamiento de la respuesta
 
 # --- 5. MODO LIBRE (FREE INPUT) ---
-elif st.session_state.conversation_step == "free_input" or st.session_state.conversation_step == "viewing_response":
+elif st.session_state.conversation_step in ["free_input", "viewing_response", "free_input_after_msg"]:
     
-    # Si viene de viewing_response, solo mostramos los botones de navegación y no el chat_input
-    if st.session_state.conversation_step == "free_input":
+    # Si viene del estado de "dejar mensaje", mostramos la caja de input de chat
+    if st.session_state.conversation_step in ["free_input", "free_input_after_msg"]:
         prompt = st.chat_input("Escribe tu consulta aquí...")
-    else:
-        prompt = None # Evita que se muestre el input_chat después de una respuesta en modo libre
+        
+    # Si viene de una respuesta, solo mostramos los botones de navegación y no el chat_input
+    else: # viewing_response
+        prompt = None 
     
     # 5.1 Si hay un prompt nuevo (escribió)
     if prompt:
@@ -475,41 +491,8 @@ elif st.session_state.conversation_step == "free_input" or st.session_state.conv
                 respuesta_core = buscar_solucion(prompt, st.session_state.rol_usuario)
                 st.markdown(respuesta_core)
                 
-                # 3. Pie de página (Descarga y Navegación)
-                st.markdown("---")
-                
-                # Botón de descarga
-                if "manual_file" in st.session_state and os.path.exists(st.session_state.manual_file):
-                    with open(st.session_state.manual_file, "rb") as f:
-                        st.download_button(
-                            label=f"📥 Descargar **{st.session_state.manual_label}**",
-                            data=f,
-                            file_name=os.path.basename(st.session_state.manual_file),
-                            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                            key=f"descarga_{datetime.now().timestamp()}"
-                        )
-                
-                # Contenido del pie de página con tamaño de letra reducido
-                with st.container():
-                    st.markdown('<div class="footer-content">', unsafe_allow_html=True)
-                    st.markdown("""
-### 💡 Antes de llamar, ¡revisa estos puntos!
-
-* **💻 Navegador Ideal:** Usa siempre **Google Chrome**.
-* **🧹 Limpieza:** Si algo no carga, prueba a **limpiar la caché** (`Ctrl + H`).
-* **👤 Perfil:** Verifica que tu **Log In** esté en el **establecimiento y perfil correcto** (Ej: Hospitalización Multi/Enfermería).
-* **🔍 Zoom:** ¿Pantalla cortada? Ajusta el zoom: **`Ctrl + +`** (agrandar) o **`Ctrl + -`** (minimizar).
-
----
-**¿Aún tienes dudas?**
-
-* 🖋️ **Firmas Digitales:** Envía tu firma en **formato JPG (fondo blanco)** a **soportesidca@fleni.org.ar**.
-* 📞 **Soporte Telefónico:** Llama al interno **5006**.
-* 🎫 **Alta de Usuarios/VPN:** Deja un ticket en **solicitudes.fleni.org**.
-""")
-                    st.markdown('</div>', unsafe_allow_html=True)
-
-                # Botones de navegación (Volver a input o dejar mensaje)
+                # 3. Pie de página y Navegación
+                render_footer() # Llama a la función que renderiza el pie y el botón de descarga
                 show_navigation_buttons(st.session_state.rol_usuario)
 
                 # 4. Log y Mensajes de Sesión
@@ -520,4 +503,9 @@ elif st.session_state.conversation_step == "free_input" or st.session_state.conv
 
     # 5.2 Si estamos en viewing_response (no hay prompt, solo se renderizan los botones)
     elif st.session_state.conversation_step == "viewing_response":
-        show_navigation_buttons(st.session_state.rol_usuario)
+        # Se asegura de que el pie de página se muestre antes de los botones, incluso sin un prompt nuevo
+        with st.chat_message("assistant"):
+             # Simula una respuesta vacía o regenera la última
+             st.markdown("") 
+             render_footer()
+             show_navigation_buttons(st.session_state.rol_usuario)
