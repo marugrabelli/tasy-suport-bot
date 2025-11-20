@@ -8,11 +8,11 @@ from datetime import datetime
 # --- 1. CONFIGURACIÓN DE LA PÁGINA Y ESTILOS ---
 st.set_page_config(page_title="Flenisito - Soporte Tasy", page_icon="🏥", layout="wide")
 
-# Archivos de Manuales
+# Archivos de Manuales (Ajustados a los nombres de los archivos cargados)
 LOG_FILE = "registro_consultas_flenisito.csv"
 MANUAL_ENFERMERIA = "manual enfermeria (2).docx" 
-MANUAL_MEDICOS = "Manual hospitalizacion multi.docx" # Asumiendo este es el archivo cargado para Médico/Multi
-MANUAL_OTROS = "Manual hospitalizacion multi.docx" # Usando el mismo archivo para Otros profesionales
+MANUAL_MEDICOS = "Manual hospitalizacion multi.docx" 
+MANUAL_OTROS = "Manual hospitalizacion multi.docx" 
 KNOWLEDGE_FILE = "knowledge_base.json" 
 
 # Cargar la Base de Conocimiento JSON
@@ -20,7 +20,7 @@ KNOWLEDGE_FILE = "knowledge_base.json"
 def load_knowledge_base():
     """Carga la base de conocimiento desde el archivo JSON al iniciar."""
     try:
-        # Se usa encoding='utf-8' para manejar correctamente caracteres especiales (tildes, ñ)
+        # La codificación es la clave. Forzamos UTF-8.
         with open(KNOWLEDGE_FILE, 'r', encoding='utf-8') as f:
             return json.load(f)
     except FileNotFoundError:
@@ -40,7 +40,6 @@ if KNOWLEDGE_BASE is None:
 
 
 # Definición de Tags y Mappings
-# Estas claves ahora coinciden con los templates placeholder incluidos en el JSON
 ENFERMERIA_TAGS = {
     "Cargar Glucemia": {"color": "#FFC0CB", "query": "cargar glucemia", "response_key": "response_template_adep_glucemia"},
     "Ver Glucemia": {"color": "#ADD8E6", "query": "ver glucemia", "response_key": "response_template_adep_glucemia"},
@@ -55,7 +54,6 @@ ENFERMERIA_TAGS = {
     "Contraseña y Usuario NO Coinciden": {"color": "#AFEEEE", "query": "contraseña y usuario no coinciden", "response_key": "response_template_login"},
     "Pase de Guardia": {"color": "#FFDAB9", "query": "pase de guardia", "response_key": "response_template_resumen_electronico"},
     
-    # Apunta al template de evaluaciones
     "Otros (Pendientes/Escalas)": {"color": "#20B2AA", "query": "otros temas enfermeria", "response_key": "response_template_evaluaciones"},
 }
 
@@ -71,7 +69,7 @@ OTROS_TAGS = {
     "Evolucionar": {"color": "#48D1CC", "query": "evolucionar otros", "response_key": "response_template_nota_clinica"},
 }
 
-# Mapping para CSS
+# Mapping para CSS (se mantiene)
 COLOR_MAP = {
     "#FFC0CB": "tag-pink", "#ADD8E6": "tag-lightblue", "#90EE90": "tag-lightgreen", 
     "#87CEFA": "tag-skyblue", "#F08080": "tag-lightcoral", "#FFA07A": "tag-lightsalmon", 
@@ -156,7 +154,6 @@ def log_interaction(rol, pregunta, respuesta):
             now = datetime.now()
             writer.writerow([now.date(), now.strftime("%H:%M:%S"), rol, pregunta, "Respuesta cargada desde JSON"]) 
     except Exception as e:
-        # En caso de error de log, se ignora para no detener el bot
         pass
 
 def show_tags(tag_list, columns_count, title):
@@ -186,7 +183,6 @@ def render_footer():
     """Muestra el separador, el botón de descarga y el bloque de avisos."""
     st.markdown("---")
     
-    # Se añade lógica para descargar el manual específico del perfil
     if "manual_file" in st.session_state and os.path.exists(st.session_state.manual_file):
         with open(st.session_state.manual_file, "rb") as f:
             st.download_button(
@@ -222,7 +218,6 @@ def show_navigation_buttons(rol):
     
     col_back, col_msg = st.columns(2)
     
-    # Lógica para botón de volver atrás (tags o free_input)
     if rol == "Enfermería" and st.session_state.conversation_step != "free_input_after_msg":
         back_label = "💉 Volver a Opciones de Enfermería"
         target_step = "tags"
@@ -230,7 +225,6 @@ def show_navigation_buttons(rol):
         back_label = "👥 Volver a Opciones Multiprofesionales"
         target_step = "tags"
     else:
-        # Si no está en tags, vuelve a la entrada libre
         back_label = "⬅️ Volver a Escribir una Consulta"
         target_step = "free_input" 
         
@@ -282,8 +276,15 @@ def render_response(template_data, user_profile):
         json_profile = user_profile 
     
     path = template_data['path_to_item'].get(json_profile)
+    # Se usa el nombre de las claves del JSON corregido sin tildes/eñes
     if not path:
-        path = "Ruta no especificada. Revisa la documentación."
+        if user_profile == "Enfermería":
+            path = template_data['path_to_item'].get("Hospitalizacion Enfermeria", "Ruta no especificada. Revisa la documentación.")
+        elif user_profile in ["Médico", "Otros profesionales"]:
+            path = template_data['path_to_item'].get("Hospitalizacion Multiprofesional", "Ruta no especificada. Revisa la documentación.")
+        else:
+            path = "Ruta no especificada. Revisa la documentación."
+
 
     response += f"**Perfil {user_profile}**: {path}\n\n"
     
@@ -555,4 +556,3 @@ elif st.session_state.conversation_step in ["free_input", "viewing_response", "f
              st.markdown("") 
              render_footer()
              show_navigation_buttons(st.session_state.rol_usuario)
-
