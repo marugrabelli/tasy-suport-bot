@@ -162,10 +162,7 @@
         "path_to_item": {"Hospitalización Enfermería": "HCE ➡️ ADEP ➡️ Exámenes y Procedimientos", "Hospitalización Multiprofesional": "No Aplica (solo visualización en Signos Vitales/APAP)"},
         "actions": ["**Con Protocolo**: Clic derecho sobre el control ➡️ Registra el valor de glucemia. El sistema sugerirá la corrección de insulina.",
                    "**Sin Protocolo**: Registra el valor directamente en **Signos Vitales**."],
-        "possible_errors": [{
-            "error": "El valor de glucemia registrado no se ve en APAP.",
-            "solution": "El valor de glucemia cargado en ADEP **impacta automáticamente** en APAP y Signos Vitales."
-        }],
+        "possible_errors": [],
         "tips": ["Para controles con protocolo, es necesario **Confirmar el control** desde el botón derecho luego del registro."],
         "video_link": {"title": "Sin video", "url": "#"},
         "footer": "¿Deseas consultar otro tema?"
@@ -178,10 +175,7 @@
         "actions": ["Ir a solapa *Ingresos y Egresos* ➡️ Clic en **Añadir**.",
                    "Selecciona la lista (Ingresos o Egresos), luego Grupo y Tipo. Clic en **Derecha**.",
                    "Detalla el volumen y observaciones en el pop-up y **Finaliza**."],
-        "possible_errors": [{
-            "error": "No encuentro un tipo de ingreso/egreso para cargar.",
-            "solution": "Utiliza el **Buscador** dentro de la ventana de selección o consulta al referente para la clasificación adecuada."
-        }],
+        "possible_errors": [],
         "tips": ["El Balance por Turno se visualiza en la solapa **Análisis de Balance** (lado medio)."],
         "video_link": {"title": "Sin video", "url": "#"},
         "footer": "¿Deseas consultar otro tema?"
@@ -193,10 +187,7 @@
         "path_to_item": {"Hospitalización Enfermería": "HCE ➡️ ADEP o desde la pantalla principal", "Hospitalización Multiprofesional": "HCE ➡️ CPOE (Solo visualización)"},
         "actions": ["Para registrar la administración: Clic derecho sobre el horario ➡️ **Administrar / Revertir Evento** ➡️ OK.",
                    "Para ver medicación administrada o suspendida: Usa el **filtro** (Visualizar Eventos del Ítem)."],
-        "possible_errors": [{
-            "error": "Necesito corregir un registro de administración.",
-            "solution": "Utiliza **Revertir Evento** (Botón derecho sobre el registro) y justifica la acción."
-        }],
+        "possible_errors": [],
         "tips": ["Las **Recomendaciones** (ej. Kinesiología) se marcan como realizadas y se puede agregar un comentario."],
         "video_link": {"title": "Sin video", "url": "#"},
         "footer": "¿Deseas consultar otro tema?"
