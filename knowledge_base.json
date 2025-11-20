@@ -69,7 +69,7 @@
     
     "response_template_nota_clinica": {
       "title": "Notas Clinicas (Evoluciones) 📝",
-      "description": "Este item permite generar la **evolucion** de tu profesion y consultar las evoluciones previas de otros profesionales. Es esencial para dejar registro de la evolucion diaria del paciente.",
+      "description": "Este item permite generar la **evolucion** de tu profesion y consultar las de otros profesionales. Es esencial para dejar registro de la evolucion diaria del paciente.",
       "path_to_item": {
         "Hospitalizacion Enfermeria": "HCE ➡️ Nota Clinica",
         "Hospitalizacion Multiprofesional": "HCE ➡️ Nota Clinica"
@@ -98,7 +98,7 @@
       "tips": [
         "Para editar o continuar en otro momento, utiliza el boton **Guardar**. De esta manera, solo tu ves el borrador.",
         "Puedes usar el filtro (fecha, especialidad) para consultar notas clinicas previas."
-        "Para evolucionar mientras miras resultados de laboratorio, estudios o escalas : Añadir > boton derecho > nota clinica con consulta . Ahi se abre en lado derecho el campo  para escribir y de lado izquierdo puedo navegar"
+        "Para evolucionar mientras miras resultados de laboratorio, estudios o escalas : Añadir > boton derecho > nota clinica con consulta . Ahi se abre en lado derecho el campo  para escribir y de lado izquierdo puedo navegar."
       ],
       "video_link": {
         "title": "▶️ Ver Video Explicativo de Nota Clinica (Pendiente)",
