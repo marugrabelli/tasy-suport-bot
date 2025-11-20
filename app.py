@@ -11,8 +11,8 @@ st.set_page_config(page_title="Flenisito - Soporte Tasy", page_icon="🏥", layo
 # Archivos de Manuales
 LOG_FILE = "registro_consultas_flenisito.csv"
 MANUAL_ENFERMERIA = "manual enfermeria (2).docx" 
-MANUAL_MEDICOS = "Manual_Medicos.docx" # Asumiendo este es el Manual hospitalizacion multi.docx
-MANUAL_OTROS = "Manual Otros profesionales.docx" # Asumiendo este es el Manual hospitalizacion multi.docx
+MANUAL_MEDICOS = "Manual_Medicos.docx" # Usar el nombre de archivo real si es diferente
+MANUAL_OTROS = "Manual Otros profesionales.docx" # Usar el nombre de archivo real si es diferente
 KNOWLEDGE_FILE = "knowledge_base.json" 
 
 # Cargar la Base de Conocimiento JSON
@@ -20,6 +20,8 @@ KNOWLEDGE_FILE = "knowledge_base.json"
 def load_knowledge_base():
     """Carga la base de conocimiento desde el archivo JSON al iniciar."""
     try:
+        # Nota importante: Si el error persiste, la codificación del archivo JSON en el servidor
+        # podría ser el problema. Asegurarse de que sea UTF-8.
         with open(KNOWLEDGE_FILE, 'r', encoding='utf-8') as f:
             return json.load(f)
     except FileNotFoundError:
@@ -40,6 +42,7 @@ if KNOWLEDGE_BASE is None:
 
 # Definición de Tags (Se mantiene para la interfaz)
 ENFERMERIA_TAGS = {
+    # Mapeados a templates existentes en el JSON corregido:
     "Cargar Glucemia": {"color": "#FFC0CB", "query": "cargar glucemia", "response_key": "response_template_adep_glucemia"},
     "Ver Glucemia": {"color": "#ADD8E6", "query": "ver glucemia", "response_key": "response_template_adep_glucemia"},
     "Cargar Signos Vitales": {"color": "#90EE90", "query": "cargar signos vitales", "response_key": "response_template_signos_vitales"},
@@ -255,6 +258,7 @@ def render_response(template_data, user_profile):
     a partir de la plantilla JSON.
     """
     if not template_data:
+        # Esto solo debería ocurrir si hay un template key válido pero el contenido es None.
         return "⚠️ Error al cargar la plantilla de respuesta."
 
     response = ""
@@ -324,7 +328,7 @@ def buscar_solucion(consulta, rol):
     template_key = None
 
     # Mapeo de búsqueda libre a claves de respuesta JSON
-    # NOTA: Estas claves son placeholders, deben coincidir exactamente con el JSON
+    # NOTA: Estas claves están validadas contra el JSON proporcionado
     if any(x in q for x in ["contraseña", "usuario", "no veo paciente", "perfil", "login"]): 
         template_key = "response_template_login"
     if any(x in q for x in ["pase de guardia", "resumen", "cama", "sector", "navegacion"]): 
@@ -336,12 +340,13 @@ def buscar_solucion(consulta, rol):
     if rol == "Enfermería":
         if any(x in q for x in ["signos", "vitales", "presion", "temperatura", "apap", "respiratoria"]): template_key = "response_template_signos_vitales"
         if any(x in q for x in ["balance", "hidrico", "ingreso", "egreso", "liquido"]): template_key = "response_template_balance_hidrico"
-        if any(x in q for x in ["adep", "administrar", "medicacion", "droga", "glucemia", "revertir"]): 
-            # Glucemia tiene su propio template
-            if any(x in q for x in ["glucemia", "protocolo"]):
-                 template_key = "response_template_adep_glucemia"
-            else:
-                 template_key = "response_template_adep_med"
+        
+        # Lógica para ADEP / Glucemia
+        if any(x in q for x in ["adep", "administrar", "medicacion", "droga", "revertir"]):
+             template_key = "response_template_adep_med"
+        if any(x in q for x in ["glucemia", "protocolo"]):
+             template_key = "response_template_adep_glucemia"
+        
         if any(x in q for x in ["dispositivo", "sonda", "via", "cateter", "equipo", "rotar"]): template_key = "response_template_dispositivos"
         if any(x in q for x in ["pendiente", "tarea", "evaluacion", "escala", "score", "otros temas"]): template_key = "response_template_evaluaciones"
     
@@ -536,4 +541,3 @@ elif st.session_state.conversation_step in ["free_input", "viewing_response", "f
              st.markdown("") 
              render_footer()
              show_navigation_buttons(st.session_state.rol_usuario)
-
