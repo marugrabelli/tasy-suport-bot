@@ -8,7 +8,7 @@ from datetime import datetime
 # --- 1. CONFIGURACIÓN DE LA PÁGINA Y ESTILOS ---
 st.set_page_config(page_title="Flenisito - Soporte Tasy", page_icon="🏥", layout="wide")
 
-# Archivos de Manuales (Ajustados a los nombres de los archivos cargados)
+# Archivos de Manuales
 LOG_FILE = "registro_consultas_flenisito.csv"
 MANUAL_ENFERMERIA = "manual enfermeria (2).docx" 
 MANUAL_MEDICOS = "Manual hospitalizacion multi.docx" 
@@ -26,58 +26,58 @@ def load_knowledge_base():
         st.error(f"❌ Error fatal: El archivo '{KNOWLEDGE_FILE}' no fue encontrado. ¡Asegúrate de haberlo subido!")
         return None
     except json.JSONDecodeError as e:
-        # Muestra el error de sintaxis exacto para depuración
         st.error(f"❌ Error fatal: El archivo '{KNOWLEDGE_FILE}' no es un JSON válido.")
         st.code(f"Revisa la sintaxis (comas, llaves, corchetes). Detalle del error: {e}", language='text')
         return None
 
 KNOWLEDGE_BASE = load_knowledge_base()
-
-# Si la base de conocimiento no se pudo cargar, se detiene el script aquí
 if KNOWLEDGE_BASE is None:
     st.stop()
 
 
 # Definición de Tags y Mappings
+# Colores ajustados a tonos pastel más suaves:
 ENFERMERIA_TAGS = {
     "Cargar Glucemia": {"color": "#FFC0CB", "query": "cargar glucemia", "response_key": "response_template_adep_glucemia"},
-    "Ver Glucemia": {"color": "#ADD8E6", "query": "ver glucemia", "response_key": "response_template_adep_glucemia"},
-    "Cargar Signos Vitales": {"color": "#90EE90", "query": "cargar signos vitales", "response_key": "response_template_signos_vitales"},
-    "Ver Signos Vitales": {"color": "#87CEFA", "query": "ver signos vitales", "response_key": "response_template_signos_vitales"},
-    "Balance por Turno": {"color": "#F08080", "query": "balance por turno", "response_key": "response_template_balance_hidrico"},
-    "Balance por Día": {"color": "#FFA07A", "query": "balance por dia", "response_key": "response_template_balance_hidrico"},
-    "Adm. Medicación si Dolor": {"color": "#DDA0DD", "query": "adm medicación si dolor", "response_key": "response_template_adep_med"},
+    "Ver Glucemia": {"color": "#AEC6E3", "query": "ver glucemia", "response_key": "response_template_adep_glucemia"},
+    "Cargar Signos Vitales": {"color": "#B4E4A2", "query": "cargar signos vitales", "response_key": "response_template_signos_vitales"},
+    "Ver Signos Vitales": {"color": "#98D8D8", "query": "ver signos vitales", "response_key": "response_template_signos_vitales"},
+    "Balance por Turno": {"color": "#F0B6C0", "query": "balance por turno", "response_key": "response_template_balance_hidrico"},
+    "Balance por Día": {"color": "#FFD699", "query": "balance por dia", "response_key": "response_template_balance_hidrico"},
+    "Adm. Medicación si Dolor": {"color": "#D3BFE8", "query": "adm medicación si dolor", "response_key": "response_template_adep_med"},
     
-    "Agregar un Nuevo Catéter": {"color": "#FAFAD2", "query": "agregar un nuevo catéter", "response_key": "response_template_dispositivos"},
-    "Retirar Catéter": {"color": "#B0C4DE", "query": "retirar catéter", "response_key": "response_template_dispositivos"},
-    "Contraseña y Usuario NO Coinciden": {"color": "#AFEEEE", "query": "contraseña y usuario no coinciden", "response_key": "response_template_login"},
-    "Pase de Guardia": {"color": "#FFDAB9", "query": "pase de guardia", "response_key": "response_template_resumen_electronico"},
+    "Agregar un Nuevo Catéter": {"color": "#FFFFD8", "query": "agregar un nuevo catéter", "response_key": "response_template_dispositivos"},
+    "Retirar Catéter": {"color": "#C0D9E8", "query": "retirar catéter", "response_key": "response_template_dispositivos"},
+    "Contraseña y Usuario NO Coinciden": {"color": "#C4E8D6", "query": "contraseña y usuario no coinciden", "response_key": "response_template_login"},
+    "Pase de Guardia": {"color": "#FFE9BF", "query": "pase de guardia", "response_key": "response_template_resumen_electronico"},
     
-    "Otros (Pendientes/Escalas)": {"color": "#20B2AA", "query": "otros temas enfermeria", "response_key": "response_template_evaluaciones"},
+    "Otros (Pendientes/Escalas)": {"color": "#A0D4E4", "query": "otros temas enfermeria", "response_key": "response_template_evaluaciones"},
 }
 
 MEDICOS_TAGS = {
-    "Evolucionar": {"color": "#4682B4", "query": "evolucionar medico", "response_key": "response_template_nota_clinica"},
-    "Cargar Antecedentes del Paciente": {"color": "#6A5ACD", "query": "cargar antecedentes", "response_key": "response_template_antecedentes_multi"},
-    "Epicrisis / Informe Final": {"color": "#DC143C", "query": "epicrisis informe final", "response_key": "response_template_informe_final"},
+    "Evolucionar": {"color": "#A9CCE3", "query": "evolucionar medico", "response_key": "response_template_nota_clinica"},
+    "Cargar Antecedentes del Paciente": {"color": "#B5A7D0", "query": "cargar antecedentes", "response_key": "response_template_antecedentes_multi"},
+    "Epicrisis / Informe Final": {"color": "#EC7063", "query": "epicrisis informe final", "response_key": "response_template_informe_final"},
 }
 
 OTROS_TAGS = {
-    "Cargar Informe Inicial": {"color": "#9ACD32", "query": "cargar informe inicial", "response_key": "response_template_ged"},
-    "Cargar Informe Final": {"color": "#FF8C00", "query": "cargar informe final", "response_key": "response_template_informe_final"},
-    "Evolucionar": {"color": "#48D1CC", "query": "evolucionar otros", "response_key": "response_template_nota_clinica"},
+    "Cargar Informe Inicial": {"color": "#B8DB84", "query": "cargar informe inicial", "response_key": "response_template_ged"},
+    "Cargar Informe Final": {"color": "#FFBB77", "query": "cargar informe final", "response_key": "response_template_informe_final"},
+    "Evolucionar": {"color": "#A3E4D7", "query": "evolucionar otros", "response_key": "response_template_nota_clinica"},
 }
 
-# Mapping para CSS (se mantiene)
+# Mapping para CSS
+# Se actualizan los códigos hexadecimales para reflejar los nuevos colores pastel
 COLOR_MAP = {
-    "#FFC0CB": "tag-pink", "#ADD8E6": "tag-lightblue", "#90EE90": "tag-lightgreen", 
-    "#87CEFA": "tag-skyblue", "#F08080": "tag-lightcoral", "#FFA07A": "tag-lightsalmon", 
-    "#DDA0DD": "tag-thistle", "#FAFAD2": "tag-lightyellow", "#B0C4DE": "tag-slategray", 
-    "#AFEEEE": "tag-turquoise", "#FFDAB9": "tag-peach", "#20B2AA": "tag-seafoam",
+    # Nuevos colores pastel
+    "#FFC0CB": "tag-pink", "#AEC6E3": "tag-softblue", "#B4E4A2": "tag-softgreen", 
+    "#98D8D8": "tag-softcyan", "#F0B6C0": "tag-coral", "#FFD699": "tag-peach", 
+    "#D3BFE8": "tag-lavender", "#FFFFD8": "tag-ivory", "#C0D9E8": "tag-sky", 
+    "#C4E8D6": "tag-mint", "#FFE9BF": "tag-lightpeach", "#A0D4E4": "tag-sky-blue",
     
     # Colores Médico/Otros
-    "#4682B4": "tag-steel-blue", "#6A5ACD": "tag-slate-blue", "#DC143C": "tag-crimson",
-    "#9ACD32": "tag-yellow-green", "#FF8C00": "tag-dark-orange", "#48D1CC": "tag-medium-turquoise"
+    "#A9CCE3": "tag-steel-blue-soft", "#B5A7D0": "tag-slate-blue-soft", "#EC7063": "tag-crimson-soft",
+    "#B8DB84": "tag-yellow-green-soft", "#FFBB77": "tag-dark-orange-soft", "#A3E4D7": "tag-medium-turquoise-soft"
 }
 
 
@@ -158,12 +158,14 @@ def log_interaction(rol, pregunta, respuesta):
 def show_tags(tag_list, columns_count, title):
     st.markdown(f"### 🔍 {title}")
     
-    cols = st.columns(columns_count)
+    # ***MODIFICACIÓN CLAVE: Cambiamos de 3 a 4 columnas para reducir el tamaño del botón***
+    cols = st.columns(columns_count) 
     
     for i, (label, data) in enumerate(tag_list.items()):
         
         hex_color = data['color']
-        css_class = COLOR_MAP[hex_color]
+        # Se obtiene el CSS class basado en el nuevo COLOR_MAP
+        css_class = next((cls for color, cls in COLOR_MAP.items() if color == hex_color), "") 
         button_key = f"tag_{label.replace(' ', '_').replace('/', '_').replace('.', '').lower()}"
         
         with cols[i % columns_count]:
@@ -179,10 +181,10 @@ def show_tags(tag_list, columns_count, title):
 
 
 def render_footer():
-    """Muestra el separador, el botón de descarga y el bloque de avisos."""
+    """Muestra el separador, el botón de descarga del manual y el bloque de avisos."""
     st.markdown("---")
     
-    # Descarga del Manual (Requisito: Debe estar aquí)
+    # Descarga del Manual (Requisito)
     if "manual_file" in st.session_state and os.path.exists(st.session_state.manual_file):
         with open(st.session_state.manual_file, "rb") as f:
             st.download_button(
@@ -234,7 +236,6 @@ def show_navigation_buttons(rol):
     
     with col_back:
         if st.button(back_label, key="nav_back_unified", use_container_width=True):
-            # Al volver, limpiamos el estado de respuesta para ir a tags o free_input
             st.session_state.conversation_step = target_step
             st.session_state.response_key = None
             st.session_state.last_prompt = None
@@ -272,7 +273,7 @@ def render_response(template_data, user_profile):
 
     # --- CÓMO LLEGAR ---
     response += f"### 🗺️ ¿Cómo llego?\n"
-    # Se usa el nombre de las claves del JSON (sin tildes/eñes, como acordamos en la última corrección del JSON)
+    # Usamos las claves de mapeo del JSON (sin tildes/eñes, como en el JSON)
     json_profile_enfermeria = "Hospitalizacion Enfermeria"
     json_profile_multi = "Hospitalizacion Multiprofesional"
     
@@ -313,7 +314,7 @@ def render_response(template_data, user_profile):
         response += f"### 🎥 Video\n"
         response += f"[{video['title']}]({video['url']})\n\n"
     
-    # --- FOOTER / MENSAJE FINAL (El footer en sí mismo se renderiza en render_response, no aquí) ---
+    # --- FOOTER / MENSAJE FINAL (El footer se llama después de esta función) ---
     response += "---\n"
     response += f"*{template_data.get('footer', '¿Deseas consultar otro tema o regresar al menú anterior?')}*\n"
     
@@ -367,13 +368,11 @@ def buscar_solucion(consulta, rol):
         if any(x in q for x in ["cargar informe inicial", "ged", "documento"]): 
             template_key = "response_template_ged"
 
-    # Si se encontró una clave, se busca la respuesta
     if template_key and KNOWLEDGE_BASE:
         template_data = KNOWLEDGE_BASE['response_templates'].get(template_key)
         if template_data:
             return render_response(template_data, rol)
     
-    # Si la búsqueda falló o la clave no existe, regresa el mensaje por defecto.
     return "⚠️ No encontré un tema exacto para esa consulta. Te sugiero usar las opciones guiadas o revisar los manuales descargables."
 
 
@@ -394,7 +393,7 @@ if "conversation_step" not in st.session_state:
 if "last_prompt" not in st.session_state:
     st.session_state.last_prompt = None
 
-# LÓGICA DE BARRA LATERAL
+# LÓGICA DE BARRA LATERAL (Se mantiene)
 if st.session_state.rol_usuario is not None:
     with st.sidebar:
         st.success(f"Perfil activo: **{st.session_state.rol_usuario}**")
@@ -430,7 +429,7 @@ if st.session_state.rol_usuario is not None:
 
 # --- FLUJO PRINCIPAL ---
 
-# 1. ONBOARDING
+# 1. ONBOARDING (Se mantiene)
 if st.session_state.conversation_step == "onboarding":
     # Muestra el logo o imagen de bienvenida si existe 
     if os.path.exists("image_39540a.png"):
@@ -469,7 +468,7 @@ if st.session_state.conversation_step == "onboarding":
             st.session_state.conversation_step = "tags"
             st.rerun()
 
-# --- 2. MOSTRAR HISTORIAL ---
+# --- 2. MOSTRAR HISTORIAL (Se mantiene) ---
 if st.session_state.rol_usuario is not None:
     for msg in st.session_state.messages:
         with st.chat_message(msg["role"]):
@@ -480,8 +479,9 @@ if st.session_state.conversation_step == "tags":
     
     current_rol = st.session_state.rol_usuario
     
+    # ***MODIFICACIÓN CLAVE: Se ajusta a 4 columnas***
     if current_rol == "Enfermería":
-        show_tags(ENFERMERIA_TAGS, 3, "Temas Específicos de Enfermería")
+        show_tags(ENFERMERIA_TAGS, 4, "Temas Específicos de Enfermería") 
     elif current_rol == "Médico":
         show_tags(MEDICOS_TAGS, 3, "Temas Frecuentes de Médicos")
     elif current_rol == "Otros profesionales":
@@ -494,7 +494,7 @@ if st.session_state.conversation_step == "tags":
         st.session_state.conversation_step = "free_input" 
         st.rerun()
 
-# --- 4. MOSTRAR RESPUESTA ESTRUCTURADA POR TAG (¡Flujo Corregido para Footer y Nav!) ---
+# --- 4. MOSTRAR RESPUESTA ESTRUCTURADA POR TAG (Flujo Corregido para Footer y Nav) ---
 elif st.session_state.response_key is not None:
     
     key = st.session_state.response_key
@@ -520,7 +520,6 @@ elif st.session_state.response_key is not None:
             render_footer() 
             
             # Renderiza los botones de navegación
-            # Se usa "tags" como estado base para que el botón de volver atrás sea "Volver a Opciones de..."
             show_navigation_buttons(st.session_state.rol_usuario)
 
             # 3. Guardar la interacción y actualizar el estado
@@ -532,7 +531,6 @@ elif st.session_state.response_key is not None:
             st.session_state.response_key = None
             st.session_state.conversation_step = "viewing_response" 
             
-            # Hacemos RERUN para reflejar el cambio de estado y el historial actualizado.
             st.rerun() 
 
 # --- 5. MODO LIBRE (FREE INPUT) ---
@@ -563,14 +561,8 @@ elif st.session_state.conversation_step in ["free_input", "viewing_response", "f
                 st.rerun()
 
     elif st.session_state.conversation_step == "viewing_response":
-        # Este bloque asegura que los botones y el footer se muestren después del RERUN del bloque anterior
-        # Re-renderiza el historial y luego el footer/nav
-        
-        # El historial ya se mostró arriba (Sección 2). Solo necesitamos los botones.
-        
-        # Se genera un prompt vacío temporal para no bloquear el chat_input
+        # Se asegura que los botones y footer se mantengan visibles tras el rerun.
         st.chat_input("Escribe tu consulta aquí...")
-        
-        # Renderizamos los elementos fijos de la página
         render_footer()
         show_navigation_buttons(st.session_state.rol_usuario)
+
