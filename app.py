@@ -49,16 +49,20 @@ ENFERMERIA_TAGS = {
     "Agregar un Nuevo Catéter": {"color": "#FFFFD8", "query": "agregar un nuevo catéter", "response_key": "response_template_dispositivos"},
     "Retirar Catéter": {"color": "#C0D9E8", "query": "retirar catéter", "response_key": "response_template_dispositivos"},
     
+    # TAG AGREGADO: Evolucionar (Nota Clínica)
+    "Evolucionar": {"color": "#A9CCE3", "query": "evolucionar enfermeria", "response_key": "response_template_nota_clinica"},
+
     "Contraseña y Usuario NO Coinciden": {"color": "#C4E8D6", "query": "contraseña y usuario no coinciden", "response_key": "response_template_login"},
     "Pase de Guardia": {"color": "#FFE9BF", "query": "pase de guardia", "response_key": "response_template_resumen_electronico"},
     
-    "Otros (Pendientes/Escalas)": {"color": "#A0D4E4", "query": "otros temas enfermeria", "response_key": "response_template_evaluaciones"},
+    # CORRECCIÓN DE NOMBRE DEL TAG (Debe ser claro y corresponder al tema)
+    "Evaluaciones/Escalas": {"color": "#A0D4E4", "query": "otros temas enfermeria", "response_key": "response_template_evaluaciones"},
 }
 
 MEDICOS_TAGS = {
     "Evolucionar": {"color": "#A9CCE3", "query": "evolucionar medico", "response_key": "response_template_nota_clinica"},
     "Cargar Antecedentes del Paciente": {"color": "#B5A7D0", "query": "cargar antecedentes", "response_key": "response_template_antecedentes_multi"},
-    "Epicrisis / Informe Final": {"color": "#EC7063", "query": "epicrisis informe final", "response_key": "response_template_informe_final"},
+    "Epicrisis ": {"color": "#EC7063", "query": "epicrisis informe final", "response_key": "response_template_informe_final"},
 }
 
 OTROS_TAGS = {
@@ -567,4 +571,5 @@ elif st.session_state.conversation_step in ["free_input", "viewing_response", "f
         st.chat_input("Escribe tu consulta aquí...")
         render_footer()
         show_navigation_buttons(st.session_state.rol_usuario)
+
 
