@@ -375,8 +375,9 @@ else:
         st.markdown("---")
         st.markdown("### 💡 Tips Rápidos")
         st.caption("1. **Liberar** = Publicar. **Guardar** = Borrador.")
-        [cite_start]st.caption("2. ¿No ves pacientes? Revisa **Sector** y **Establecimiento**[cite: 5].")
-        [cite_start]st.caption("3. **SIDCA:** Clic derecho > CES[cite: 123, 325].")
+        # Línea 378 corregida
+        st.caption("2. ¿No ves pacientes? Revisa **Sector** y **Establecimiento**.") 
+        st.caption("3. **SIDCA:** Clic derecho > CES.")
         st.markdown("---")
 
         # ACCIONES
@@ -440,3 +441,4 @@ else:
                 log_interaction(st.session_state.rol_usuario, prompt, respuesta_core)
         
         st.session_state.messages.append({"role": "assistant", "content": respuesta_final})
+
