@@ -20,7 +20,6 @@ KNOWLEDGE_FILE = "knowledge_base.json"
 def load_knowledge_base():
     """Carga la base de conocimiento desde el archivo JSON al iniciar."""
     try:
-        # La codificación es la clave. Forzamos UTF-8.
         with open(KNOWLEDGE_FILE, 'r', encoding='utf-8') as f:
             return json.load(f)
     except FileNotFoundError:
@@ -183,6 +182,7 @@ def render_footer():
     """Muestra el separador, el botón de descarga y el bloque de avisos."""
     st.markdown("---")
     
+    # Descarga del Manual (Requisito: Debe estar aquí)
     if "manual_file" in st.session_state and os.path.exists(st.session_state.manual_file):
         with open(st.session_state.manual_file, "rb") as f:
             st.download_button(
@@ -193,6 +193,7 @@ def render_footer():
                 key=f"descarga_{datetime.now().timestamp()}"
             )
     
+    # Bloque de soporte/contacto (Requisito: Mensaje final)
     with st.container():
         st.markdown('<div class="footer-content">', unsafe_allow_html=True)
         st.markdown("""
@@ -214,23 +215,26 @@ def render_footer():
 
 
 def show_navigation_buttons(rol):
+    """Muestra los botones para volver al menú o dejar un mensaje (Requisito)."""
     st.markdown('<div class="nav-button-container">', unsafe_allow_html=True)
     
     col_back, col_msg = st.columns(2)
     
-    if rol == "Enfermería" and st.session_state.conversation_step != "free_input_after_msg":
-        back_label = "💉 Volver a Opciones de Enfermería"
-        target_step = "tags"
-    elif rol in ["Médico", "Otros profesionales"] and st.session_state.conversation_step != "free_input_after_msg":
-        back_label = "👥 Volver a Opciones Multiprofesionales"
+    # Lógica para el botón de volver atrás
+    # Si estamos viendo la respuesta de un TAG, volvemos a la lista de TAGS.
+    # Si estamos en entrada libre, volvemos a la entrada libre.
+    if st.session_state.conversation_step == "tags":
+        back_label = "💉 Volver a Opciones de Enfermería" if rol == "Enfermería" else "👥 Volver a Opciones Multiprofesionales"
         target_step = "tags"
     else:
+        # Esto cubre "viewing_response" o "free_input_after_msg"
         back_label = "⬅️ Volver a Escribir una Consulta"
-        target_step = "free_input" 
+        target_step = "free_input"
         
     
     with col_back:
         if st.button(back_label, key="nav_back_unified", use_container_width=True):
+            # Al volver, limpiamos el estado de respuesta para ir a tags o free_input
             st.session_state.conversation_step = target_step
             st.session_state.response_key = None
             st.session_state.last_prompt = None
@@ -268,23 +272,16 @@ def render_response(template_data, user_profile):
 
     # --- CÓMO LLEGAR ---
     response += f"### 🗺️ ¿Cómo llego?\n"
-    if user_profile == "Enfermería":
-        json_profile = "Hospitalización Enfermería"
-    elif user_profile in ["Médico", "Otros profesionales"]:
-        json_profile = "Hospitalización Multiprofesional"
-    else:
-        json_profile = user_profile 
+    # Se usa el nombre de las claves del JSON (sin tildes/eñes, como acordamos en la última corrección del JSON)
+    json_profile_enfermeria = "Hospitalizacion Enfermeria"
+    json_profile_multi = "Hospitalizacion Multiprofesional"
     
-    path = template_data['path_to_item'].get(json_profile)
-    # Se usa el nombre de las claves del JSON corregido sin tildes/eñes
-    if not path:
-        if user_profile == "Enfermería":
-            path = template_data['path_to_item'].get("Hospitalizacion Enfermeria", "Ruta no especificada. Revisa la documentación.")
-        elif user_profile in ["Médico", "Otros profesionales"]:
-            path = template_data['path_to_item'].get("Hospitalizacion Multiprofesional", "Ruta no especificada. Revisa la documentación.")
-        else:
-            path = "Ruta no especificada. Revisa la documentación."
-
+    if user_profile == "Enfermería":
+        path = template_data['path_to_item'].get(json_profile_enfermeria, "Ruta no especificada.")
+    elif user_profile in ["Médico", "Otros profesionales"]:
+        path = template_data['path_to_item'].get(json_profile_multi, "Ruta no especificada.")
+    else:
+        path = "Ruta no especificada."
 
     response += f"**Perfil {user_profile}**: {path}\n\n"
     
@@ -316,7 +313,7 @@ def render_response(template_data, user_profile):
         response += f"### 🎥 Video\n"
         response += f"[{video['title']}]({video['url']})\n\n"
     
-    # --- FOOTER / MENSAJE FINAL ---
+    # --- FOOTER / MENSAJE FINAL (El footer en sí mismo se renderiza en render_response, no aquí) ---
     response += "---\n"
     response += f"*{template_data.get('footer', '¿Deseas consultar otro tema o regresar al menú anterior?')}*\n"
     
@@ -340,7 +337,7 @@ def buscar_solucion(consulta, rol):
 
     # Enfermería (Lógica de prioridad para búsqueda libre)
     if rol == "Enfermería":
-        # Glucemia (Tiene mayor prioridad que ADEP general si se menciona glucemia)
+        # Glucemia
         if any(x in q for x in ["glucemia", "protocolo"]):
              template_key = "response_template_adep_glucemia"
         # Signos Vitales
@@ -435,7 +432,7 @@ if st.session_state.rol_usuario is not None:
 
 # 1. ONBOARDING
 if st.session_state.conversation_step == "onboarding":
-    # Muestra el logo o imagen de bienvenida si existe (usando las referencias cargadas previamente)
+    # Muestra el logo o imagen de bienvenida si existe 
     if os.path.exists("image_39540a.png"):
         st.image("image_39540a.png", use_column_width="auto")
     elif os.path.exists("image_3950c3.png"):
@@ -497,32 +494,46 @@ if st.session_state.conversation_step == "tags":
         st.session_state.conversation_step = "free_input" 
         st.rerun()
 
-# --- 4. MOSTRAR RESPUESTA ESTRUCTURADA POR TAG ---
+# --- 4. MOSTRAR RESPUESTA ESTRUCTURADA POR TAG (¡Flujo Corregido para Footer y Nav!) ---
 elif st.session_state.response_key is not None:
     
     key = st.session_state.response_key
     prompt_from_tag = st.session_state.last_prompt
     
+    # 1. Renderizar prompt del usuario
     if prompt_from_tag:
         with st.chat_message("user"):
             st.markdown(prompt_from_tag.capitalize())
         st.session_state.messages.append({"role": "user", "content": prompt_from_tag})
     
+    # 2. Generar y renderizar respuesta
     with st.chat_message("assistant"):
         with st.spinner("Flenisito está buscando la solución..."):
             
             template_data = KNOWLEDGE_BASE['response_templates'].get(key)
             respuesta_core = render_response(template_data, st.session_state.rol_usuario)
-            st.markdown(respuesta_core, unsafe_allow_html=True)
+            
+            # Renderiza la respuesta principal
+            st.markdown(respuesta_core, unsafe_allow_html=True) 
 
+            # Renderiza el footer (Manual, Tips, Contactos)
             render_footer() 
+            
+            # Renderiza los botones de navegación
+            # Se usa "tags" como estado base para que el botón de volver atrás sea "Volver a Opciones de..."
             show_navigation_buttons(st.session_state.rol_usuario)
 
+            # 3. Guardar la interacción y actualizar el estado
             if prompt_from_tag:
                 log_interaction(st.session_state.rol_usuario, prompt_from_tag, key)
                 st.session_state.messages.append({"role": "assistant", "content": respuesta_core})
-                st.session_state.response_key = None
-            st.rerun()
+            
+            # 4. Se borra la clave de respuesta y se pasa al estado de visualización
+            st.session_state.response_key = None
+            st.session_state.conversation_step = "viewing_response" 
+            
+            # Hacemos RERUN para reflejar el cambio de estado y el historial actualizado.
+            st.rerun() 
 
 # --- 5. MODO LIBRE (FREE INPUT) ---
 elif st.session_state.conversation_step in ["free_input", "viewing_response", "free_input_after_msg"]:
@@ -552,7 +563,14 @@ elif st.session_state.conversation_step in ["free_input", "viewing_response", "f
                 st.rerun()
 
     elif st.session_state.conversation_step == "viewing_response":
-        with st.chat_message("assistant"):
-             st.markdown("") 
-             render_footer()
-             show_navigation_buttons(st.session_state.rol_usuario)
+        # Este bloque asegura que los botones y el footer se muestren después del RERUN del bloque anterior
+        # Re-renderiza el historial y luego el footer/nav
+        
+        # El historial ya se mostró arriba (Sección 2). Solo necesitamos los botones.
+        
+        # Se genera un prompt vacío temporal para no bloquear el chat_input
+        st.chat_input("Escribe tu consulta aquí...")
+        
+        # Renderizamos los elementos fijos de la página
+        render_footer()
+        show_navigation_buttons(st.session_state.rol_usuario)
