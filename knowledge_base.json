@@ -22,7 +22,7 @@
         "Informe Final": "response_template_informe_final",
         "GED": "response_template_ged"
       }
-    }, <--- **¡COMA AGREGADA AQUÍ!**
+    },
     
     "tags_enfermeria": {
       "step_id": "tags_enfermeria",
@@ -33,7 +33,7 @@
         "Signos Vitales": "response_template_signos_vitales"
       }
     }
-  },
+  }, 
   
   "response_templates": {
     
@@ -107,45 +107,158 @@
     },
     
     "response_template_evaluaciones": {
-        "title": "Evaluaciones / Escalas (PLACEHOLDER - PENDIENTE)",
+        "title": "Evaluaciones / Escalas (PLACEHOLDER)",
         "description": "Este ítem permite realizar escalas y ver las que hayan realizado otros profesionales. Debes hacer clic en **Añadir** y luego **Guardar y Liberar**.",
         "path_to_item": {"Hospitalización Enfermería": "HCE ➡️ Evaluaciones / Escalas", "Hospitalización Multiprofesional": "HCE ➡️ Evaluaciones"},
-        "actions": ["Revisar el manual para detalles específicos."],
+        "actions": ["Clic en **Añadir**, selecciona la evaluación, completa campos y luego **Guardar y Liberar**."],
         "possible_errors": [],
-        "tips": ["Pendiente."],
+        "tips": ["Puedes duplicar evaluaciones previas para solo modificar los datos necesarios."],
         "video_link": {"title": "Sin video", "url": "#"},
         "footer": "¿Deseas consultar otro tema?"
     },
 
     "response_template_informe_final": {
-        "title": "Informe Final / Epicrisis (PLACEHOLDER - PENDIENTE)",
+        "title": "Informe Final / Epicrisis (PLACEHOLDER)",
         "description": "Para generar el Informe Final, se utiliza la función **Central de Informes** desde el menú principal o la llamada externa.",
         "path_to_item": {"Hospitalización Enfermería": "No Aplica", "Hospitalización Multiprofesional": "Función Central de Informes ➡️ Informe Final"},
         "actions": ["El estatus debe ser 'realizado'. Clic derecho > Ejecutar > Incluir interpretación PDF."],
-        "possible_errors": [],
-        "tips": ["Pendiente de tips específicos."],
+        "possible_errors": [{
+            "error": "No veo mi informe en el listado.",
+            "solution": "Asegúrate de que el estatus sea **realizado** y revisa el **Filtro Avanzado**."
+        }],
+        "tips": ["Para enviar por mail al paciente, el estatus debe estar en **interpretación liberada**."],
         "video_link": {"title": "Sin video", "url": "#"},
         "footer": "¿Deseas consultar otro tema?"
     },
 
     "response_template_ged": {
-        "title": "GED / Gestión de Documentos (PLACEHOLDER - PENDIENTE)",
-        "description": "Este ítem se usa para adjuntar archivos. Puedes cargar informes iniciales y finales desde aquí.",
+        "title": "GED / Gestión de Documentos (PLACEHOLDER)",
+        "description": "Este ítem se usa para adjuntar archivos correspondientes al paciente. Es la vía para cargar **Informes Iniciales**.",
         "path_to_item": {"Hospitalización Enfermería": "HCE ➡️ Gestión de Documentos", "Hospitalización Multiprofesional": "HCE ➡️ Gestión de Documentos"},
-        "actions": ["Clic en **Añadir**, sube el archivo y **clasifícalo** como 'informe inicial'."],
+        "actions": ["Clic en **Añadir**, sube el archivo y **clasifícalo** como 'Informe Inicial' o el tipo correspondiente."],
         "possible_errors": [],
-        "tips": ["Pendiente."],
+        "tips": ["Recuerda clasificar el archivo para facilitar la búsqueda con el filtro."],
         "video_link": {"title": "Sin video", "url": "#"},
         "footer": "¿Deseas consultar otro tema?"
     },
     
     "response_template_signos_vitales": {
-        "title": "Signos Vitales y APAP (PLACEHOLDER - PENDIENTE)",
-        "description": "Sección para registrar signos vitales y parámetros respiratorios. Recuerda marcar **APAP** si quieres que los datos se visualicen en la grilla.",
+        "title": "Signos Vitales y APAP (PLACEHOLDER)",
+        "description": "Sección para registrar **signos vitales** y **parámetros respiratorios**. Enfermería realiza el registro; otros perfiles solo visualizan en APAP.",
         "path_to_item": {"Hospitalización Enfermería": "HCE ➡️ Signos Vitales", "Hospitalización Multiprofesional": "HCE ➡️ APAP (Solo visualización)"},
-        "actions": ["Clic en **Añadir**, completa campos y luego **Guardar y Liberar**."],
+        "actions": ["Clic en **Añadir**, completa campos (Signos o Respiratoria) y luego **Guardar y Liberar**."],
+        "possible_errors": [{
+            "error": "El registro de signos vitales no aparece en APAP.",
+            "solution": "Al momento de registrar, asegúrate de haber dado clic en el check de **APAP**."
+        }],
+        "tips": ["Para visualizar registros anteriores, utiliza el **filtro** por fechas."],
+        "video_link": {"title": "Sin video", "url": "#"},
+        "footer": "¿Deseas consultar otro tema?"
+    },
+
+    "response_template_adep_glucemia": {
+        "title": "Glucemia (Protocolo y Sin Protocolo) 🩸",
+        "description": "Registro de controles glucémicos. Se realiza desde ADEP para activar el protocolo o desde Signos Vitales si es un control simple.",
+        "path_to_item": {"Hospitalización Enfermería": "HCE ➡️ ADEP ➡️ Exámenes y Procedimientos", "Hospitalización Multiprofesional": "No Aplica (solo visualización en Signos Vitales/APAP)"},
+        "actions": ["**Con Protocolo**: Clic derecho sobre el control ➡️ Registra el valor de glucemia. El sistema sugerirá la corrección de insulina.",
+                   "**Sin Protocolo**: Registra el valor directamente en **Signos Vitales**."],
+        "possible_errors": [{
+            "error": "El valor de glucemia registrado no se ve en APAP.",
+            "solution": "El valor de glucemia cargado en ADEP **impacta automáticamente** en APAP y Signos Vitales."
+        }],
+        "tips": ["Para controles con protocolo, es necesario **Confirmar el control** desde el botón derecho luego del registro."],
+        "video_link": {"title": "Sin video", "url": "#"},
+        "footer": "¿Deseas consultar otro tema?"
+    },
+
+    "response_template_balance_hidrico": {
+        "title": "Balance Hídrico (Ingresos y Egresos) 💧",
+        "description": "Este ítem permite registrar los ingresos y egresos del paciente y visualizar el balance total y por turno.",
+        "path_to_item": {"Hospitalización Enfermería": "HCE ➡️ Balance Hídrico ➡️ Ingresos y Egresos", "Hospitalización Multiprofesional": "HCE ➡️ APAP (Solo visualización)"},
+        "actions": ["Ir a solapa *Ingresos y Egresos* ➡️ Clic en **Añadir**.",
+                   "Selecciona la lista (Ingresos o Egresos), luego Grupo y Tipo. Clic en **Derecha**.",
+                   "Detalla el volumen y observaciones en el pop-up y **Finaliza**."],
+        "possible_errors": [{
+            "error": "No encuentro un tipo de ingreso/egreso para cargar.",
+            "solution": "Utiliza el **Buscador** dentro de la ventana de selección o consulta al referente para la clasificación adecuada."
+        }],
+        "tips": ["El Balance por Turno se visualiza en la solapa **Análisis de Balance** (lado medio)."],
+        "video_link": {"title": "Sin video", "url": "#"},
+        "footer": "¿Deseas consultar otro tema?"
+    },
+    
+    "response_template_adep_med": {
+        "title": "ADEP (Administración de Medicación y Dietas) 💊",
+        "description": "ADEP muestra los horarios de medicación pendientes de administrar. Es la función clave para el registro de la administración.",
+        "path_to_item": {"Hospitalización Enfermería": "HCE ➡️ ADEP o desde la pantalla principal", "Hospitalización Multiprofesional": "HCE ➡️ CPOE (Solo visualización)"},
+        "actions": ["Para registrar la administración: Clic derecho sobre el horario ➡️ **Administrar / Revertir Evento** ➡️ OK.",
+                   "Para ver medicación administrada o suspendida: Usa el **filtro** (Visualizar Eventos del Ítem)."],
+        "possible_errors": [{
+            "error": "Necesito corregir un registro de administración.",
+            "solution": "Utiliza **Revertir Evento** (Botón derecho sobre el registro) y justifica la acción."
+        }],
+        "tips": ["Las **Recomendaciones** (ej. Kinesiología) se marcan como realizadas y se puede agregar un comentario."],
+        "video_link": {"title": "Sin video", "url": "#"},
+        "footer": "¿Deseas consultar otro tema?"
+    },
+    
+    "response_template_login": {
+        "title": "Problemas de Login y Acceso a Pacientes 🚫",
+        "description": "Conflictos comunes de acceso que impiden ver pacientes o registrar datos. La URL es: https://tasy.fleni.org.ar/#/login",
+        "path_to_item": {"Hospitalización Enfermería": "Pantalla de Login", "Hospitalización Multiprofesional": "Pantalla de Login"},
+        "actions": ["Coloca tu usuario y contraseña.",
+                   "Verifica el **Establecimiento** (Belgrano/Escobar), **Sector** y **Perfil Asignado** (Ej: Hospitalización Multi)."],
+        "possible_errors": [{
+            "error": "No puedo visualizar pacientes y/o registrar.",
+            "solution": "Sin los datos correctos de Establecimiento, Sector y Perfil, no podrás ver pacientes. **Verifica siempre tu perfil asignado** en la esquina superior derecha."
+        },
+        {
+            "error": "Contraseña y usuario no coinciden.",
+            "solution": "Si olvidaste tu contraseña o necesitas alta de usuario, genera un ticket en **solicitudes.fleni.org**."
+        }],
+        "tips": ["Si la pantalla está cortada, ajusta el zoom del navegador (**Ctrl + -**)."],
+        "video_link": {"title": "Sin video", "url": "#"},
+        "footer": "¿Deseas consultar otro tema?"
+    },
+    
+    "response_template_resumen_electronico": {
+        "title": "Visualización de Pacientes y Resumen Electrónico 📋",
+        "description": "Permite ver el listado de pacientes/camas, buscar por nombre/número y acceder al resumen para el pase de guardia.",
+        "path_to_item": {"Hospitalización Enfermería": "HCE ➡️ Resumen electrónico de paciente", "Hospitalización Multiprofesional": "HCE ➡️ Resumen electrónico de paciente o Perspectiva Clínica"},
+        "actions": ["**Pase de Guardia**: Usa el Resumen Electrónico para agrupar la información necesaria del paciente brevemente.",
+                   "**Ver Camas**: Usa *Perspectiva Clínica* ➡️ Elige el sector (visualiza aislamiento/alergias).",
+                   "**Buscar Paciente**: Por número de atención o nombre en el buscador."],
+        "possible_errors": [{
+            "error": "El paciente ya fue atendido, pero aparece como 'Esperando Consulta'.",
+            "solution": "Luego de atender, debes cambiar el estatus de 'esperando consulta' a **Ejecutada** (al salir de la historia clínica)."
+        }],
+        "tips": ["Haciendo doble clic en el paciente se ingresa a la HCE. Desde la Perspectiva Clínica, puedes ir a HCE haciendo clic en los tres puntos de la cama."],
+        "video_link": {"title": "Sin video", "url": "#"},
+        "footer": "¿Deseas consultar otro tema?"
+    },
+    
+    "response_template_sidca": {
+        "title": "Consulta Electrónica de Salud (SIDCA) 💾",
+        "description": "La Consulta Electrónica de Salud (CES) es el acceso al historial clínico del paciente registrado en el sistema SIDCA (el sistema anterior).",
+        "path_to_item": {"Hospitalización Enfermería": "HCE ➡️ Clic derecho en fondo blanco ➡️ CES", "Hospitalización Multiprofesional": "HCE ➡️ Clic derecho en fondo blanco ➡️ CES"},
+        "actions": ["Para consultar registros antiguos: Desde cualquier parte de la HCE del paciente, haz **clic derecho en el fondo blanco**.",
+                   "Selecciona **CES - Consulta electrónica de salud**.",
+                   "Serás dirigido a SIDCA para visualizar lo cargado."],
         "possible_errors": [],
-        "tips": ["Pendiente."],
+        "tips": ["Recuerda que esta es una consulta a un sistema externo, solo para visualizar historial."],
+        "video_link": {"title": "Sin video", "url": "#"},
+        "footer": "¿Deseas consultar otro tema?"
+    },
+    
+    "response_template_antecedentes_multi": {
+        "title": "Antecedentes de Salud y Medicamentos en Uso 📜",
+        "description": "Ítem de visualización (para perfil Multi) donde se encuentran los antecedentes cargados por médicos o enfermeros y la medicación cotidiana al ingreso.",
+        "path_to_item": {"Hospitalización Enfermería": "HCE ➡️ Antecedentes de salud (También permite cargar)", "Hospitalización Multiprofesional": "HCE ➡️ Antecedentes de salud (Solo visualización)"},
+        "actions": ["Visualizar: Haz clic sobre la solapa deseada (Ej: Hábitos y Adicciones) para recorrerlos.",
+                   "Ver Detalle: Con el botón **Ver** se accede al registro en detalle.",
+                   "Medicamentos en uso: Consulta la medicación cotidiana cargada al ingreso del paciente."],
+        "possible_errors": [],
+        "tips": ["Los antecedentes que estén marcados con **Exhibir en alertas del paciente** aparecerán en el pop-up de alertas al ingresar por primera vez a la HCE."],
         "video_link": {"title": "Sin video", "url": "#"},
         "footer": "¿Deseas consultar otro tema?"
     }
