@@ -10,30 +10,35 @@ st.set_page_config(page_title="Flenisito - Soporte Tasy", page_icon="🏥", layo
 
 # Archivos de Manuales (Verificación: Nombres correctos según tu GitHub)
 LOG_FILE = "registro_consultas_flenisito.csv"
-# NOTA: Los nombres de los manuales en el script original son correctos según tu repositorio.
 MANUAL_ENFERMERIA = "manual enfermeria (2).docx" 
 MANUAL_MEDICOS = "Manual_Medicos.docx"
 MANUAL_OTROS = "Manual Otros profesionales.docx"
 KNOWLEDGE_FILE = "knowledge_base.json" # Archivo JSON con la estructura de respuestas
 
 # Cargar la Base de Conocimiento JSON
-@st.cache_data
+@st.cache_data(show_spinner=False)
 def load_knowledge_base():
     """Carga la base de conocimiento desde el archivo JSON al iniciar."""
     try:
         with open(KNOWLEDGE_FILE, 'r', encoding='utf-8') as f:
             return json.load(f)
     except FileNotFoundError:
-        st.error(f"Error: El archivo '{KNOWLEDGE_FILE}' no fue encontrado. ¡Asegúrate de haberlo subido!")
+        st.error(f"❌ Error fatal: El archivo '{KNOWLEDGE_FILE}' no fue encontrado. ¡Asegúrate de haberlo subido!")
         return None
-    except json.JSONDecodeError:
-        st.error(f"Error: El archivo '{KNOWLEDGE_FILE}' no es un JSON válido.")
+    except json.JSONDecodeError as e:
+        # Muestra el error de sintaxis exacto para depuración
+        st.error(f"❌ Error fatal: El archivo '{KNOWLEDGE_FILE}' no es un JSON válido.")
+        st.code(f"Revisa la sintaxis (comas, llaves, corchetes). Detalle del error: {e}", language='text')
         return None
 
 KNOWLEDGE_BASE = load_knowledge_base()
 
-# Definición de Tags (Se mantiene, solo se redefinen las response_key para coincidir con el JSON)
-# Los valores de 'response_key' ahora apuntan a claves en el JSON: 'adep_glucemia', 'nota_clinica', etc.
+# Si la base de conocimiento no se pudo cargar, se detiene el script aquí
+if KNOWLEDGE_BASE is None:
+    st.stop()
+
+
+# Definición de Tags (Las claves de 'response_key' deben coincidir con el JSON)
 ENFERMERIA_TAGS = {
     # Grupo ADEP/Signos/Balance
     "Cargar Glucemia": {"color": "#FFC0CB", "query": "cargar glucemia", "response_key": "response_template_adep_glucemia"},
@@ -45,8 +50,8 @@ ENFERMERIA_TAGS = {
     "Adm. Medicación si Dolor": {"color": "#DDA0DD", "query": "adm medicación si dolor", "response_key": "response_template_adep_med"},
     
     # Grupo Dispositivos/Login/Pase
-    "Agregar un Nuevo Catéter": {"color": "#FAFAD2", "query": "agregar un nuevo catéter", "response_key": "response_template_dispositivos"}, # CLAVE JSON
-    "Retirar Catéter": {"color": "#B0C4DE", "query": "retirar catéter", "response_key": "response_template_dispositivos"}, # CLAVE JSON
+    "Agregar un Nuevo Catéter": {"color": "#FAFAD2", "query": "agregar un nuevo catéter", "response_key": "response_template_dispositivos"},
+    "Retirar Catéter": {"color": "#B0C4DE", "query": "retirar catéter", "response_key": "response_template_dispositivos"},
     "Contraseña y Usuario NO Coinciden": {"color": "#AFEEEE", "query": "contraseña y usuario no coinciden", "response_key": "response_template_login"},
     "Pase de Guardia": {"color": "#FFDAB9", "query": "pase de guardia", "response_key": "response_template_resumen_electronico"},
     
@@ -288,9 +293,14 @@ def render_response(template_data, user_profile):
     # --- CÓMO LLEGAR ---
     response += f"### 🗺️ ¿Cómo llego?\n"
     # Mapea el rol interno de Streamlit al perfil del JSON
-    json_profile = f"Hospitalización {user_profile.replace('Otros profesionales', 'Multiprofesional').replace('Médico', 'Multiprofesional')}"
+    if user_profile == "Enfermería":
+        json_profile = "Hospitalización Enfermería"
+    elif user_profile in ["Médico", "Otros profesionales"]:
+        json_profile = "Hospitalización Multiprofesional"
+    else:
+        json_profile = user_profile # fallback
     
-    path = template_data['path_to_item'].get(json_profile, template_data['path_to_item'].get("Hospitalización Enfermería")) # Intenta Enfermería si es el rol, o el default
+    path = template_data['path_to_item'].get(json_profile)
     if not path:
         path = "Ruta no especificada. Revisa la documentación."
 
@@ -303,11 +313,14 @@ def render_response(template_data, user_profile):
     response += "\n"
 
     # --- ERRORES Y SOLUCIONES ---
+    # Iterar sobre la lista de errores (maneja el formato de lista de errores)
     if template_data.get('possible_errors'):
         response += f"### ⚠️ Posibles Errores y Soluciones\n"
-        for item in template_data['possible_errors']:
-            response += f"* **Error**: {item['error']}\n"
-            response += f"  * **Solución**: {item['solution']}\n"
+        for error_block in template_data['possible_errors']:
+            # Puede haber múltiples errores y soluciones dentro de la lista
+            if error_block.get('error') and error_block.get('solution'):
+                 response += f"* **Error**: {error_block['error']}\n"
+                 response += f"  * **Solución**: {error_block['solution']}\n"
         response += "\n"
 
     # --- TIPS ---
@@ -330,7 +343,7 @@ def render_response(template_data, user_profile):
     return response
 
 
-# --- 4. MOTOR DE BÚSQUEDA (MODIFICADO) ---
+# --- 4. MOTOR DE BÚSQUEDA ---
 # Ahora mapea la consulta libre a las claves de templates del JSON
 def buscar_solucion(consulta, rol):
     """Busca una solución basada en el texto libre, mapeando a una clave de template JSON."""
@@ -488,7 +501,7 @@ if st.session_state.conversation_step == "tags":
         st.session_state.conversation_step = "free_input" 
         st.rerun()
 
-# --- 4. MOSTRAR RESPUESTA ESTRUCTURADA POR TAG (MODIFICADO) ---
+# --- 4. MOSTRAR RESPUESTA ESTRUCTURADA POR TAG ---
 elif st.session_state.response_key is not None:
     
     key = st.session_state.response_key
@@ -519,7 +532,7 @@ elif st.session_state.response_key is not None:
                 st.session_state.response_key = None # Finaliza el procesamiento de la respuesta
             st.rerun() # Rerun para asegurar la limpieza de estados y los botones
 
-# --- 5. MODO LIBRE (FREE INPUT) (Se mantiene) ---
+# --- 5. MODO LIBRE (FREE INPUT) ---
 elif st.session_state.conversation_step in ["free_input", "viewing_response", "free_input_after_msg"]:
     
     # Si viene del estado de "dejar mensaje", mostramos la caja de input de chat
