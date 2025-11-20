@@ -39,7 +39,7 @@ MENSAJE_PIE = """
 
 * **💻 Navegador Ideal:** Usa siempre **Google Chrome**.
 * **🧹 Limpieza:** Si algo no carga, prueba a **limpiar la caché** (`Ctrl + H`).
-* [cite_start]**👤 Perfil:** Verifica que tu **Log In** esté en el **establecimiento y perfil correcto** (Ej: Hospitalización Multi/Enfermería)[cite: 5, 153].
+* **👤 Perfil:** Verifica que tu **Log In** esté en el **establecimiento y perfil correcto** (Ej: Hospitalización Multi/Enfermería).
 * **🔍 Zoom:** ¿Pantalla cortada? Ajusta el zoom: **`Ctrl + +`** (agrandar) o **`Ctrl + -`** (minimizar).
 
 ---
@@ -61,24 +61,26 @@ def log_interaction(rol, pregunta, respuesta):
             now = datetime.now()
             writer.writerow([now.date(), now.strftime("%H:%M:%S"), rol, pregunta, respuesta])
     except Exception as e:
-        st.error(f"Error al guardar log: {e}")
+        # En una aplicación real, usarías logging.error en lugar de st.error
+        # st.error(f"Error al guardar log: {e}") 
+        pass
 
-# --- 3. BASE DE CONOCIMIENTO ---
+# --- 3. BASE DE CONOCIMIENTO (Limpiada de cualquier cite start o formato de cita) ---
 base_de_conocimiento = {
     # === TEMAS GENERALES ===
     "login": {
-        "contenido": f"""
+        "contenido": """
 ### 🔐 Acceso y Login
 
 **Rutas:**
-* [cite_start]URL: https://tasy.fleni.org.ar/#/login [cite: 2, 150]
+* URL: https://tasy.fleni.org.ar/#/login
 
 **⚠️ Solución a Errores Frecuentes:**
-* [cite_start]**"No veo mis pacientes":** Revisa la esquina superior derecha[cite: 4, 152].
-    1. [cite_start]**Establecimiento:** ¿Dice Belgrano o Escobar? [cite: 5, 153]
-    2. [cite_start]**Perfil:** ¿Es Hospitalización Multi o Enfermería? [cite: 5, 153]
-    3. [cite_start]**Sector:** Es obligatorio seleccionar el sector en el filtro[cite: 5, 153].
-* [cite_start]**Cerrar Sesión:** Haz clic siempre en "Salir" (Logout)[cite: 8, 156].
+* **"No veo mis pacientes":** Revisa la esquina superior derecha.
+    1. **Establecimiento:** ¿Dice Belgrano o Escobar?
+    2. **Perfil:** ¿Es Hospitalización Multi o Enfermería?
+    3. **Sector:** Es obligatorio seleccionar el sector en el filtro.
+* **Cerrar Sesión:** Haz clic siempre en "Salir" (Logout).
         """
     },
     "navegacion": {
@@ -86,12 +88,12 @@ base_de_conocimiento = {
 ### 🧭 Navegación y Búsqueda
 
 **Rutas:**
-* [cite_start]**Ver Camas:** Función "Perspectiva Clínica" > Elegir sector[cite: 15, 16].
-* [cite_start]**Entrar a HCE:** Doble clic sobre el nombre del paciente[cite: 25, 162].
+* **Ver Camas:** Función "Perspectiva Clínica" > Elegir sector desde el filtro.
+* **Entrar a HCE:** Doble clic sobre el nombre del paciente.
 
 **Tips de Uso:**
-* [cite_start]**Alertas:** Al entrar verás pop-ups de seguridad (Alergias/Aislamiento)[cite: 163, 167, 168]. [cite_start]Ciérralos con la X[cite: 164].
-* [cite_start]**Resumen Electrónico:** Es la pantalla principal ideal para el pase de guardia[cite: 179].
+* **Alertas:** Al entrar verás pop-ups de seguridad (Alergias/Aislamiento). Ciérralos con la X.
+* **Resumen Electrónico:** Es la pantalla principal ideal para el pase de guardia.
         """
     },
     "sidca": {
@@ -99,12 +101,12 @@ base_de_conocimiento = {
 ### 🕰️ Consulta Histórica (SIDCA)
 
 **Ruta:**
-* [cite_start]Desde cualquier parte de la Historia Clínica en Tasy[cite: 123, 325].
+* Desde cualquier parte de la Historia Clínica en Tasy.
 
 **Pasos:**
-1. [cite_start]Haz **clic derecho** en cualquier espacio en blanco de la pantalla[cite: 123, 325].
-2. [cite_start]Selecciona **CES - Consulta Electrónica de Salud**[cite: 123, 325].
-3. [cite_start]Se abrirá la ventana de SIDCA para ver evoluciones viejas[cite: 124, 326].
+1. Haz **clic derecho** en cualquier espacio en blanco de la pantalla.
+2. Selecciona **CES - Consulta Electrónica de Salud**.
+3. Se abrirá la ventana de SIDCA para ver los registros cargados de ese paciente.
         """
     },
 
@@ -114,17 +116,16 @@ base_de_conocimiento = {
 ### 🩺 Signos Vitales y APAP (Enfermería)
 
 **Ruta:**
-* [cite_start]Solapa **Signos Vitales** [cite: 183] > [cite_start]Botón **Añadir**[cite: 185].
+* Solapa **Signos Vitales** > Botón **Añadir**.
 
 **Pasos Clave:**
-1. [cite_start]Completa los campos y verifica la hora real[cite: 189].
-2. [cite_start]**IMPORTANTE:** Marca la casilla **APAP** para que el dato viaje a la grilla general[cite: 188, 195].
+1. Completa los campos y verifica la hora real.
+2. **IMPORTANTE:** Marca la casilla **APAP** para que el dato viaje a la grilla general.
+3. **Liberar** para finalizar.
 
 **⚠️ Solución a Errores:**
-* **Guardar vs Liberar:**
-    * [cite_start]*Guardar:* Es borrador (nadie más lo ve)[cite: 192]. [cite_start]Permite editar[cite: 193].
-    * [cite_start]*Liberar:* Publicar (visible para todos)[cite: 194]. [cite_start]No permite editar, solo inactivar[cite: 194].
-* [cite_start]**Corregir:** Si liberaste mal, selecciona el registro > **Inactivar** > Justificar motivo[cite: 196, 197].
+* **Guardar vs Liberar:** *Guardar* es borrador (no visible). *Liberar* es publicar (visible para todos).
+* **Corregir:** Si liberaste mal, selecciona el registro > **Inactivar** > Justificar motivo.
         """
     },
     "balance hidrico": {
@@ -132,16 +133,16 @@ base_de_conocimiento = {
 ### 💧 Balance Hídrico
 
 **Ruta:**
-* [cite_start]Solapa de **Ingresos y egresos**[cite: 257].
+* Solapa de **Ingresos y egresos**.
 
 **Pasos para Cargar:**
-1. [cite_start]Clic en **Añadir**[cite: 258].
-2. [cite_start]Lado Izquierdo: Elige el Grupo y Tipo de líquido[cite: 259].
-3. [cite_start]**CRUCIAL:** Clic en la **Flecha Derecha (➡️)** para pasarlo al panel de carga[cite: 261].
-4. [cite_start]Se abre una ventana: pon el volumen y confirma con **Finalizar**[cite: 263, 264].
+1. Clic en **Añadir**.
+2. Lado Izquierdo: Elige el Grupo y Tipo de líquido, haciendo clic en la flecha para desplegar el listado.
+3. Clic en la **Flecha Derecha (➡️)** para pasarlo al panel de carga.
+4. Se abre una ventana: pon el volumen y confirma con **Finalizar**.
 
 **Visualización:**
-* [cite_start]Ve a la solapa "**Análisis de balance**" para ver los totales por turno[cite: 253, 255].
+* Ve a la solapa "**Análisis de balance**" para ver los totales por turno.
         """
     },
     "adep": {
@@ -149,16 +150,16 @@ base_de_conocimiento = {
 ### 💊 ADEP (Administración de Medicación)
 
 **Ruta:**
-* [cite_start]Ítem ADEP en el árbol lateral[cite: 213].
+* Ítem ADEP en el árbol lateral.
 
 **Pasos:**
-1. [cite_start]Busca el horario pendiente (lado derecho)[cite: 213].
-2. [cite_start]**Clic derecho** sobre el horario > **Administrar / revertir evento**[cite: 219].
-3. [cite_start]Agrega comentario si hace falta y da OK[cite: 220, 221].
+1. Busca el horario pendiente (lado derecho).
+2. **Clic derecho** sobre el horario > **Administrar / revertir evento**.
+3. Da OK para confirmar el registro.
 
 **Casos Especiales:**
-* [cite_start]**Medicación Suspendida:** Usa el filtro arriba y marca "medicación suspendida", luego filtra[cite: 229].
-* [cite_start]**Glucemia (Protocolo):** Se carga en "Exámenes y procedimientos" [cite: 238] [cite_start]con clic derecho, registrando el valor[cite: 239]. [cite_start]Los valores impactan en APAP[cite: 242].
+* **Medicación Suspendida:** Usa el filtro y marca "medicación suspendida".
+* **Glucemia (Protocolo):** En "Exámenes y procedimientos" das clic derecho e inicias el registro del valor. Los valores impactan en APAP.
         """
     },
     "dispositivos": {
@@ -166,12 +167,12 @@ base_de_conocimiento = {
 ### 💉 Dispositivos (Sondas, Vías, Catéteres)
 
 **Ruta:**
-* [cite_start]Ítem **Dispositivos/Equipos**[cite: 267].
+* Ítem **Dispositivos/Equipos**.
 
 **Pasos:**
-* [cite_start]**Nuevo:** Ve a "Gráfico de dispositivos" > Nuevo dispositivo [cite: 271] > [cite_start]Elige tipo y fecha de retiro/rotación[cite: 272].
-* [cite_start]**Retirar:** Clic en "Acciones de dispositivo" [cite: 274] > [cite_start]Retirar > Justificar[cite: 275, 276].
-* [cite_start]**Rotar:** Clic en "Acciones de dispositivo" > Sustituir[cite: 277].
+* **Nuevo:** Ve a "Gráfico de dispositivos" > Nuevo dispositivo > Elige tipo, fecha de retiro y agrega detalles/observaciones.
+* **Retirar:** Clic en "Acciones de dispositivo" > Selecciona el dispositivo > Justifica motivo y Ok.
+* **Rotar:** Clic en "Acciones de dispositivo" > **Sustituir**.
         """
     },
     "pendientes": {
@@ -179,13 +180,13 @@ base_de_conocimiento = {
 ### 📋 Pendientes de Enfermería
 
 **Ruta:**
-* [cite_start]Ítem **Pendientes de Enfermería**[cite: 282].
+* Ítem **Pendientes de Enfermería**.
 
 **Gestión:**
-* [cite_start]**Añadir:** Botón Añadir para crear recordatorio[cite: 283].
+* **Añadir:** Botón Añadir para crear recordatorio.
 * **Borrar/Corregir:**
-    * [cite_start]Si no está liberado, puedes **Eliminar**[cite: 287].
-    * [cite_start]Si ya se liberó, usa **Inactivar** justificando la acción[cite: 285].
+    * Si no está liberado, puedes **Eliminar pendiente**.
+    * Si ya se liberó, usa **Inactivar** justificando la acción.
         """
     },
 
@@ -195,17 +196,17 @@ base_de_conocimiento = {
 ### 📅 Gestión de Agenda (Turnos)
 
 **Rutas:**
-* [cite_start]**Agenda del día:** Historia Clínica > Consulta > Agenda de servicios[cite: 11].
-* [cite_start]**Turnos libres:** Pantalla principal > Agenda de servicio[cite: 30].
+* **Agenda del día:** HCE > Consulta > Agenda de servicios.
+* **Turnos libres:** Pantalla principal > Agenda de servicio.
 
 **Cómo Filtrar Correctamente:**
-1. [cite_start]**Por Especialidad:** Agenda de servicios > Consultar Datos > **Filtro avanzado** [cite: 32] > [cite_start]Seleccionar agendas [cite: 33, 34] > Filtrar.
-2. [cite_start]**Por Profesional:** Utiliza el segmento "profesional ejecutor"[cite: 37].
+1. **Por Especialidad:** Agenda de servicio > Consultar Datos > Filtro avanzado > Seleccionar todas las agendas del servicio > Filtrar.
+2. **Por Profesional:** Utiliza el segmento "profesional ejecutor" y la lupa.
 
 **⚠️ Solución a Errores:**
-* [cite_start]**"No veo nada":** Tienes que seleccionar previamente la agenda desde el filtro[cite: 13].
-* [cite_start]**"Datos mezclados":** Obligatorio usar el botón **Limpiar filtros** antes de hacer una nueva búsqueda[cite: 35].
-* [cite_start]**Estatus:** Luego de atender, cambia el estado de "esperando consulta" a **"ejecutada"**[cite: 27].
+* **"No veo nada":** Tienes que seleccionar previamente la agenda desde el filtro.
+* **Estatus:** Luego de atender, cambia el estado de "esperando consulta" a **"ejecutada"**.
+* **Nueva Búsqueda:** Obligatorio usar el botón **Limpiar filtros** antes de hacer una nueva búsqueda.
         """
     },
     "nota clinica": {
@@ -213,18 +214,17 @@ base_de_conocimiento = {
 ### 📝 Notas Clínicas (Evoluciones)
 
 **Ruta:**
-* [cite_start]Ítem **Nota Clínica**[cite: 67].
+* Ítem **Nota Clínica**.
 
 **Pasos:**
-1. [cite_start]Clic en **Añadir**[cite: 68].
-2. [cite_start]Elige **Tipo de nota clínica** (Tu especialidad)[cite: 69].
-3. [cite_start]Escribe o usa plantillas[cite: 69].
-4. [cite_start]**Liberar** para finalizar[cite: 70, 76]. [cite_start](Guardar es solo borrador [cite: 74, 75]).
+1. Clic en **Añadir**.
+2. Elige **Tipo de nota clínica** (Tu especialidad) para usar plantillas.
+3. Completa los datos y **Liberar** para finalizar.
 
 **Tips:**
-* [cite_start]**Alta Médica:** Usa el tipo de nota "**Resumen de HC**"[cite: 71].
-* [cite_start]**Duplicar:** Clic derecho sobre nota previa > Duplicar nota clínica[cite: 80]. [cite_start](Si la nota no es tuya, es necesario borrar la firma del profesional original [cite: 81]).
-* [cite_start]**Corregir:** Selecciona la nota > Clic sobre **Inactivar**[cite: 77].
+* **Alta Médica:** Usa el tipo de nota "**Resumen de HC**".
+* **Duplicar:** Clic derecho sobre nota previa > Duplicar nota clínica. **Importante:** Si la nota no es tuya, borra la firma del profesional original.
+* **Corregir:** Selecciona la nota > Clic sobre **Inactivar** y justifica el motivo.
         """
     },
     "informe final": {
@@ -232,33 +232,33 @@ base_de_conocimiento = {
 ### 🏁 Informe Final (Alta)
 
 **Ruta:**
-* [cite_start]Función **Central de informes** (desde la pantalla principal o desde el HCE usando la llamada externa)[cite: 134, 136].
+* Función **Central de informes** (desde la pantalla principal o desde la HCE usando la llamada externa).
 
 **Pasos para PDF:**
-1. [cite_start]**Importante:** El estatus debe ser **"realizado"**[cite: 140].
-2. [cite_start]Clic derecho sobre el informe > **Ejecutar** > **Incluir interpretación PDF**[cite: 141].
-3. [cite_start]Asigna el médico responsable y da OK[cite: 142].
+1. **Importante:** El estatus debe ser **"realizado"**.
+2. Clic derecho sobre el informe > **Ejecutar** > **Incluir interpretación PDF**.
+3. Asigna el médico responsable y da OK.
 
 **Enviar por Email:**
-* [cite_start]Cuando el estatus cambie a "**Interpretación liberada**", haz clic derecho > Enviar > email[cite: 143].
-* [cite_start]Si no hay mail cargado en el paciente, puedes usar "email electivo" o avisar a secretaría[cite: 144, 145].
+* Cuando el estatus cambie a "**Interpretación liberada**", haz clic derecho > Enviar > email.
+* Si el paciente no tiene mail, puedes usar "email electivo" o avisar a secretaría.
         """
     },
     "cpoe": {
         "contenido": """
-### 💊 CPOE y Pedidos Médicos
+### 💊 CPOE, Justificaciones y Pedidos
 
 **Rutas:**
-* [cite_start]**Ver Medicación/Indicaciones:** Árbol HCE > CPOE[cite: 104].
-* [cite_start]**Justificaciones/Solicitudes:** Ítem para generar pedidos o documentos como pre-informes de psicopedagogía[cite: 83, 84].
+* **Ver Medicación/Indicaciones:** Árbol HCE > CPOE.
+* **Justificaciones/Solicitudes:** Ítem para generar pedidos o documentos (ej. pre-informes).
 
 **Pasos (Indicaciones):**
-* [cite_start]**Recomendaciones:** Despliega listado > Marca el check de las deseadas > Liberar y confirmar[cite: 106, 107].
-* [cite_start]**Gases Arteriales (Kinesiología):** Clic en el icono + para indicar[cite: 110].
+* **Recomendaciones:** Despliega listado por servicio > Selecciona el check de las deseadas > Liberar y confirmar.
+* **Nota:** Si no encuentras la recomendación, usa la **recomendación general** y detalla en el campo información adicional.
 
 **Pasos (Justificaciones):**
-* [cite_start]Añadir > Seleccionar tipo de justificativa > Completar, guardar y liberar[cite: 85, 86].
-* [cite_start]Para PDF: Selecciona el registro, haz clic en reportes > visualizar[cite: 87].
+* Clic en **Añadir** > Seleccionar tipo de justificativa > Completar, guardar y liberar.
+* Para PDF: Selecciona el registro, haz clic en **reportes > visualizar**.
         """
     },
     "ged": {
@@ -266,13 +266,13 @@ base_de_conocimiento = {
 ### 📂 Gestión de Documentos (GED)
 
 **Ruta:**
-* [cite_start]Ítem **Gestión de Documentos**[cite: 125, 327].
+* Ítem **Gestión de Documentos**.
 
 **Uso:**
-* [cite_start]**Visualizar:** Haciendo clic sobre Archivo[cite: 128, 329].
-* [cite_start]**Contenido:** Contiene archivos cargados por administrativos (Anexos de la atención) y profesionales (Documentos)[cite: 126, 328].
-* [cite_start]**Cargar:** Botón Añadir [cite: 129, 330] > [cite_start]Clasificar el archivo para facilitar la búsqueda[cite: 129, 330].
-* [cite_start]**Ejemplo:** Para informes iniciales, elegir en tipo de archivo "informe inicial"[cite: 130].
+* **Visualizar:** Haciendo clic sobre Archivo.
+* **Contenido:** Contiene archivos cargados por administrativos (solapa Anexos) y profesionales (solapa Documentos).
+* **Cargar:** Botón **Añadir**, y **clasifica** el archivo (ej. "informe inicial").
+* **Buscar:** Utiliza el filtro con fechas y tipo de archivos.
         """
     },
     "evaluaciones": {
@@ -280,16 +280,16 @@ base_de_conocimiento = {
 ### 📊 Evaluaciones y Escalas
 
 **Ruta:**
-* [cite_start]Ítem **Evaluaciones**[cite: 88, 198].
+* Ítem **Evaluaciones**.
 
 **Pasos:**
-1. [cite_start]Clic **Añadir** [cite: 90, 199] > [cite_start]Busca la escala deseada[cite: 94, 203].
+1. Clic **Añadir** > Selecciona la evaluación deseada.
 2. Completa los campos.
-3. [cite_start]**Guardar y Liberar**[cite: 95, 204].
+3. **Guardar y Liberar**.
 
 **Tips:**
-* [cite_start]**Adjuntar Imagen/Anexo:** Guarda primero (sin liberar) [cite: 97, 206][cite_start], ve a la solapa **Anexos** [cite: 98, 207][cite_start], agrega el archivo y luego Libera[cite: 98, 207].
-* [cite_start]**Duplicar:** Clic derecho sobre evaluación previa > Duplicar[cite: 99, 208]. [cite_start]Luego Guardar y Liberar[cite: 100, 209].
+* **Adjuntar Imagen/Anexo:** Guarda primero (sin liberar), ve a la solapa **Anexos**, agrega el archivo y luego **Libera**.
+* **Duplicar:** Clic derecho sobre evaluación previa > Duplicar. Luego Guardar y Liberar.
         """
     }
 }
@@ -298,7 +298,7 @@ base_de_conocimiento = {
 def buscar_solucion(consulta, rol):
     q = consulta.lower()
     
-    # Búsqueda General
+    # Búsqueda General (Aplica a todos los roles)
     if any(x in q for x in ["login", "ingresar", "usuario", "contraseña", "no veo paciente", "perfil"]): return base_de_conocimiento["login"]["contenido"]
     if any(x in q for x in ["buscar paciente", "sector", "cama", "alerta", "resumen"]): return base_de_conocimiento["navegacion"]["contenido"]
     if any(x in q for x in ["sidca", "historia vieja", "anterior", "ces", "consulta electronica"]): return base_de_conocimiento["sidca"]["contenido"]
@@ -308,17 +308,17 @@ def buscar_solucion(consulta, rol):
         if any(x in q for x in ["signos", "vitales", "presion", "temperatura", "apap", "respiratoria"]): return base_de_conocimiento["signos vitales"]["contenido"]
         if any(x in q for x in ["balance", "hidrico", "ingreso", "egreso", "liquido"]): return base_de_conocimiento["balance hidrico"]["contenido"]
         if any(x in q for x in ["adep", "administrar", "medicacion", "droga", "glucemia", "revertir"]): return base_de_conocimiento["adep"]["contenido"]
-        if any(x in q for x in ["dispositivo", "sonda", "via", "cateter", "equipo"]): return base_de_conocimiento["dispositivos"]["contenido"]
+        if any(x in q for x in ["dispositivo", "sonda", "via", "cateter", "equipo", "rotar"]): return base_de_conocimiento["dispositivos"]["contenido"]
         if any(x in q for x in ["pendiente", "tarea"]): return base_de_conocimiento["pendientes"]["contenido"]
     
     # Médico / Otros Profesionales
     if rol in ["Médico", "Otros profesionales"]:
-        if any(x in q for x in ["agenda", "turno", "citado", "filtro", "profesional"]): return base_de_conocimiento["agenda"]["contenido"]
-        if any(x in q for x in ["nota", "evolucion", "escribir", "duplicar", "plantilla", "resumen hc"]): return base_de_conocimiento["nota clinica"]["contenido"]
+        if any(x in q for x in ["agenda", "turno", "citado", "filtro", "profesional", "consultar"]): return base_de_conocimiento["agenda"]["contenido"]
+        if any(x in q for x in ["nota", "evolucion", "escribir", "duplicar", "plantilla", "resumen hc", "inactivar"]): return base_de_conocimiento["nota clinica"]["contenido"]
         if any(x in q for x in ["informe", "final", "alta", "epicrisis", "pdf", "mail", "central de informes"]): return base_de_conocimiento["informe final"]["contenido"]
-        # Se agrupan CPOE y Justificaciones/Solicitudes bajo una misma clave
+        # CPOE / Justificaciones
         if any(x in q for x in ["cpoe", "indicacion", "prescripcion", "gases", "recomendacion", "justificacion", "pedido", "solicitud", "orden"]): return base_de_conocimiento["cpoe"]["contenido"]
-        if any(x in q for x in ["ged", "archivo", "adjunto", "documento", "informe inicial"]): return base_de_conocimiento["ged"]["contenido"]
+        if any(x in q for x in ["ged", "archivo", "adjunto", "documento", "informe inicial", "anexos"]): return base_de_conocimiento["ged"]["contenido"]
         if any(x in q for x in ["evaluacion", "escala", "score", "imagen", "adjuntar"]): return base_de_conocimiento["evaluaciones"]["contenido"]
 
     # Default
@@ -341,8 +341,11 @@ if "messages" not in st.session_state:
 
 # ONBOARDING (ESTRUCTURA DE TRES PERFILES)
 if st.session_state.rol_usuario is None:
-    # Usamos una imagen de bienvenida si existe
-    st.image("image_39540a.png", use_column_width="auto")
+    # Mostramos la imagen solo si existe (para evitar el error de MediaFileStorageError)
+    if os.path.exists("image_39540a.png"):
+        st.image("image_39540a.png", use_column_width="auto")
+    elif os.path.exists("image_3950c3.png"):
+        st.image("image_3950c3.png", use_column_width="auto")
     
     st.info("👋 ¡Hola! Soy Flenisito. Para ayudarte mejor, selecciona tu perfil:")
     
@@ -371,11 +374,10 @@ else:
     with st.sidebar:
         st.success(f"Perfil activo: **{st.session_state.rol_usuario}**")
         
-        # TIPS
+        # TIPS (CÓDIGO LIMPIO SIN CITES)
         st.markdown("---")
         st.markdown("### 💡 Tips Rápidos")
         st.caption("1. **Liberar** = Publicar. **Guardar** = Borrador.")
-        # Línea 378 corregida
         st.caption("2. ¿No ves pacientes? Revisa **Sector** y **Establecimiento**.") 
         st.caption("3. **SIDCA:** Clic derecho > CES.")
         st.markdown("---")
@@ -432,13 +434,8 @@ else:
                                 mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                                 key=f"descarga_{datetime.now().timestamp()}" # Key única para evitar errores
                             )
-                    # else:
-                        # Opcional: Mensaje debug si te olvidas de subir el archivo
-                        # st.warning("Admin: Falta subir el archivo 'manual enfermeria (2).docx'")
-                        pass
-
+                
                 # 3. Log
                 log_interaction(st.session_state.rol_usuario, prompt, respuesta_core)
         
         st.session_state.messages.append({"role": "assistant", "content": respuesta_final})
-
