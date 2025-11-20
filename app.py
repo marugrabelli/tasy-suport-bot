@@ -13,77 +13,90 @@ MANUAL_ENFERMERIA = "manual enfermeria (2).docx"
 MANUAL_MEDICOS = "Manual_Medicos.docx"
 MANUAL_OTROS = "Manual Otros profesionales.docx"
 
-# Definición de Tags de Enfermería (Se agrupan por destino de respuesta)
+# Definición de Tags de Enfermería: Nombre exacto, Consulta que lanza, y Respuesta a mostrar
+# Cada tag tiene un color pastel único.
 ENFERMERIA_TAGS = {
-    "Glucemia (Cargar/Ver)": {"color": "#FFC0CB", "query": "glucemia", "response_key": "adep"},
-    "Signos Vitales (Cargar/Ver)": {"color": "#ADD8E6", "query": "signos vitales", "response_key": "signos vitales"},
-    "ADEP (Medicamentos y Dolor)": {"color": "#90EE90", "query": "administrar medicación si dolor", "response_key": "adep"},
-    "Balance Hídrico (Turno/Día)": {"color": "#87CEFA", "query": "balance por turno", "response_key": "balance hidrico"},
-    "Dispositivos (Catéter, Retiro)": {"color": "#F08080", "query": "agregar un nuevo catéter", "response_key": "dispositivos"},
-    "Evaluaciones / Escalas": {"color": "#FFA07A", "query": "cargar escala de dolor", "response_key": "pendientes_eval"},
-    "Pendientes de Enfermería": {"color": "#DDA0DD", "query": "agregar pendiente", "response_key": "pendientes_eval"},
-    "Pase de Guardia / Resumen": {"color": "#FAFAD2", "query": "pase de guardia", "response_key": "navegacion"},
-    "Login / Contraseña": {"color": "#B0C4DE", "query": "contraseña y usuario no coinciden", "response_key": "login"},
-    "Consulta Histórica (SIDCA)": {"color": "#AFEEEE", "query": "consultar historia vieja", "response_key": "sidca"},
+    # Grupo ADEP/Signos/Balance
+    "Cargar Glucemia": {"color": "#FFC0CB", "query": "cargar glucemia", "response_key": "adep"},
+    "Ver Glucemia": {"color": "#ADD8E6", "query": "ver glucemia", "response_key": "adep"},
+    "Cargar Signos Vitales": {"color": "#90EE90", "query": "cargar signos vitales", "response_key": "signos vitales"},
+    "Ver Signos Vitales": {"color": "#87CEFA", "query": "ver signos vitales", "response_key": "signos vitales"},
+    "Balance por Turno": {"color": "#F08080", "query": "balance por turno", "response_key": "balance hidrico"},
+    "Balance por Día": {"color": "#FFA07A", "query": "balance por dia", "response_key": "balance hidrico"},
+    "Adm. Medicación si Dolor": {"color": "#DDA0DD", "query": "adm medicación si dolor", "response_key": "adep"},
+    
+    # Grupo Dispositivos/Login/Pase
+    "Agregar un Nuevo Catéter": {"color": "#FAFAD2", "query": "agregar un nuevo catéter", "response_key": "dispositivos"},
+    "Retirar Catéter": {"color": "#B0C4DE", "query": "retirar catéter", "response_key": "dispositivos"},
+    "Contraseña y Usuario NO Coinciden": {"color": "#AFEEEE", "query": "contraseña y usuario no coinciden", "response_key": "login"},
+    "Pase de Guardia": {"color": "#FFDAB9", "query": "pase de guardia", "response_key": "navegacion"},
+    
+    # Grupo Otros
+    "Otros (Pendientes/Escalas)": {"color": "#20B2AA", "query": "otros temas enfermeria", "response_key": "pendientes_eval"},
 }
 
+# Mapping para CSS: Se genera dinámicamente el mapping de color a clase
+COLOR_MAP = {
+    "#FFC0CB": "tag-pink", "#ADD8E6": "tag-lightblue", "#90EE90": "tag-lightgreen", 
+    "#87CEFA": "tag-skyblue", "#F08080": "tag-lightcoral", "#FFA07A": "tag-lightsalmon", 
+    "#DDA0DD": "tag-thistle", "#FAFAD2": "tag-lightyellow", "#B0C4DE": "tag-slategray", 
+    "#AFEEEE": "tag-turquoise", "#FFDAB9": "tag-peach", "#20B2AA": "tag-seafoam"
+}
+
+
 # Estilos CSS
-st.markdown("""
+st.markdown(f"""
     <style>
-    .stChatMessage { border-radius: 10px; }
-    .stButton button { width: 100%; border-radius: 5px; }
-    h1 { color: #005490; }
-    h3 { color: #005490; }
+    .stChatMessage {{ border-radius: 10px; }}
+    .stButton button {{ width: 100%; border-radius: 5px; }}
+    h1 {{ color: #005490; }}
+    h3 {{ color: #005490; }}
     
     /* Clase para reducir el tamaño de letra del pie de página */
-    .footer-content {
-        font-size: 0.9em; /* 90% del tamaño normal */
+    .footer-content {{
+        font-size: 0.9em;
         opacity: 0.9;
-    }
+    }}
     /* Estilo para destacar el botón de descarga del manual */
-    .stDownloadButton button {
+    .stDownloadButton button {{
         border: 1px solid #005490;
         color: #005490;
         background-color: #f0f8ff;
         margin-bottom: 10px;
-    }
-    .stDownloadButton button:hover {
+    }}
+    .stDownloadButton button:hover {{
         background-color: #005490;
         color: white;
-    }
+    }}
     
     /* Estilos para los botones de tags (colores pastel) */
-    div[data-testid*="column"] > button {
+    div[data-testid*="column"] > button {{
         margin-bottom: 8px;
         color: #333333 !important; /* Texto oscuro para contraste */
         font-weight: bold;
         border: 1px solid #ddd;
+    }}
+    
+    /* Generación dinámica de clases de colores */
+    {
+        "".join([
+            f".{cls} button {{ background-color: {hex_color}; border-color: {hex_color}; }}"
+            for hex_color, cls in COLOR_MAP.items()
+        ])
     }
-    
-    /* Clases para aplicar los colores pastel de los tags */
-    .tag-pink button { background-color: #FFC0CB; }
-    .tag-lightblue button { background-color: #ADD8E6; }
-    .tag-lightgreen button { background-color: #90EE90; }
-    .tag-skyblue button { background-color: #87CEFA; }
-    .tag-lightcoral button { background-color: #F08080; }
-    .tag-lightsalmon button { background-color: #FFA07A; }
-    .tag-thistle button { background-color: #DDA0DD; }
-    .tag-lightyellow button { background-color: #FAFAD2; }
-    .tag-slategray button { background-color: #B0C4DE; }
-    .tag-turquoise button { background-color: #AFEEEE; }
-    
+
     /* Estilos para los botones de navegación (Volver / Dejar mensaje) */
-    .nav-button-container button {
+    .nav-button-container button {{
         background-color: #f0f2f6;
         color: #005490 !important;
         border: 1px solid #005490;
         font-weight: 500;
         margin-top: 15px;
-    }
-    .nav-button-container button:hover {
+    }}
+    .nav-button-container button:hover {{
         background-color: #005490;
         color: white !important;
-    }
+    }}
 
     </style>
     """, unsafe_allow_html=True)
@@ -106,30 +119,19 @@ def log_interaction(rol, pregunta, respuesta):
 def show_enfermeria_tags():
     st.markdown("### 🔍 Selecciona un Tema de Soporte de Enfermería:")
     
-    tag_colors = {
-        "Glucemia (Cargar/Ver)": "tag-pink",
-        "Signos Vitales (Cargar/Ver)": "tag-lightblue",
-        "ADEP (Medicamentos y Dolor)": "tag-lightgreen",
-        "Balance Hídrico (Turno/Día)": "tag-skyblue",
-        "Dispositivos (Catéter, Retiro)": "tag-lightcoral",
-        "Evaluaciones / Escalas": "tag-lightsalmon",
-        "Pendientes de Enfermería": "tag-thistle",
-        "Pase de Guardia / Resumen": "tag-lightyellow",
-        "Login / Contraseña": "tag-slategray",
-        "Consulta Histórica (SIDCA)": "tag-turquoise",
-    }
-    
     # Crea una cuadrícula de 2 columnas para los botones
     cols = st.columns(2)
     
     for i, (label, data) in enumerate(ENFERMERIA_TAGS.items()):
         
-        button_key = f"tag_enfermeria_{label.replace(' ', '_').replace('/', '_')}"
+        # Mapea el color del tag a la clase CSS
+        hex_color = data['color']
+        css_class = COLOR_MAP[hex_color]
+        button_key = f"tag_enfermeria_{label.replace(' ', '_').replace('/', '_').replace('.', '')}"
         
-        # Uso de HTML para envolver el botón y aplicar el color pastel
         with cols[i % 2]:
             st.markdown(
-                f'<div class="{tag_colors[label]}">', 
+                f'<div class="{css_class}">', 
                 unsafe_allow_html=True
             )
             # El botón de Streamlit se renderiza dentro del div coloreado
@@ -176,86 +178,75 @@ def show_navigation_buttons(rol):
 
     st.markdown('</div>', unsafe_allow_html=True)
 
-# --- 3. BASE DE CONOCIMIENTO (Se mantiene igual, limpia de citas) ---
-# NOTE: Se ha reagrupado "Pendientes" y "Evaluaciones" bajo "pendientes_eval"
-# y "Evaluaciones Multi" para el resto de profesionales.
+# --- 3. BASE DE CONOCIMIENTO (Se mantienen las claves de respuesta) ---
 base_de_conocimiento = {
     # === TEMAS GENERALES ===
     "login": {
         "contenido": """
 ### 🔐 Acceso y Login
 
-**Rutas:**
-* URL: https://tasy.fleni.org.ar/#/login
+**Ruta:** URL: https://tasy.fleni.org.ar/#/login
 
 **⚠️ Solución a Errores Frecuentes (Contraseña / Usuario):**
-* **"No veo mis pacientes":** Revisa la esquina superior derecha.
-    1. **Establecimiento:** ¿Dice Belgrano o Escobar?
-    2. **Perfil:** ¿Es Hospitalización Multi o Enfermería?
-    3. **Sector:** Es obligatorio seleccionar el sector en el filtro.
+* **Verifica el Perfil:** Revisa la esquina superior derecha para confirmar que estás en el perfil correcto (Hospitalización Multi o Enfermería).
+* **Verifica el Sector:** Es obligatorio seleccionar el sector correspondiente para visualizar pacientes.
 * **Cerrar Sesión:** Haz clic siempre en "Salir" (Logout).
         """
     },
     "navegacion": {
         "contenido": """
-### 🧭 Navegación y Búsqueda
+### 🧭 Navegación y Búsqueda (Pase de Guardia)
 
-**Rutas (Pase de Guardia):**
-* **Ver Camas:** Función "Perspectiva Clínica" > Elegir sector desde el filtro.
-* **Resumen Electrónico:** Es la pantalla principal ideal para el pase de guardia, agrupando toda la información del paciente.
+**Función:** La función Perspectiva Clínica permite ver el listado de camas.
 
-**Tips de Uso:**
-* **Entrar a HCE:** Doble clic sobre el nombre del paciente.
-* **Alertas:** Al entrar verás pop-ups de seguridad (Alergias/Aislamiento). Ciérralos con la X.
+**Pase de Guardia:**
+* [cite_start]El **Resumen Electrónico** es el ítem ideal para el pase de guardia, ya que agrupa toda la información necesaria del paciente brevemente[cite: 179].
+* [cite_start]Para ingresar a la HCE, haz doble clic sobre el nombre del paciente[cite: 162].
         """
     },
     "sidca": {
         "contenido": """
 ### 🕰️ Consulta Histórica (SIDCA)
 
-**Ruta:**
-* Desde cualquier parte de la Historia Clínica en Tasy.
-
 **Pasos:**
-1. Haz **clic derecho** en cualquier espacio en blanco de la pantalla.
-2. Selecciona **CES - Consulta Electrónica de Salud**.
-3. Se abrirá la ventana de SIDCA para ver los registros históricos cargados de ese paciente.
+1. Desde cualquier parte de la HCE del paciente.
+2. Haz **clic derecho** en el fondo blanco de la pantalla.
+3. [cite_start]Selecciona **CES - Consulta Electrónica de Salud**[cite: 123, 325].
+4. [cite_start]Esto te dirigirá a SIDCA para visualizar los registros cargados de ese paciente[cite: 124, 326].
         """
     },
 
     # === PERFIL ENFERMERÍA ===
     "signos vitales": {
         "contenido": """
-### 🩺 Signos Vitales y APAP (Cargar/Ver)
+### 🩺 Signos Vitales y Parámetros Respiratorios (Cargar/Ver)
 
-**Ruta:**
+**Ruta para Cargar:**
 * Solapa **Signos Vitales** > Botón **Añadir**.
 
 **Pasos Clave:**
-1. Completa los campos y verifica la hora real.
-2. **IMPORTANTE:** Marca la casilla **APAP** para que el dato viaje a la grilla general.
-3. **Liberar** para finalizar.
+1. Rellena los campos y verifica la hora del control.
+2. [cite_start]**IMPORTANTE:** Marca la casilla **APAP** si quieres que el dato sea visible en la grilla general (Análisis de Parámetros Asistenciales)[cite: 188].
+3. [cite_start]**Liberar** para finalizar la acción[cite: 194].
 
-**⚠️ Solución a Errores:**
-* **Guardar vs Liberar:** *Guardar* es borrador (no visible). *Liberar* es publicar (visible para todos).
-* **Corregir:** Si liberaste mal, selecciona el registro > **Inactivar** > Justificar motivo.
+**Visualización (Ver Signos):**
+* [cite_start]Desde la misma solapa puedes visualizar los datos previamente cargados, aplicando el filtro si necesitas ver registros anteriores[cite: 184, 187].
         """
     },
     "balance hidrico": {
         "contenido": """
 ### 💧 Balance Hídrico (Por Turno / Día)
 
-**Ruta:**
+**Ruta para Cargar:**
 * Solapa de **Ingresos y egresos**.
 
 **Pasos para Cargar:**
 1. Clic en **Añadir**.
-2. Lado Izquierdo: Elige el Grupo y Tipo de líquido.
-3. Clic en la **Flecha Derecha (➡️)** para pasarlo al panel de carga.
-4. Se abre una ventana: pon el volumen y confirma con **Finalizar**.
+2. [cite_start]Selecciona el Grupo y Tipo (Ingresos o Egresos) y haz clic en la **Flecha Derecha (➡️)** para agregarlo[cite: 259, 261].
+3. [cite_start]Ingresa el volumen y confirma con **Finalizar**[cite: 263, 264].
 
 **Visualización:**
-* Ve a la solapa "**Análisis de balance**" para ver los totales por turno o por el día (puedes usar el filtro para cambiar la visualización).
+* [cite_start]La solapa **Análisis de balance** muestra el detalle del balance total del paciente, el balance por turno y el detalle de cada turno seleccionado[cite: 253, 256].
         """
     },
     "adep": {
@@ -263,17 +254,17 @@ base_de_conocimiento = {
 ### 💊 ADEP (Glucemia y Medicación)
 
 **Rutas:**
-* Ítem **ADEP** en el árbol lateral para Medicación.
-* Ítem **Exámenes y procedimientos** para Protocolo de Glucemia.
+* **Medicamentos:** Ítem **ADEP** en el árbol lateral.
+* **Glucemia (Cargar/Ver):** Ítem **Exámenes y procedimientos** dentro de ADEP.
 
-**Pasos (Medicamentos/Dolor):**
+**Pasos (Administrar Medicación):**
 1. Busca el horario pendiente (lado derecho).
-2. **Clic derecho** sobre el horario > **Administrar / revertir evento**.
-3. **Nota:** Si es medicación condicional (ej. dolor), revisa la prescripción médica.
+2. [cite_start]**Clic derecho** sobre el horario > **Administrar / revertir evento**[cite: 219].
+3. [cite_start]Da OK para confirmar[cite: 221].
 
-**Pasos (Glucemia - Cargar/Ver):**
-1. En "Exámenes y procedimientos" das clic derecho e inicias el registro del valor de glucemia.
-2. Los valores de glucemia cargados en ADEP impactan en APAP.
+**Pasos (Cargar Glucemia):**
+1. [cite_start]En "Exámenes y procedimientos", clic derecho > se registra el valor de glucemia[cite: 239].
+2. [cite_start]Los valores de glucemia cargados en ADEP impactan en APAP y Signos Vitales[cite: 242].
         """
     },
     "dispositivos": {
@@ -284,32 +275,33 @@ base_de_conocimiento = {
 * Ítem **Dispositivos/Equipos**.
 
 **Pasos (Agregar/Nuevo):**
-* Ve a "Gráfico de dispositivos" > Nuevo dispositivo > Elige tipo y fecha de retiro/rotación.
+* [cite_start]Ve a "Gráfico de dispositivos" > Nuevo dispositivo > Elige el dispositivo y la fecha prevista de retiro o rotación[cite: 271, 272].
 
 **Pasos (Retirar):**
-* Clic en "Acciones de dispositivo" > Selecciona el dispositivo > Justifica motivo y Ok.
-* **Rotar:** Usa la acción **Sustituir**.
+* [cite_start]Clic en **Acciones de dispositivo** > Selecciona el dispositivo a retirar[cite: 274, 275].
+* [cite_start]Justifica el motivo de retirada y haz clic en Ok[cite: 276].
+* [cite_start]**Rotar:** Elige la acción **Sustituir**[cite: 277].
         """
     },
     "pendientes_eval": {
         "contenido": """
 ### 📋 Pendientes de Enfermería y Evaluaciones/Escalas
 
-**Ruta:**
-* Ítem **Pendientes de Enfermería** para tareas.
-* Ítem **Evaluaciones / Escalas** para escalas.
+**Rutas:**
+* **Pendientes:** Ítem **Pendientes de Enfermería**.
+* **Evaluaciones:** Ítem **Evaluaciones / Escalas**.
 
-**Gestión de Pendientes:**
-* **Añadir:** Botón Añadir para crear recordatorio.
-* Si ya se liberó, usa **Inactivar** justificando la acción.
+**Gestión de Pendientes (Otros):**
+* [cite_start]**Añadir:** Botón Añadir para crear un nuevo pendiente[cite: 283].
+* [cite_start]Para corregir un pendiente ya liberado, se debe **inactivar** y justificar la acción[cite: 285].
         
-**Gestión de Evaluaciones/Escalas (ej. Dolor):**
-* Clic **Añadir** > Selecciona la evaluación deseada (ej. escala de dolor).
-* Completa, **Guarda y Libera**.
+**Gestión de Evaluaciones/Escalas:**
+* [cite_start]Clic **Añadir** > Selecciona la evaluación que desees[cite: 203].
+* [cite_start]Completa, **Guarda y Libera**[cite: 204].
         """
     },
     
-    # === PERFIL MÉDICO / MULTI (Mantenemos por consistencia, no se usan en este flujo) ===
+    # === PERFIL MÉDICO / MULTI (Mantenemos por consistencia) ===
     "agenda": {"contenido": "La gestión de agenda requiere ingresar a Agenda de Servicio en el menú principal. Recuerda limpiar los filtros si vas a hacer una nueva búsqueda."},
     "nota clinica": {"contenido": "Las Notas Clínicas (Evoluciones) se crean haciendo clic en Añadir, seleccionando el tipo de nota (plantilla) y luego Liberar."},
     "informe final": {"contenido": "Para generar el Informe Final, usa la función Central de informes. El estatus debe estar como 'realizado' para ejecutar la inclusión del PDF."},
@@ -324,18 +316,18 @@ base_de_conocimiento = {
 def buscar_solucion(consulta, rol):
     q = consulta.lower()
     
-    # Búsqueda General
-    if any(x in q for x in ["login", "ingresar", "usuario", "contraseña", "no veo paciente", "perfil"]): return base_de_conocimiento["login"]["contenido"]
-    if any(x in q for x in ["buscar paciente", "sector", "cama", "alerta", "resumen", "pase de guardia"]): return base_de_conocimiento["navegacion"]["contenido"]
-    if any(x in q for x in ["sidca", "historia vieja", "anterior", "ces", "consulta electronica"]): return base_de_conocimiento["sidca"]["contenido"]
+    # Mapeo de búsqueda libre a claves de respuesta
+    if any(x in q for x in ["contraseña", "usuario", "no veo paciente", "perfil"]): return base_de_conocimiento["login"]["contenido"]
+    if any(x in q for x in ["pase de guardia", "resumen", "cama", "sector"]): return base_de_conocimiento["navegacion"]["contenido"]
+    if any(x in q for x in ["sidca", "historia vieja", "anterior", "ces"]): return base_de_conocimiento["sidca"]["contenido"]
 
-    # Enfermería (Usa las mismas claves que los tags)
+    # Enfermería
     if rol == "Enfermería":
         if any(x in q for x in ["signos", "vitales", "presion", "temperatura", "apap", "respiratoria"]): return base_de_conocimiento["signos vitales"]["contenido"]
         if any(x in q for x in ["balance", "hidrico", "ingreso", "egreso", "liquido"]): return base_de_conocimiento["balance hidrico"]["contenido"]
         if any(x in q for x in ["adep", "administrar", "medicacion", "droga", "glucemia", "revertir"]): return base_de_conocimiento["adep"]["contenido"]
         if any(x in q for x in ["dispositivo", "sonda", "via", "cateter", "equipo", "rotar"]): return base_de_conocimiento["dispositivos"]["contenido"]
-        if any(x in q for x in ["pendiente", "tarea", "evaluacion", "escala", "score", "imagen"]): return base_de_conocimiento["pendientes_eval"]["contenido"]
+        if any(x in q for x in ["pendiente", "tarea", "evaluacion", "escala", "score", "otros temas"]): return base_de_conocimiento["pendientes_eval"]["contenido"]
     
     # Médico / Otros Profesionales
     if rol in ["Médico", "Otros profesionales"]:
@@ -383,7 +375,6 @@ if st.session_state.rol_usuario is not None:
             st.session_state.rol_usuario = None
             st.session_state.messages = []
             st.session_state.conversation_step = "onboarding"
-            # Limpiar otros estados
             for key in ["manual_file", "manual_label", "response_key", "last_prompt"]:
                 if key in st.session_state: del st.session_state[key]
             st.rerun()
@@ -406,7 +397,7 @@ if st.session_state.rol_usuario is not None:
 
 # 1. ONBOARDING
 if st.session_state.conversation_step == "onboarding":
-    # Mostramos la imagen solo si existe
+    # Muestra imagen si existe
     if os.path.exists("image_39540a.png"):
         st.image("image_39540a.png", use_column_width="auto")
     elif os.path.exists("image_3950c3.png"):
@@ -422,7 +413,7 @@ if st.session_state.conversation_step == "onboarding":
             st.session_state.manual_file = MANUAL_ENFERMERIA
             st.session_state.manual_label = "Manual de Enfermería Completo"
             st.session_state.messages.append({"role": "assistant", "content": "Hola colega. Por favor, selecciona el tema en el que necesitas ayuda a continuación:"})
-            st.session_state.conversation_step = "tags"
+            st.session_state.conversation_step = "tags" # Va a la nube de tags
             st.rerun()
             
     with col2:
@@ -455,14 +446,13 @@ if st.session_state.rol_usuario == "Enfermería":
     # A. MOSTRAR TAGS
     if st.session_state.conversation_step == "tags":
         show_enfermeria_tags()
-        # Se necesita un input de texto para el caso "Otros" o si el usuario quiere escribir
+        
+        # Opciones para el usuario (si elige escribir, se pasa a modo libre)
         st.markdown("---")
-        st.session_state.conversation_step = "free_input" # Se mueve a free_input si escribe
         prompt = st.chat_input("O escribe directamente aquí 'Otros' o tu consulta...")
-        st.session_state.conversation_step = "tags" # Se mantiene en tags hasta que haya un prompt
         
         if prompt:
-            st.session_state.conversation_step = "free_input" # Se establece para procesar la consulta libre
+            st.session_state.conversation_step = "free_input" 
             st.rerun()
 
     # B. MOSTRAR RESPUESTA ESTRUCTURADA POR TAG
@@ -584,10 +574,11 @@ elif st.session_state.conversation_step == "free_input":
                 # 4. Log y Mensajes de Sesión
                 log_interaction(st.session_state.rol_usuario, prompt, respuesta_core)
                 st.session_state.messages.append({"role": "assistant", "content": respuesta_core})
-                st.session_state.conversation_step = "viewing_response" # Cambia el estado para que se rerendericen los botones de navegación
+                st.session_state.conversation_step = "viewing_response" 
                 st.rerun()
 
 # --- 5. VISUALIZACIÓN DE RESPUESTA LIBRE (Para que los botones de navegación aparezcan) ---
 elif st.session_state.conversation_step == "viewing_response":
-    # El contenido ya se renderizó. Solo mostramos los botones de navegación
+    # Muestra los botones de navegación después de una respuesta de modo libre
     show_navigation_buttons(st.session_state.rol_usuario)
+
