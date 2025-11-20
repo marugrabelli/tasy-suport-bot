@@ -15,7 +15,6 @@ MANUAL_OTROS = "Manual Otros profesionales.docx"
 
 # Definición de Tags de Enfermería: Nombre exacto, Consulta que lanza, y Respuesta a mostrar
 # Cada tag tiene un color pastel único.
-# Se mantienen las claves de respuesta y se añade "Otros"
 ENFERMERIA_TAGS = {
     # Grupo ADEP/Signos/Balance
     "Cargar Glucemia": {"color": "#FFC0CB", "query": "cargar glucemia", "response_key": "adep"},
@@ -191,43 +190,43 @@ def show_navigation_buttons(rol):
 
     st.markdown('</div>', unsafe_allow_html=True)
 
-# --- 3. BASE DE CONOCIMIENTO (Se mantienen las claves de respuesta) ---
+# --- 3. BASE DE CONOCIMIENTO (TOTALMENTE LIMPIA DE CITES) ---
 base_de_conocimiento = {
     # === TEMAS GENERALES ===
     "login": {
-        [cite_start]"contenido": "### 🔐 Acceso y Login\n\n**Ruta:** URL: https://tasy.fleni.org.ar/#/login\n\n**⚠️ Solución a Errores Frecuentes (Contraseña / Usuario):**\n* **Verifica el Perfil:** Revisa la esquina superior derecha para confirmar que estás en el perfil correcto (Hospitalización Multi o Enfermería).\n* **Verifica el Sector:** Es obligatorio seleccionar el sector correspondiente para visualizar pacientes [cite: 5, 6][cite_start].\n* **Cerrar Sesión:** Haz clic siempre en 'Salir' (Logout)[cite: 8]."
+        "contenido": "### 🔐 Acceso y Login\n\n**Ruta:** URL: https://tasy.fleni.org.ar/#/login\n\n**⚠️ Solución a Errores Frecuentes (Contraseña / Usuario):**\n* **Verifica el Perfil:** Revisa la esquina superior derecha para confirmar que estás en el perfil correcto (Hospitalización Multi o Enfermería).\n* **Verifica el Sector:** Es obligatorio seleccionar el sector correspondiente para visualizar pacientes.\n* **Cerrar Sesión:** Haz clic siempre en 'Salir' (Logout)."
     },
     "navegacion": {
-        [cite_start]"contenido": "### 🧭 Navegación y Búsqueda (Pase de Guardia)\n\n**Función:** La función Perspectiva Clínica permite ver el listado de camas.\n\n**Pase de Guardia:**\n* El **Resumen Electrónico** es el ítem ideal para el pase de guardia, ya que agrupa toda la información necesaria del paciente brevemente [cite: 31][cite_start].\n* Para ingresar a la HCE, haz doble clic sobre el nombre del paciente[cite: 14]."
+        "contenido": "### 🧭 Navegación y Búsqueda (Pase de Guardia)\n\n**Función:** La función Perspectiva Clínica permite ver el listado de camas.\n\n**Pase de Guardia:**\n* El **Resumen Electrónico** es el ítem ideal para el pase de guardia, ya que agrupa toda la información necesaria del paciente brevemente.\n* Para ingresar a la HCE, haz doble clic sobre el nombre del paciente."
     },
     "sidca": {
-        "contenido": "### 🕰️ Consulta Histórica (SIDCA)\n\n**Pasos:**\n1. Desde cualquier parte de la HCE del paciente.\n2. Haz **clic derecho** en el fondo blanco de la pantalla.\n3. [cite_start]Selecciona **CES - Consulta Electrónica de Salud**[cite: 177].\n4. [cite_start]Esto te dirigirá a SIDCA para visualizar los registros cargados de ese paciente[cite: 178]."
+        "contenido": "### 🕰️ Consulta Histórica (SIDCA)\n\n**Pasos:**\n1. Desde cualquier parte de la HCE del paciente.\n2. Haz **clic derecho** en el fondo blanco de la pantalla.\n3. Selecciona **CES - Consulta Electrónica de Salud**.\n4. Esto te dirigirá a SIDCA para visualizar los registros cargados de ese paciente."
     },
 
     # === PERFIL ENFERMERÍA ===
     "signos vitales": {
-        [cite_start]"contenido": "### 🩺 Signos Vitales y Parámetros Respiratorios (Cargar/Ver)\n\n**Ruta para Cargar:**\n* Solapa **Signos Vitales** > Botón **Añadir**[cite: 37].\n\n**Pasos Clave:**\n1. [cite_start]Rellena los campos y verifica la hora del control[cite: 41].\n2. [cite_start]**IMPORTANTE:** Marca la casilla **APAP** si quieres que el dato sea visible en la grilla general (Análisis de Parámetros Asistenciales)[cite: 40].\n3. [cite_start]**Liberar** permite publicar en la historia clínica y ser visible para todos [cite: 46][cite_start].\n\n**Visualización (Ver Signos):**\n* Puedes visualizar los datos previamente cargados mirando fecha, hora, y aplicando filtros[cite: 36, 39]."
+        "contenido": "### 🩺 Signos Vitales y Parámetros Respiratorios (Cargar/Ver)\n\n**Ruta para Cargar:**\n* Solapa **Signos Vitales** > Botón **Añadir**.\n\n**Pasos Clave:**\n1. Rellena los campos y verifica la hora del control.\n2. **IMPORTANTE:** Marca la casilla **APAP** si quieres que el dato sea visible en la grilla general (Análisis de Parámetros Asistenciales).\n3. **Liberar** permite publicar en la historia clínica y ser visible para todos.\n\n**Visualización (Ver Signos):**\n* Puedes visualizar los datos previamente cargados mirando fecha, hora, y aplicando filtros."
     },
     "balance hidrico": {
-        [cite_start]"contenido": "### 💧 Balance Hídrico (Por Turno / Día)\n\n**Ruta para Cargar:**\n* Solapa de **Ingresos y egresos**[cite: 109].\n\n**Pasos para Cargar:**\n1. [cite_start]Clic en **Añadir**[cite: 110].\n2. [cite_start]Selecciona el Grupo y Tipo (Ingresos o Egresos) y haz clic en la **Flecha Derecha (➡️)** para agregarlo[cite: 111, 113].\n3. [cite_start]Ingresa el volumen y confirma con **Finalizar** [cite: 115, 116][cite_start].\n\n**Visualización:**\n* La solapa **Análisis de balance** muestra el detalle del balance total, por turno y el detalle de cada turno seleccionado[cite: 105, 106, 107, 108]."
+        "contenido": "### 💧 Balance Hídrico (Por Turno / Día)\n\n**Ruta para Cargar:**\n* Solapa de **Ingresos y egresos**.\n\n**Pasos para Cargar:**\n1. Clic en **Añadir**.\n2. Selecciona el Grupo y Tipo (Ingresos o Egresos) y haz clic en la **Flecha Derecha (➡️)** para agregarlo.\n3. Ingresa el volumen y confirma con **Finalizar**.\n\n**Visualización:**\n* La solapa **Análisis de balance** muestra el detalle del balance total, por turno y el detalle de cada turno seleccionado."
     },
     "adep": {
-        [cite_start]"contenido": "### 💊 ADEP (Glucemia y Medicación)\n\n**Rutas:**\n* **Medicamentos:** Ítem **ADEP** en el árbol lateral [cite: 64][cite_start].\n* **Glucemia (Cargar/Ver):** Ítem **Exámenes y procedimientos** (Glucemia con protocolo)[cite: 89, 90].\n\n**Pasos (Administrar Medicación):**\n1. [cite_start]Busca el horario pendiente (lado derecho)[cite: 65].\n2. [cite_start]**Clic derecho** > **Administrar / revertir evento**[cite: 71].\n3. [cite_start]Da OK para confirmar el registro[cite: 73].\n\n**Pasos (Cargar Glucemia):**\n1. [cite_start]En 'Exámenes y procedimientos', clic derecho e inicias el registro del valor de glucemia[cite: 91].\n2. [cite_start]Los valores de glucemia cargados en adep impactan en APAP y Signos Vitales[cite: 94]."
+        "contenido": "### 💊 ADEP (Glucemia y Medicación)\n\n**Rutas:**\n* **Medicamentos:** Ítem **ADEP** en el árbol lateral.\n* **Glucemia (Cargar/Ver):** Ítem **Exámenes y procedimientos** (Glucemia con protocolo).\n\n**Pasos (Administrar Medicación):**\n1. Busca el horario pendiente (lado derecho).\n2. **Clic derecho** > **Administrar / revertir evento**.\n3. Da OK para confirmar el registro.\n\n**Pasos (Cargar Glucemia):**\n1. En 'Exámenes y procedimientos', clic derecho e inicias el registro del valor de glucemia.\n2. Los valores de glucemia cargados en adep impactan en APAP y Signos Vitales."
     },
     "dispositivos": {
-        [cite_start]"contenido": "### 💉 Dispositivos (Agregar y Retirar Catéteres/Vías)\n\n**Ruta:**\n* Ítem **Dispositivos/Equipos** [cite: 119][cite_start].\n\n**Pasos (Agregar/Nuevo Catéter):**\n* Ve a 'Gráfico de dispositivos' > **Nuevo dispositivo** [cite: 123][cite_start].\n* Elige el dispositivo y la fecha prevista o estimada de retiro o rotación [cite: 124][cite_start].\n\n**Pasos (Retirar):**\n* Clic en **Acciones de dispositivo** [cite: 126][cite_start].\n* Selecciona el dispositivo a retirar [cite: 127][cite_start].\n* Justifica el motivo de retirada y haz clic en Ok[cite: 128]."
+        "contenido": "### 💉 Dispositivos (Agregar y Retirar Catéteres/Vías)\n\n**Ruta:**\n* Ítem **Dispositivos/Equipos**.\n\n**Pasos (Agregar/Nuevo Catéter):**\n* Ve a 'Gráfico de dispositivos' > **Nuevo dispositivo**.\n* Elige el dispositivo y la fecha prevista o estimada de retiro o rotación.\n\n**Pasos (Retirar):**\n* Clic en **Acciones de dispositivo**.\n* Selecciona el dispositivo a retirar.\n* Justifica el motivo de retirada y haz clic en Ok."
     },
     "pendientes_eval": {
-        [cite_start]"contenido": "### 📋 Pendientes de Enfermería y Evaluaciones/Escalas\n\n**Rutas:**\n* **Pendientes:** Ítem **Pendientes de Enfermería** [cite: 134][cite_start].\n* **Evaluaciones:** Ítem **Evaluaciones / Escalas** [cite: 50][cite_start].\n\n**Gestión de Pendientes (Otros):**\n* **Añadir:** Botón Añadir para crear un nuevo pendiente [cite: 135][cite_start].\n* Para corregir un pendiente ya liberado, se debe **inactivar** y justificar la acción [cite: 137][cite_start].\n        \n**Gestión de Evaluaciones/Escalas:**\n* Clic **Añadir** [cite: 51] > [cite_start]Selecciona la evaluación que desees [cite: 55][cite_start].\n* Completa, **Guarda y Libera**[cite: 56]."
+        "contenido": "### 📋 Pendientes de Enfermería y Evaluaciones/Escalas\n\n**Rutas:**\n* **Pendientes:** Ítem **Pendientes de Enfermería**.\n* **Evaluaciones:** Ítem **Evaluaciones / Escalas**.\n\n**Gestión de Pendientes (Otros):**\n* **Añadir:** Botón Añadir para crear un nuevo pendiente.\n* Para corregir un pendiente ya liberado, se debe **inactivar** y justificar la acción.\n        \n**Gestión de Evaluaciones/Escalas:**\n* Clic **Añadir** > Selecciona la evaluación que desees.\n* Completa, **Guarda y Libera**."
     },
     
     # === PERFIL MÉDICO / MULTI (Mantenemos por consistencia) ===
-    [cite_start]"agenda": {"contenido": "La gestión de agenda requiere ingresar a Agenda de Servicio en el menú principal[cite: 214]. [cite_start]Recuerda limpiar los filtros si vas a hacer una nueva búsqueda[cite: 219]."},
-    [cite_start]"nota clinica": {"contenido": "Las Notas Clínicas (Evoluciones) se crean haciendo clic en Añadir [cite: 153][cite_start], seleccionando el tipo de nota (plantilla) [cite: 153, 154] [cite_start]y luego Liberar[cite: 155]."},
-    [cite_start]"informe final": {"contenido": "Para generar el Informe Final, usa la función Central de informes[cite: 318]. [cite_start]El estatus debe estar como 'realizado' [cite: 324] [cite_start]para ejecutar la inclusión del PDF[cite: 325]."},
-    [cite_start]"cpoe": {"contenido": "Las recomendaciones se indican en CPOE[cite: 288, 290]. [cite_start]Para pedidos y justificativas, usa el ítem Justificaciones/Solicitudes haciendo clic en Añadir[cite: 269]."},
-    [cite_start]"ged": {"contenido": "Gestión de Documentos (GED) permite visualizar archivos de admisión (Anexos) y cargar documentos propios (Documentos)[cite: 180]. [cite_start]Usa Añadir [cite: 182] [cite_start]y clasifica el archivo[cite: 182]."},
-    [cite_start]"evaluaciones_multi": {"contenido": "Las Evaluaciones y Escalas se encuentran en el ítem 'Evaluaciones'[cite: 273]. [cite_start]Puedes añadir [cite: 274][cite_start], completar, guardar y liberar el registro[cite: 279]."},
+    "agenda": {"contenido": "La gestión de agenda requiere ingresar a Agenda de Servicio en el menú principal. Recuerda limpiar los filtros si vas a hacer una nueva búsqueda."},
+    "nota clinica": {"contenido": "Las Notas Clínicas (Evoluciones) se crean haciendo clic en Añadir, seleccionando el tipo de nota (plantilla) y luego Liberar."},
+    "informe final": {"contenido": "Para generar el Informe Final, usa la función Central de informes. El estatus debe estar como 'realizado' para ejecutar la inclusión del PDF."},
+    "cpoe": {"contenido": "Las recomendaciones se indican en CPOE. Para pedidos y justificativas, usa el ítem Justificaciones/Solicitudes haciendo clic en Añadir."},
+    "ged": {"contenido": "Gestión de Documentos (GED) permite visualizar archivos de admisión (Anexos) y cargar documentos propios (Documentos). Usa Añadir y clasifica el archivo."},
+    "evaluaciones_multi": {"contenido": "Las Evaluaciones y Escalas se encuentran en el ítem 'Evaluaciones'. Puedes añadir, completar, guardar y liberar el registro."},
 }
 
 
