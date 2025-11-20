@@ -45,20 +45,20 @@
         "Hospitalización Multiprofesional": "No aplica, el registro de dispositivos/equipos se realiza desde Enfermería. Desde el perfil Multi solo se visualizaría indirectamente en el Resumen Electrónico o Antecedentes."
       },
       "actions": [
-        "**Agregar dispositivo** ➕: Ir a *Gráfico de dispositivo* ➡️ *Nuevo dispositivo*",
-        "**Retirar dispositivo** ❌: Ir a *Acciones de dispositivo* ➡️ *Retirar* ➡️ *Justificar* el motivo y haz clic en Ok",
-        "**Rotar dispositivo** 🔄: Ir a *Acciones de dispositivo* ➡️ *Seleccionar dispositivo* ➡️ *Sustituir*",
-        "**Ver listado de dispositivos** 📋: Desde la solapa *Dispositivos*. También puedes ver equipos desde la solapa *Equipos*."
+        [cite_start]"**Agregar dispositivo** ➕: Ir a *Gráfico de dispositivo* ➡️ *Nuevo dispositivo* [cite: 123]",
+        [cite_start]"**Retirar dispositivo** ❌: Ir a *Acciones de dispositivo* ➡️ *Retirar* ➡️ *Justificar* el motivo y haz clic en Ok [cite: 126, 127, 128]",
+        [cite_start]"**Rotar dispositivo** 🔄: Ir a *Acciones de dispositivo* ➡️ *Seleccionar dispositivo* ➡️ *Sustituir* [cite: 129]",
+        "**Ver listado de dispositivos** 📋: Desde la solapa *Dispositivos*. [cite_start]También puedes ver equipos desde la solapa *Equipos*[cite: 130, 133]."
       ],
       "possible_errors": [
         {
           "error": "No puedo ver los dispositivos cargados.",
-          "solution": "Revisa el **filtro aplicado**. Limpia los filtros y verifica las fechas seleccionadas. La visualización del listado dependerá de los filtros aplicados."
+          "solution": "Revisa el **filtro aplicado**. Limpia los filtros y verifica las fechas seleccionadas. [cite_start]La visualización del listado dependerá de los filtros aplicados[cite: 121, 132]."
         }
       ],
       "tips": [
-        "**Recuerda** registrar el retiro de los catéteres del paciente y colocar la fecha de finalización del mismo.",
-        "Puedes ver todos los dispositivos que **ha tenido** el paciente o solo los de **esta internación** usando el filtro."
+        [cite_start]"**Recuerda** registrar el retiro de los catéteres del paciente y colocar la fecha de finalización del mismo[cite: 124].",
+        [cite_start]"Puedes ver todos los dispositivos que **ha tenido** el paciente o solo los de **esta internación** usando el filtro[cite: 122]."
       ],
       "video_link": {
         "title": "▶️ Ver Video Explicativo",
@@ -69,35 +69,35 @@
     
     "response_template_nota_clinica": {
       "title": "Notas Clínicas (Evoluciones) 📝",
-      "description": "Este ítem permite generar la **Nota Clínica** de tu disciplina y consultar las evoluciones previas de otros profesionales. Es esencial para dejar registro de la evolución diaria del paciente.",
+      [cite_start]"description": "Este ítem permite generar la **Nota Clínica** de tu disciplina y consultar las evoluciones previas de otros profesionales[cite: 251, 152]. Es esencial para dejar registro de la evolución diaria del paciente.",
       "path_to_item": {
-        "Hospitalización Enfermería": "HCE ➡️ Nota Clínica",
-        "Hospitalización Multiprofesional": "HCE ➡️ Nota Clínica"
+        [cite_start]"Hospitalización Enfermería": "HCE ➡️ Nota Clínica [cite: 152]",
+        [cite_start]"Hospitalización Multiprofesional": "HCE ➡️ Nota Clínica [cite: 250]"
       },
       "actions": [
-        "**Comenzar una nueva nota** ➕: Clic en **Añadir**.",
-        "**Usar Plantilla** 📄: En el pop-up, selecciona **Tipo de nota clínica** para elegir la plantilla de tu especialidad.",
-        "**Finalizar y Publicar** 🔓: Completa los datos y haz clic en **Liberar**.",
-        "**Duplicar nota previa** 👯: Clic derecho sobre la nota deseada ➡️ **Duplicar nota clínica** (permite modificar solo los datos necesarios).",
-        "**Resumen de HC (Médico/Multi)** 📋: Usa el tipo de nota **Resumen de HC** para la evolución de cada disciplina involucrada para el médico de alta."
+        [cite_start]"**Comenzar una nueva nota** ➕: Clic en **Añadir**[cite: 252, 153].",
+        [cite_start]"**Usar Plantilla** 📄: En el pop-up, selecciona **Tipo de nota clínica** para elegir la plantilla de tu especialidad[cite: 253, 154].",
+        [cite_start]"**Finalizar y Publicar** 🔓: Completa los datos y haz clic en **Liberar**[cite: 260, 158].",
+        [cite_start]"**Duplicar nota previa** 👯: Clic derecho sobre la nota deseada ➡️ **Duplicar nota clínica** (permite modificar solo los datos necesarios)[cite: 263, 264].",
+        [cite_start]"**Resumen de HC (Médico/Multi)** 📋: Usa el tipo de nota **Resumen de HC** para la evolución de cada disciplina involucrada para el médico de alta[cite: 255, 256]."
       ],
       "possible_errors": [
         {
           "error": "Mi nota no es visible para otros profesionales.",
-          "solution": "Esto ocurre si solo la **Guardaste**. Debes recordar **Liberar** la nota clínica para finalizarla, de lo contrario no será visible ni efectiva."
+          [cite_start]"solution": "Esto ocurre si solo la **Guardaste**[cite: 258]. [cite_start]Debes recordar **Liberar** la nota clínica para finalizarla, de lo contrario no será visible ni efectiva[cite: 260, 158]."
         },
         {
           "error": "Necesito corregir una nota ya liberada.",
-          "solution": "No se puede editar una nota liberada. Selecciona la nota, haz clic en **Inactivar** y justifica el motivo. El registro no se pierde, queda inactivado."
+          [cite_start]"solution": "No se puede editar una nota liberada[cite: 46]. [cite_start]Selecciona la nota, haz clic en **Inactivar** y justifica el motivo[cite: 261, 159]. [cite_start]El registro no se pierde, queda inactivado[cite: 262, 160]."
         },
         {
           "error": "Al duplicar una nota, aparece la firma de otro profesional.",
-          "solution": "Si duplicaste una nota que no es tuya, es necesario **borrar la firma** que trae del profesional original y colocar la tuya."
+          [cite_start]"solution": "Si duplicaste una nota que no es tuya, es necesario **borrar la firma** que trae del profesional original y colocar la tuya[cite: 265]."
         }
       ],
       "tips": [
-        "Para editar o continuar en otro momento, utiliza el botón **Guardar**. De esta manera, solo tú ves el borrador.",
-        "Puedes usar el filtro (fecha, especialidad) para consultar notas clínicas previas."
+        "Para editar o continuar en otro momento, utiliza el botón **Guardar**. [cite_start]De esta manera, solo tú ves el borrador[cite: 156, 157].",
+        [cite_start]"Puedes usar el filtro (fecha, especialidad) para consultar notas clínicas previas[cite: 251]."
       ],
       "video_link": {
         "title": "▶️ Ver Video Explicativo de Nota Clínica (Pendiente)",
@@ -108,8 +108,8 @@
     
     "response_template_evaluaciones": {
         "title": "Evaluaciones / Escalas (PLACEHOLDER - PENDIENTE)",
-        "description": "Este ítem permite realizar escalas y ver las que hayan realizado otros profesionales. Debes hacer clic en **Añadir** y luego **Guardar y Liberar**.",
-        "path_to_item": {"Hospitalización Enfermería": "HCE ➡️ Evaluaciones / Escalas", "Hospitalización Multiprofesional": "HCE ➡️ Evaluaciones"},
+        "description": "Este ítem permite realizar escalas y ver las que hayan realizado otros profesionales. [cite_start]Debes hacer clic en **Añadir** y luego **Guardar y Liberar**[cite: 273, 274, 279, 56].",
+        [cite_start]"path_to_item": {"Hospitalización Enfermería": "HCE ➡️ Evaluaciones / Escalas [cite: 50][cite_start]", "Hospitalización Multiprofesional": "HCE ➡️ Evaluaciones [cite: 272]"},
         "actions": ["Revisar el manual para detalles específicos."],
         "possible_errors": [],
         "tips": ["Pendiente."],
@@ -119,9 +119,9 @@
 
     "response_template_informe_final": {
         "title": "Informe Final / Epicrisis (PLACEHOLDER - PENDIENTE)",
-        "description": "Para generar el Informe Final, se utiliza la función **Central de Informes** desde el menú principal o la llamada externa.",
-        "path_to_item": {"Hospitalización Enfermería": "No Aplica", "Hospitalización Multiprofesional": "Función Central de Informes ➡️ Informe Final"},
-        "actions": ["El estatus debe ser 'realizado'. Clic derecho > Ejecutar > Incluir interpretación PDF."],
+        [cite_start]"description": "Para generar el Informe Final, se utiliza la función **Central de Informes** desde el menú principal o la llamada externa[cite: 318, 319, 320].",
+        [cite_start]"path_to_item": {"Hospitalización Enfermería": "No Aplica", "Hospitalización Multiprofesional": "Función Central de Informes ➡️ Informe Final [cite: 318]"},
+        [cite_start]"actions": ["El estatus debe ser 'realizado'[cite: 324]. [cite_start]Clic derecho > Ejecutar > Incluir interpretación PDF[cite: 325]."],
         "possible_errors": [],
         "tips": ["Pendiente de tips específicos."],
         "video_link": {"title": "Sin video", "url": "#"},
@@ -130,9 +130,9 @@
 
     "response_template_ged": {
         "title": "GED / Gestión de Documentos (PLACEHOLDER - PENDIENTE)",
-        "description": "Este ítem se usa para adjuntar archivos. Puedes cargar informes iniciales y finales desde aquí.",
-        "path_to_item": {"Hospitalización Enfermería": "HCE ➡️ Gestión de Documentos", "Hospitalización Multiprofesional": "HCE ➡️ Gestión de Documentos"},
-        "actions": ["Clic en **Añadir**, sube el archivo y **clasifícalo** como 'informe inicial'."],
+        "description": "Este ítem se usa para adjuntar archivos. [cite_start]Puedes cargar informes iniciales y finales desde aquí[cite: 311, 180].",
+        [cite_start]"path_to_item": {"Hospitalización Enfermería": "HCE ➡️ Gestión de Documentos [cite: 179][cite_start]", "Hospitalización Multiprofesional": "HCE ➡️ Gestión de Documentos [cite: 309]"},
+        [cite_start]"actions": ["Clic en **Añadir**, sube el archivo y **clasifícalo** como 'informe inicial'[cite: 313, 314, 182]."],
         "possible_errors": [],
         "tips": ["Pendiente de tips específicos."],
         "video_link": {"title": "Sin video", "url": "#"},
@@ -141,9 +141,9 @@
     
     "response_template_signos_vitales": {
         "title": "Signos Vitales y APAP (PLACEHOLDER - PENDIENTE)",
-        "description": "Sección para registrar signos vitales y parámetros respiratorios. Recuerda marcar **APAP** si quieres que los datos se visualicen en la grilla.",
-        "path_to_item": {"Hospitalización Enfermería": "HCE ➡️ Signos Vitales", "Hospitalización Multiprofesional": "HCE ➡️ APAP (Solo visualización)"},
-        "actions": ["Clic en **Añadir**, completa campos y luego **Guardar y Liberar**."],
+        [cite_start]"description": "Sección para registrar signos vitales y parámetros respiratorios[cite: 34, 35]. [cite_start]Recuerda marcar **APAP** si quieres que los datos se visualicen en la grilla[cite: 40, 47].",
+        [cite_start]"path_to_item": {"Hospitalización Enfermería": "HCE ➡️ Signos Vitales [cite: 34][cite_start]", "Hospitalización Multiprofesional": "HCE ➡️ APAP (Solo visualización) [cite: 237]"},
+        [cite_start]"actions": ["Clic en **Añadir** [cite: 37][cite_start], completa campos y luego **Guardar y Liberar**[cite: 43]."],
         "possible_errors": [],
         "tips": ["Pendiente de tips específicos."],
         "video_link": {"title": "Sin video", "url": "#"},
