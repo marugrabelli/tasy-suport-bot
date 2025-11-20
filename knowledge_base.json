@@ -1,0 +1,68 @@
+{
+  "bot_name": "Soporte Tasy FLENI",
+  "initial_prompt": "¿Hola! Soy tu asistente de Tasy. Por favor, selecciona tu perfil para comenzar la consulta:",
+  
+  "flows": {
+    "select_profession": {
+      "step_id": "profesion_inicial",
+      "prompt": "Selecciona tu perfil:",
+      "options": [
+        {"text": "Hospitalización Multiprofesional", "next_step": "tags_multi"},
+        {"text": "Hospitalización Enfermería", "next_step": "tags_enfermeria"}
+      ]
+    },
+    
+    "tags_multi": {
+      "step_id": "tags_multi",
+      "prompt": "¡Excelente! Ahora, selecciona el tema sobre el que necesitas ayuda (Perfil Multiprofesional):",
+      "tags": ["Historia Clínica", "Nota Clínica", "Evaluaciones", "CPOE", "Resultados de Estudios", "Diagnósticos", "GED", "Informe Final", "Agenda y Turnos"],
+      "response_mapping": {
+        "Dispositivos": "response_template_dispositivos"
+        // Aquí se agregarían los mapeos para el resto de los tags...
+      }
+    },
+    
+    "tags_enfermeria": {
+      "step_id": "tags_enfermeria",
+      "prompt": "¡Perfecto! Ahora, selecciona el tema sobre el que necesitas ayuda (Perfil Enfermería):",
+      "tags": ["Signos Vitales", "ADEP", "APAP", "Balance Hídrico", "Dispositivos", "Evaluaciones", "Antecedentes de Salud", "Nota Clínica", "Orientación al Alta"],
+      "response_mapping": {
+        "Dispositivos": "response_template_dispositivos"
+        // Aquí se agregarían los mapeos para el resto de los tags...
+      }
+    }
+  },
+  
+  "response_templates": {
+    "response_template_dispositivos": {
+      "title": "Dispositivos (Agregar y Retirar Catéteres/Vías) 🚀",
+      "description": "Este ítem te permite **visualizar, agregar o retirar catéteres, vías y equipos** del paciente, asegurando un registro actualizado de todos los dispositivos.",
+      "path_to_item": {
+        "Hospitalización Enfermería": "HCE ➡️ Dispositivos",
+        "Hospitalización Multiprofesional": "No aplica, el registro de dispositivos/equipos se realiza desde Enfermería. Desde el perfil Multi solo se visualizaría indirectamente en el Resumen Electrónico o Antecedentes."
+      },
+      "actions": [
+        "**Agregar dispositivo** ➕: Ir a *Gráfico de dispositivo* ➡️ *Nuevo dispositivo*",
+        "**Retirar dispositivo** ❌: Ir a *Acciones de dispositivo* ➡️ *Retirar* ➡️ *Justificar* el motivo y haz clic en Ok",
+        "**Rotar dispositivo** 🔄: Ir a *Acciones de dispositivo* ➡️ *Seleccionar dispositivo* ➡️ *Sustituir*",
+        "**Ver listado de dispositivos** 📋: Desde la solapa *Dispositivos*. También puedes ver equipos desde la solapa *Equipos*."
+      ],
+      "possible_errors": [
+        {
+          "error": "No puedo ver los dispositivos cargados.",
+          "solution": "Revisa el **filtro aplicado**. Limpia los filtros y verifica las fechas seleccionadas. La visualización del listado dependerá de los filtros aplicados."
+        }
+      ],
+      "tips": [
+        "**Recuerda** registrar el retiro de los catéteres del paciente y colocar la fecha de finalización del mismo.",
+        "Puedes ver todos los dispositivos que **ha tenido** el paciente o solo los de **esta internación** usando el filtro."
+      ],
+      "video_link": {
+        "title": "▶️ Ver Video Explicativo",
+        "url": "https://www.youtube.com/watchv=Y3ywicffOj4&list=RDY3ywicffOj4&start_radio=1"
+      },
+      "footer": "Espero que esta información haya sido útil. ¿Deseas consultar otro tema o regresar a la selección de perfil? 💬"
+    }
+    // Aquí se agregarían las plantillas de respuesta para el resto de los tags...
+  }
+}
