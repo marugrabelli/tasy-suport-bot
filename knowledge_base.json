@@ -21,8 +21,8 @@
         "Evaluaciones": "response_template_evaluaciones",
         "Informe Final": "response_template_informe_final",
         "GED": "response_template_ged"
-      },
-    },
+      }
+    }, <--- **¡COMA AGREGADA AQUÍ!**
     
     "tags_enfermeria": {
       "step_id": "tags_enfermeria",
