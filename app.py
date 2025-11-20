@@ -7,6 +7,12 @@ from datetime import datetime
 # --- 1. CONFIGURACIÓN DE LA PÁGINA Y ESTILOS ---
 st.set_page_config(page_title="Flenisito - Soporte Tasy", page_icon="🏥", layout="wide")
 
+# Archivos de Manuales (Asegúrate que existan en tu directorio/repo)
+LOG_FILE = "registro_consultas_flenisito.csv"
+MANUAL_ENFERMERIA = "manual enfermeria (2).docx" 
+MANUAL_MEDICOS = "Manual_Medicos.docx"
+MANUAL_OTROS = "Manual Otros profesionales.docx" # Se asume este nombre basado en la imagen
+
 # Estilos CSS
 st.markdown("""
     <style>
@@ -14,11 +20,17 @@ st.markdown("""
     .stButton button { width: 100%; border-radius: 5px; }
     h1 { color: #005490; }
     h3 { color: #005490; }
+    /* Clase para reducir el tamaño de letra del pie de página */
+    .footer-content {
+        font-size: 0.9em; /* 90% del tamaño normal */
+        opacity: 0.9;
+    }
     /* Estilo para destacar el botón de descarga del manual */
     .stDownloadButton button {
         border: 1px solid #005490;
         color: #005490;
         background-color: #f0f8ff;
+        margin-bottom: 10px; /* Separación con el título de abajo */
     }
     .stDownloadButton button:hover {
         background-color: #005490;
@@ -27,28 +39,6 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# Archivos
-LOG_FILE = "registro_consultas_flenisito.csv"
-# Asegúrate de subir este archivo exacto a tu GitHub
-MANUAL_ENFERMERIA = "manual enfermeria (2).docx" 
-
-# --- MENSAJE DE PIE DE PÁGINA ---
-MENSAJE_PIE = """
----
-### 💡 Antes de llamar, ¡revisa estos puntos!
-
-* **💻 Navegador Ideal:** Usa siempre **Google Chrome**.
-* **🧹 Limpieza:** Si algo no carga, prueba a **limpiar la caché** (`Ctrl + H`).
-* **👤 Perfil:** Verifica que tu **Log In** esté en el **establecimiento y perfil correcto** (Ej: Hospitalización Multi/Enfermería).
-* **🔍 Zoom:** ¿Pantalla cortada? Ajusta el zoom: **`Ctrl + +`** (agrandar) o **`Ctrl + -`** (minimizar).
-
----
-**¿Aún tienes dudas?**
-
-* 🖋️ **Firmas Digitales:** Envía tu firma en **formato JPG (fondo blanco)** a **soportesidca@fleni.org.ar**. Recuerda: **Sin firma, los médicos no pueden hacer recetas.**
-* 📞 **Soporte Telefónico:** Llama al interno **5006**.
-* 🎫 **Alta de Usuarios/VPN:** Deja un ticket en **solicitudes.fleni.org**.
-"""
 
 # --- 2. FUNCIONES DE BACKEND ---
 def log_interaction(rol, pregunta, respuesta):
@@ -61,11 +51,10 @@ def log_interaction(rol, pregunta, respuesta):
             now = datetime.now()
             writer.writerow([now.date(), now.strftime("%H:%M:%S"), rol, pregunta, respuesta])
     except Exception as e:
-        # En una aplicación real, usarías logging.error en lugar de st.error
         # st.error(f"Error al guardar log: {e}") 
         pass
 
-# --- 3. BASE DE CONOCIMIENTO (Limpiada de cualquier cite start o formato de cita) ---
+# --- 3. BASE DE CONOCIMIENTO (Se mantiene igual, limpia de citas) ---
 base_de_conocimiento = {
     # === TEMAS GENERALES ===
     "login": {
@@ -294,7 +283,7 @@ base_de_conocimiento = {
     }
 }
 
-# --- 4. MOTOR DE BÚSQUEDA ---
+# --- 4. MOTOR DE BÚSQUEDA (Se mantiene igual, la lógica es correcta) ---
 def buscar_solucion(consulta, rol):
     q = consulta.lower()
     
@@ -341,7 +330,7 @@ if "messages" not in st.session_state:
 
 # ONBOARDING (ESTRUCTURA DE TRES PERFILES)
 if st.session_state.rol_usuario is None:
-    # Mostramos la imagen solo si existe (para evitar el error de MediaFileStorageError)
+    # Mostramos la imagen solo si existe
     if os.path.exists("image_39540a.png"):
         st.image("image_39540a.png", use_column_width="auto")
     elif os.path.exists("image_3950c3.png"):
@@ -354,18 +343,25 @@ if st.session_state.rol_usuario is None:
     with col1:
         if st.button("💉 Soy **Enfermero/a**", key="btn_enfermeria"):
             st.session_state.rol_usuario = "Enfermería"
+            # Se guarda el manual correspondiente en el estado de sesión
+            st.session_state.manual_file = MANUAL_ENFERMERIA
+            st.session_state.manual_label = "Manual de Enfermería Completo"
             st.session_state.messages.append({"role": "assistant", "content": "Hola colega. Soy Flenisito. Pregúntame sobre **Signos Vitales, Balance, ADEP o Dispositivos**."})
             st.rerun()
             
     with col2:
         if st.button("🩺 Soy **Médico/a**", key="btn_medico"):
             st.session_state.rol_usuario = "Médico"
+            st.session_state.manual_file = MANUAL_MEDICOS
+            st.session_state.manual_label = "Manual de Médicos Completo"
             st.session_state.messages.append({"role": "assistant", "content": "Hola Doctor/a. Estoy listo para guiarte en **Agenda, Notas, Informe Final y CPOE**."})
             st.rerun()
 
     with col3:
         if st.button("👥 **Otros profesionales**", key="btn_otros"):
             st.session_state.rol_usuario = "Otros profesionales"
+            st.session_state.manual_file = MANUAL_OTROS
+            st.session_state.manual_label = "Manual de Otros Profesionales Completo"
             st.session_state.messages.append({"role": "assistant", "content": "¡Bienvenido/a! Soy Flenisito. Te asisto con **Agenda, Notas Clínicas, GED y Evaluaciones**."})
             st.rerun()
 
@@ -386,6 +382,8 @@ else:
         if st.button("🔄 Cambiar de Perfil"):
             st.session_state.rol_usuario = None
             st.session_state.messages = []
+            del st.session_state.manual_file
+            del st.session_state.manual_label
             st.rerun()
         if st.button("🗑️ Borrar Chat"):
             st.session_state.messages = []
@@ -420,22 +418,48 @@ else:
                 
                 # 1. Generar texto
                 respuesta_core = buscar_solucion(prompt, st.session_state.rol_usuario)
-                respuesta_final = respuesta_core + "\n" + MENSAJE_PIE
-                st.markdown(respuesta_final)
                 
-                # 2. Botón de descarga (Solo si es Enfermería y el archivo existe)
-                if st.session_state.rol_usuario == "Enfermería":
-                    if os.path.exists(MANUAL_ENFERMERIA):
-                        with open(MANUAL_ENFERMERIA, "rb") as f:
-                            st.download_button(
-                                label="📥 Descargar Manual de Enfermería Completo",
-                                data=f,
-                                file_name="Manual_Enfermeria_Tasy.docx",
-                                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                                key=f"descarga_{datetime.now().timestamp()}" # Key única para evitar errores
-                            )
+                # Se renderiza la respuesta principal
+                st.markdown(respuesta_core)
                 
+                # 2. SECCIÓN DEL PIE DE PÁGINA: BOTÓN DE DESCARGA Y MENSAJE
+                st.markdown("---")
+                
+                # 2a. Botón de descarga (Ahora usa el archivo y label del perfil)
+                if "manual_file" in st.session_state and os.path.exists(st.session_state.manual_file):
+                    with open(st.session_state.manual_file, "rb") as f:
+                        st.download_button(
+                            label=f"📥 Descargar **{st.session_state.manual_label}**",
+                            data=f,
+                            file_name=os.path.basename(st.session_state.manual_file),
+                            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                            key=f"descarga_{datetime.now().timestamp()}" 
+                        )
+                
+                # 2b. Contenido del pie de página con tamaño de letra reducido
+                with st.container():
+                    st.markdown('<div class="footer-content">', unsafe_allow_html=True)
+                    st.markdown("""
+### 💡 Antes de llamar, ¡revisa estos puntos!
+
+* **💻 Navegador Ideal:** Usa siempre **Google Chrome**.
+* **🧹 Limpieza:** Si algo no carga, prueba a **limpiar la caché** (`Ctrl + H`).
+* **👤 Perfil:** Verifica que tu **Log In** esté en el **establecimiento y perfil correcto** (Ej: Hospitalización Multi/Enfermería).
+* **🔍 Zoom:** ¿Pantalla cortada? Ajusta el zoom: **`Ctrl + +`** (agrandar) o **`Ctrl + -`** (minimizar).
+
+---
+**¿Aún tienes dudas?**
+
+* 🖋️ **Firmas Digitales:** Envía tu firma en **formato JPG (fondo blanco)** a **soportesidca@fleni.org.ar**. Recuerda: **Sin firma, los médicos no pueden hacer recetas.**
+* 📞 **Soporte Telefónico:** Llama al interno **5006**.
+* 🎫 **Alta de Usuarios/VPN:** Deja un ticket en **solicitudes.fleni.org**.
+""")
+                    st.markdown('</div>', unsafe_allow_html=True)
+
                 # 3. Log
                 log_interaction(st.session_state.rol_usuario, prompt, respuesta_core)
-        
-        st.session_state.messages.append({"role": "assistant", "content": respuesta_final})
+                
+                # Se guarda la respuesta en el historial
+                # Nota: Aquí guardamos solo la respuesta_core, el pie de página se regenera.
+                st.session_state.messages.append({"role": "assistant", "content": respuesta_core})
+
