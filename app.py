@@ -67,7 +67,6 @@ OTROS_TAGS = {
 }
 
 # Mapping para CSS
-# Se actualizan los códigos hexadecimales para reflejar los nuevos colores pastel
 COLOR_MAP = {
     # Nuevos colores pastel
     "#FFC0CB": "tag-pink", "#AEC6E3": "tag-softblue", "#B4E4A2": "tag-softgreen", 
@@ -121,7 +120,8 @@ st.markdown(f"""
     
     {
         "".join([
-            f".{cls} button {{ background-color: {hex_color}; border-color: {hex_color}; }}"
+            # Aumento de Especificidad CSS: Apuntamos directamente al div que contiene la clase y usamos !important
+            f"div.{cls} button {{ background-color: {hex_color} !important; border-color: {hex_color} !important; }}"
             for hex_color, cls in COLOR_MAP.items()
         ])
     }
@@ -158,7 +158,6 @@ def log_interaction(rol, pregunta, respuesta):
 def show_tags(tag_list, columns_count, title):
     st.markdown(f"### 🔍 {title}")
     
-    # ***MODIFICACIÓN CLAVE: Cambiamos de 3 a 4 columnas para reducir el tamaño del botón***
     cols = st.columns(columns_count) 
     
     for i, (label, data) in enumerate(tag_list.items()):
@@ -169,6 +168,7 @@ def show_tags(tag_list, columns_count, title):
         button_key = f"tag_{label.replace(' ', '_').replace('/', '_').replace('.', '').lower()}"
         
         with cols[i % columns_count]:
+            # Se aplica la clase CSS al div contenedor del botón
             st.markdown(
                 f'<div class="{css_class}">', 
                 unsafe_allow_html=True
@@ -223,8 +223,6 @@ def show_navigation_buttons(rol):
     col_back, col_msg = st.columns(2)
     
     # Lógica para el botón de volver atrás
-    # Si estamos viendo la respuesta de un TAG, volvemos a la lista de TAGS.
-    # Si estamos en entrada libre, volvemos a la entrada libre.
     if st.session_state.conversation_step == "tags":
         back_label = "💉 Volver a Opciones de Enfermería" if rol == "Enfermería" else "👥 Volver a Opciones Multiprofesionales"
         target_step = "tags"
@@ -479,7 +477,7 @@ if st.session_state.conversation_step == "tags":
     
     current_rol = st.session_state.rol_usuario
     
-    # ***MODIFICACIÓN CLAVE: Se ajusta a 4 columnas***
+    # Se utiliza 4 columnas para compactar los botones
     if current_rol == "Enfermería":
         show_tags(ENFERMERIA_TAGS, 4, "Temas Específicos de Enfermería") 
     elif current_rol == "Médico":
@@ -494,7 +492,7 @@ if st.session_state.conversation_step == "tags":
         st.session_state.conversation_step = "free_input" 
         st.rerun()
 
-# --- 4. MOSTRAR RESPUESTA ESTRUCTURADA POR TAG (Flujo Corregido para Footer y Nav) ---
+# --- 4. MOSTRAR RESPUESTA ESTRUCTURADA POR TAG ---
 elif st.session_state.response_key is not None:
     
     key = st.session_state.response_key
