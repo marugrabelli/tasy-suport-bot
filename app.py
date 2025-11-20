@@ -8,12 +8,12 @@ from datetime import datetime
 # --- 1. CONFIGURACIÓN DE LA PÁGINA Y ESTILOS ---
 st.set_page_config(page_title="Flenisito - Soporte Tasy", page_icon="🏥", layout="wide")
 
-# Archivos de Manuales (Verificación: Nombres correctos según tu GitHub)
+# Archivos de Manuales
 LOG_FILE = "registro_consultas_flenisito.csv"
 MANUAL_ENFERMERIA = "manual enfermeria (2).docx" 
 MANUAL_MEDICOS = "Manual_Medicos.docx"
 MANUAL_OTROS = "Manual Otros profesionales.docx"
-KNOWLEDGE_FILE = "knowledge_base.json" # Archivo JSON con la estructura de respuestas
+KNOWLEDGE_FILE = "knowledge_base.json" 
 
 # Cargar la Base de Conocimiento JSON
 @st.cache_data(show_spinner=False)
@@ -38,9 +38,8 @@ if KNOWLEDGE_BASE is None:
     st.stop()
 
 
-# Definición de Tags (Las claves de 'response_key' deben coincidir con el JSON)
+# Definición de Tags (Se mantiene para la interfaz)
 ENFERMERIA_TAGS = {
-    # Grupo ADEP/Signos/Balance
     "Cargar Glucemia": {"color": "#FFC0CB", "query": "cargar glucemia", "response_key": "response_template_adep_glucemia"},
     "Ver Glucemia": {"color": "#ADD8E6", "query": "ver glucemia", "response_key": "response_template_adep_glucemia"},
     "Cargar Signos Vitales": {"color": "#90EE90", "query": "cargar signos vitales", "response_key": "response_template_signos_vitales"},
@@ -49,24 +48,20 @@ ENFERMERIA_TAGS = {
     "Balance por Día": {"color": "#FFA07A", "query": "balance por dia", "response_key": "response_template_balance_hidrico"},
     "Adm. Medicación si Dolor": {"color": "#DDA0DD", "query": "adm medicación si dolor", "response_key": "response_template_adep_med"},
     
-    # Grupo Dispositivos/Login/Pase
     "Agregar un Nuevo Catéter": {"color": "#FAFAD2", "query": "agregar un nuevo catéter", "response_key": "response_template_dispositivos"},
     "Retirar Catéter": {"color": "#B0C4DE", "query": "retirar catéter", "response_key": "response_template_dispositivos"},
     "Contraseña y Usuario NO Coinciden": {"color": "#AFEEEE", "query": "contraseña y usuario no coinciden", "response_key": "response_template_login"},
     "Pase de Guardia": {"color": "#FFDAB9", "query": "pase de guardia", "response_key": "response_template_resumen_electronico"},
     
-    # Grupo Otros
     "Otros (Pendientes/Escalas)": {"color": "#20B2AA", "query": "otros temas enfermeria", "response_key": "response_template_pendientes_eval"},
 }
 
-# Tags Médico/a
 MEDICOS_TAGS = {
     "Evolucionar": {"color": "#4682B4", "query": "evolucionar medico", "response_key": "response_template_nota_clinica"},
     "Cargar Antecedentes del Paciente": {"color": "#6A5ACD", "query": "cargar antecedentes", "response_key": "response_template_antecedentes_multi"},
     "Epicrisis / Informe Final": {"color": "#DC143C", "query": "epicrisis informe final", "response_key": "response_template_informe_final"},
 }
 
-# Tags Otros Profesionales
 OTROS_TAGS = {
     "Cargar Informe Inicial": {"color": "#9ACD32", "query": "cargar informe inicial", "response_key": "response_template_ged"},
     "Cargar Informe Final": {"color": "#FF8C00", "query": "cargar informe final", "response_key": "response_template_informe_final"},
@@ -94,12 +89,10 @@ st.markdown(f"""
     h1 {{ color: #005490; }}
     h3 {{ color: #005490; }}
     
-    /* Clase para reducir el tamaño de letra del pie de página */
     .footer-content {{
         font-size: 0.9em;
         opacity: 0.9;
     }}
-    /* Estilo para destacar el botón de descarga del manual */
     .stDownloadButton button {{
         border: 1px solid #005490;
         color: #005490;
@@ -111,25 +104,21 @@ st.markdown(f"""
         color: white;
     }}
     
-    /* Estilos para los tags compactos */
     div[data-testid*="stHorizontalBlock"] > div[data-testid*="stVerticalBlock"] > div[data-testid*="column"] > div {{
         padding: 5px 2px;
     }}
     
     div[data-testid*="column"] > button {{
-        /* Estilo general del botón del tag */
         margin-bottom: 8px;
-        color: #333333 !important; /* Texto oscuro para contraste */
+        color: #333333 !important; 
         font-weight: bold;
         border: 1px solid #ddd;
-        /* Reducir el tamaño de fuente y padding del botón para hacerlo más compacto */
         font-size: 0.9em; 
         padding-top: 5px;
         padding-bottom: 5px;
         height: 100%;
     }}
     
-    /* Generación dinámica de clases de colores */
     {
         "".join([
             f".{cls} button {{ background-color: {hex_color}; border-color: {hex_color}; }}"
@@ -137,7 +126,6 @@ st.markdown(f"""
         ])
     }
 
-    /* Estilos para los botones de navegación (Volver / Dejar mensaje) */
     .nav-button-container button {{
         background-color: #f0f2f6;
         color: #005490 !important;
@@ -163,12 +151,10 @@ def log_interaction(rol, pregunta, respuesta):
             if not file_exists:
                 writer.writerow(["Fecha", "Hora", "Rol", "Pregunta", "Respuesta_Bot"])
             now = datetime.now()
-            # NOTA: En el log, solo guardamos el texto de la respuesta, no el Markdown completo
             writer.writerow([now.date(), now.strftime("%H:%M:%S"), rol, pregunta, "Respuesta cargada desde JSON"]) 
     except Exception as e:
         pass
 
-# Función para mostrar los botones de tags según el perfil (Se mantiene)
 def show_tags(tag_list, columns_count, title):
     st.markdown(f"### 🔍 {title}")
     
@@ -176,7 +162,6 @@ def show_tags(tag_list, columns_count, title):
     
     for i, (label, data) in enumerate(tag_list.items()):
         
-        # Mapea el color del tag a la clase CSS
         hex_color = data['color']
         css_class = COLOR_MAP[hex_color]
         button_key = f"tag_{label.replace(' ', '_').replace('/', '_').replace('.', '').lower()}"
@@ -186,21 +171,17 @@ def show_tags(tag_list, columns_count, title):
                 f'<div class="{css_class}">', 
                 unsafe_allow_html=True
             )
-            # El botón de Streamlit se renderiza dentro del div coloreado
             if st.button(label, key=button_key, use_container_width=True):
-                # Al hacer clic, se establece la clave de respuesta y se rerenderiza
                 st.session_state.response_key = data['response_key']
-                st.session_state.last_prompt = data['query'] # Guarda el prompt para el log
+                st.session_state.last_prompt = data['query']
                 st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
 
 
-# Función para renderizar el pie de página (Manual, Avisos y Dudas) - Se mantiene
 def render_footer():
     """Muestra el separador, el botón de descarga y el bloque de avisos."""
     st.markdown("---")
     
-    # Botón de descarga 
     if "manual_file" in st.session_state and os.path.exists(st.session_state.manual_file):
         with open(st.session_state.manual_file, "rb") as f:
             st.download_button(
@@ -211,7 +192,6 @@ def render_footer():
                 key=f"descarga_{datetime.now().timestamp()}"
             )
     
-    # Contenido del pie de página con tamaño de letra reducido
     with st.container():
         st.markdown('<div class="footer-content">', unsafe_allow_html=True)
         st.markdown("""
@@ -232,25 +212,20 @@ def render_footer():
         st.markdown('</div>', unsafe_allow_html=True)
 
 
-# Función para mostrar los botones de navegación al final de la respuesta (Se mantiene)
 def show_navigation_buttons(rol):
     st.markdown('<div class="nav-button-container">', unsafe_allow_html=True)
     
     col_back, col_msg = st.columns(2)
     
-    # Lógica de "Volver a Escribir Consulta" (o Volver a Tags si es Enfermería)
     if rol == "Enfermería" and st.session_state.conversation_step != "free_input_after_msg":
-        # Si es Enfermería y no viene de haber escrito un mensaje libre recién, vuelve a tags
         back_label = "💉 Volver a Opciones de Enfermería"
         target_step = "tags"
     elif rol in ["Médico", "Otros profesionales"] or st.session_state.conversation_step == "free_input_after_msg":
-        # Si es Médico/Otros o si Enfermería acaba de escribir un mensaje libre, va a free_input
         back_label = "⬅️ Volver a Escribir una Consulta"
         target_step = "free_input"
     else:
-        # Caso por defecto, volvemos a la última acción de tags/free_input
         back_label = "⬅️ Volver al menú anterior"
-        target_step = "tags" # Default a tags si no hay otra información
+        target_step = "tags" 
         
     
     with col_back:
@@ -260,16 +235,16 @@ def show_navigation_buttons(rol):
             st.session_state.last_prompt = None
             st.rerun()
 
-    # Botón 2: Dejar mensaje (Cambia al modo de input libre y notifica)
     with col_msg:
         if st.button("💬 No encontré respuesta (Dejar mensaje)", key="nav_leave_msg", use_container_width=True):
-            st.session_state.conversation_step = "free_input_after_msg" # Nuevo estado para notificar
+            st.session_state.conversation_step = "free_input_after_msg" 
             st.session_state.response_key = None
             st.session_state.last_prompt = None
             st.session_state.messages.append({"role": "assistant", "content": "Entendido. Por favor, describe tu problema con más detalle para que podamos ayudarte a encontrar la respuesta o derivar tu consulta al equipo de soporte."})
             st.rerun()
 
     st.markdown('</div>', unsafe_allow_html=True)
+
 
 # --- 3. FUNCIÓN CLAVE DE RENDERIZADO (UX/Markdown) ---
 
@@ -292,13 +267,12 @@ def render_response(template_data, user_profile):
 
     # --- CÓMO LLEGAR ---
     response += f"### 🗺️ ¿Cómo llego?\n"
-    # Mapea el rol interno de Streamlit al perfil del JSON
     if user_profile == "Enfermería":
         json_profile = "Hospitalización Enfermería"
     elif user_profile in ["Médico", "Otros profesionales"]:
         json_profile = "Hospitalización Multiprofesional"
     else:
-        json_profile = user_profile # fallback
+        json_profile = user_profile 
     
     path = template_data['path_to_item'].get(json_profile)
     if not path:
@@ -313,11 +287,9 @@ def render_response(template_data, user_profile):
     response += "\n"
 
     # --- ERRORES Y SOLUCIONES ---
-    # Iterar sobre la lista de errores (maneja el formato de lista de errores)
     if template_data.get('possible_errors'):
         response += f"### ⚠️ Posibles Errores y Soluciones\n"
         for error_block in template_data['possible_errors']:
-            # Puede haber múltiples errores y soluciones dentro de la lista
             if error_block.get('error') and error_block.get('solution'):
                  response += f"* **Error**: {error_block['error']}\n"
                  response += f"  * **Solución**: {error_block['solution']}\n"
@@ -344,7 +316,6 @@ def render_response(template_data, user_profile):
 
 
 # --- 4. MOTOR DE BÚSQUEDA ---
-# Ahora mapea la consulta libre a las claves de templates del JSON
 def buscar_solucion(consulta, rol):
     """Busca una solución basada en el texto libre, mapeando a una clave de template JSON."""
     q = consulta.lower()
@@ -352,6 +323,7 @@ def buscar_solucion(consulta, rol):
     template_key = None
 
     # Mapeo de búsqueda libre a claves de respuesta JSON
+    # NOTA: Estas claves son placeholders, deben coincidir exactamente con el JSON
     if any(x in q for x in ["contraseña", "usuario", "no veo paciente", "perfil", "login"]): 
         template_key = "response_template_login"
     if any(x in q for x in ["pase de guardia", "resumen", "cama", "sector", "navegacion"]): 
@@ -359,7 +331,7 @@ def buscar_solucion(consulta, rol):
     if any(x in q for x in ["sidca", "historia vieja", "anterior", "ces"]): 
         template_key = "response_template_sidca"
 
-    # Enfermería (Mapeo a claves JSON específicas)
+    # Enfermería
     if rol == "Enfermería":
         if any(x in q for x in ["signos", "vitales", "presion", "temperatura", "apap", "respiratoria"]): template_key = "response_template_signos_vitales"
         if any(x in q for x in ["balance", "hidrico", "ingreso", "egreso", "liquido"]): template_key = "response_template_balance_hidrico"
@@ -379,7 +351,6 @@ def buscar_solucion(consulta, rol):
         if template_data:
             return render_response(template_data, rol)
     
-    # Default si no encuentra en modo libre
     return "⚠️ No encontré un tema exacto para esa consulta. Te sugiero usar las opciones guiadas o revisar los manuales descargables."
 
 
@@ -400,7 +371,7 @@ if "conversation_step" not in st.session_state:
 if "last_prompt" not in st.session_state:
     st.session_state.last_prompt = None
 
-# LÓGICA DE BARRA LATERAL (SETTINGS Y ACCIONES) (Se mantiene)
+# LÓGICA DE BARRA LATERAL (Se mantiene)
 if st.session_state.rol_usuario is not None:
     with st.sidebar:
         st.success(f"Perfil activo: **{st.session_state.rol_usuario}**")
@@ -438,7 +409,6 @@ if st.session_state.rol_usuario is not None:
 
 # 1. ONBOARDING (Se mantiene)
 if st.session_state.conversation_step == "onboarding":
-    # Muestra imagen si existe
     if os.path.exists("image_39540a.png"):
         st.image("image_39540a.png", use_column_width="auto")
     elif os.path.exists("image_3950c3.png"):
@@ -454,7 +424,7 @@ if st.session_state.conversation_step == "onboarding":
             st.session_state.manual_file = MANUAL_ENFERMERIA
             st.session_state.manual_label = "Manual de Enfermería Completo"
             st.session_state.messages.append({"role": "assistant", "content": "Hola colega. Por favor, selecciona el tema en el que necesitas ayuda a continuación:"})
-            st.session_state.conversation_step = "tags" # Va a la nube de tags
+            st.session_state.conversation_step = "tags"
             st.rerun()
             
     with col2:
@@ -463,7 +433,7 @@ if st.session_state.conversation_step == "onboarding":
             st.session_state.manual_file = MANUAL_MEDICOS
             st.session_state.manual_label = "Manual de Médicos Completo"
             st.session_state.messages.append({"role": "assistant", "content": "Hola Doctor/a. Por favor, selecciona el tema o escribe tu consulta:"})
-            st.session_state.conversation_step = "tags" # Va a la nube de tags
+            st.session_state.conversation_step = "tags"
             st.rerun()
 
     with col3:
@@ -472,7 +442,7 @@ if st.session_state.conversation_step == "onboarding":
             st.session_state.manual_file = MANUAL_OTROS
             st.session_state.manual_label = "Manual de Otros Profesionales Completo"
             st.session_state.messages.append({"role": "assistant", "content": "¡Bienvenido/a! Por favor, selecciona el tema o ingresa tu consulta:"})
-            st.session_state.conversation_step = "tags" # Va a la nube de tags
+            st.session_state.conversation_step = "tags"
             st.rerun()
 
 # --- 2. MOSTRAR HISTORIAL (Se mantiene) ---
@@ -481,7 +451,7 @@ if st.session_state.rol_usuario is not None:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
 
-# --- 3. FLUJO GUIADO POR TAGS (Enfermería, Médico, Otros) (Se mantiene) ---
+# --- 3. FLUJO GUIADO POR TAGS (Se mantiene) ---
 if st.session_state.conversation_step == "tags":
     
     current_rol = st.session_state.rol_usuario
@@ -493,7 +463,6 @@ if st.session_state.conversation_step == "tags":
     elif current_rol == "Otros profesionales":
         show_tags(OTROS_TAGS, 3, "Temas Frecuentes de Otros Profesionales")
     
-    # Opciones para el usuario (si elige escribir, se pasa a modo libre)
     st.markdown("---")
     prompt = st.chat_input("O escribe directamente aquí 'Otros' o tu consulta...")
     
@@ -507,71 +476,57 @@ elif st.session_state.response_key is not None:
     key = st.session_state.response_key
     prompt_from_tag = st.session_state.last_prompt
     
-    # 1. Renderiza el prompt del usuario (simulado)
     if prompt_from_tag:
         with st.chat_message("user"):
             st.markdown(prompt_from_tag.capitalize())
         st.session_state.messages.append({"role": "user", "content": prompt_from_tag})
     
-    # 2. Renderiza la respuesta del bot usando la función de renderizado del JSON
     with st.chat_message("assistant"):
         with st.spinner("Flenisito está buscando la solución..."):
             
             template_data = KNOWLEDGE_BASE['response_templates'].get(key)
             respuesta_core = render_response(template_data, st.session_state.rol_usuario)
-            st.markdown(respuesta_core, unsafe_allow_html=True) # Usar unsafe para la renderización
+            st.markdown(respuesta_core, unsafe_allow_html=True)
 
-            # 3. Pie de página y Navegación
             render_footer() 
             show_navigation_buttons(st.session_state.rol_usuario)
 
-            # 4. Log y Mensajes de Sesión
             if prompt_from_tag:
-                log_interaction(st.session_state.rol_usuario, prompt_from_tag, key) # Loguea la clave del template
+                log_interaction(st.session_state.rol_usuario, prompt_from_tag, key)
                 st.session_state.messages.append({"role": "assistant", "content": respuesta_core})
-                st.session_state.response_key = None # Finaliza el procesamiento de la respuesta
-            st.rerun() # Rerun para asegurar la limpieza de estados y los botones
+                st.session_state.response_key = None
+            st.rerun()
 
 # --- 5. MODO LIBRE (FREE INPUT) ---
 elif st.session_state.conversation_step in ["free_input", "viewing_response", "free_input_after_msg"]:
     
-    # Si viene del estado de "dejar mensaje", mostramos la caja de input de chat
     if st.session_state.conversation_step in ["free_input", "free_input_after_msg"]:
         prompt = st.chat_input("Escribe tu consulta aquí...")
-        
-    # Si viene de una respuesta, solo mostramos los botones de navegación y no el chat_input
-    else: # viewing_response
+    else: 
         prompt = None 
         
-    # 5.1 Si hay un prompt nuevo (escribió)
     if prompt:
-        # 1. Añade el prompt al historial
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
 
-        # 2. RESPUESTA DEL BOT (Busca en la base de conocimiento y renderiza)
         with st.chat_message("assistant"):
             with st.spinner("Flenisito está buscando la solución..."):
                 
                 respuesta_core = buscar_solucion(prompt, st.session_state.rol_usuario)
                 st.markdown(respuesta_core, unsafe_allow_html=True)
                 
-                # 3. Pie de página y Navegación
                 render_footer() 
                 show_navigation_buttons(st.session_state.rol_usuario)
 
-                # 4. Log y Mensajes de Sesión
-                log_interaction(st.session_state.rol_usuario, prompt, respuesta_core[:50] + "...") # Loguea los primeros 50 caracteres
+                log_interaction(st.session_state.rol_usuario, prompt, respuesta_core[:50] + "...")
                 st.session_state.messages.append({"role": "assistant", "content": respuesta_core})
                 st.session_state.conversation_step = "viewing_response" 
                 st.rerun()
 
-    # 5.2 Si estamos en viewing_response (no hay prompt, solo se renderizan los botones)
     elif st.session_state.conversation_step == "viewing_response":
-        # Se asegura de que el pie de página se muestre antes de los botones, incluso sin un prompt nuevo
         with st.chat_message("assistant"):
-             # Simula una respuesta vacía o regenera la última
              st.markdown("") 
              render_footer()
              show_navigation_buttons(st.session_state.rol_usuario)
+
