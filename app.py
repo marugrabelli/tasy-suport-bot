@@ -11,8 +11,8 @@ st.set_page_config(page_title="Flenisito - Soporte Tasy", page_icon="🏥", layo
 # Archivos de Manuales
 LOG_FILE = "registro_consultas_flenisito.csv"
 MANUAL_ENFERMERIA = "manual enfermeria (2).docx" 
-MANUAL_MEDICOS = "Manual_Medicos.docx"
-MANUAL_OTROS = "Manual Otros profesionales.docx"
+MANUAL_MEDICOS = "Manual_Medicos.docx" # Asumiendo este es el Manual hospitalizacion multi.docx
+MANUAL_OTROS = "Manual Otros profesionales.docx" # Asumiendo este es el Manual hospitalizacion multi.docx
 KNOWLEDGE_FILE = "knowledge_base.json" 
 
 # Cargar la Base de Conocimiento JSON
@@ -53,7 +53,8 @@ ENFERMERIA_TAGS = {
     "Contraseña y Usuario NO Coinciden": {"color": "#AFEEEE", "query": "contraseña y usuario no coinciden", "response_key": "response_template_login"},
     "Pase de Guardia": {"color": "#FFDAB9", "query": "pase de guardia", "response_key": "response_template_resumen_electronico"},
     
-    "Otros (Pendientes/Escalas)": {"color": "#20B2AA", "query": "otros temas enfermeria", "response_key": "response_template_pendientes_eval"},
+    # CORRECCIÓN: Se cambia a 'response_template_evaluaciones' para que mapee a un template existente.
+    "Otros (Pendientes/Escalas)": {"color": "#20B2AA", "query": "otros temas enfermeria", "response_key": "response_template_evaluaciones"},
 }
 
 MEDICOS_TAGS = {
@@ -337,7 +338,8 @@ def buscar_solucion(consulta, rol):
         if any(x in q for x in ["balance", "hidrico", "ingreso", "egreso", "liquido"]): template_key = "response_template_balance_hidrico"
         if any(x in q for x in ["adep", "administrar", "medicacion", "droga", "glucemia", "revertir"]): template_key = "response_template_adep_med"
         if any(x in q for x in ["dispositivo", "sonda", "via", "cateter", "equipo", "rotar"]): template_key = "response_template_dispositivos"
-        if any(x in q for x in ["pendiente", "tarea", "evaluacion", "escala", "score", "otros temas"]): template_key = "response_template_pendientes_eval"
+        # SE AGREGA BUSQUEDA DE EVALUACIONES PARA COINCIDIR CON LA CORRECCIÓN DEL TAG
+        if any(x in q for x in ["pendiente", "tarea", "evaluacion", "escala", "score", "otros temas"]): template_key = "response_template_evaluaciones"
     
     # Médico / Otros Profesionales
     if rol in ["Médico", "Otros profesionales"]:
@@ -409,10 +411,8 @@ if st.session_state.rol_usuario is not None:
 
 # 1. ONBOARDING (Se mantiene)
 if st.session_state.conversation_step == "onboarding":
-    if os.path.exists("image_39540a.png"):
-        st.image("image_39540a.png", use_column_width="auto")
-    elif os.path.exists("image_3950c3.png"):
-        st.image("image_3950c3.png", use_column_width="auto")
+    # Asumiendo que las imágenes existen en el directorio. Se usa el tag para referencia.
+    st.markdown("", unsafe_allow_html=True)
     
     st.info("👋 ¡Hola! Soy Flenisito. Para ayudarte mejor, selecciona tu perfil:")
     
