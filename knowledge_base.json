@@ -21,7 +21,7 @@
         "Evaluaciones": "response_template_evaluaciones",
         "Informe Final": "response_template_informe_final",
         "GED": "response_template_ged"
-      },
+      }
     },
     
     "tags_enfermeria": {
@@ -107,10 +107,10 @@
     },
     
     "response_template_evaluaciones": {
-        "title": "Evaluaciones (PLACEHOLDER - PENDIENTE)",
-        "description": "Plantilla pendiente de desarrollo. Revisa el manual de Hospitalización Multiprofesional.",
-        "path_to_item": {"Hospitalización Enfermería": "HCE ➡️ Evaluaciones", "Hospitalización Multiprofesional": "HCE ➡️ Evaluaciones"},
-        "actions": ["Revisar el manual."],
+        "title": "Evaluaciones / Escalas (PLACEHOLDER - PENDIENTE)",
+        "description": "Este ítem permite realizar escalas y ver las que hayan realizado otros profesionales. Debes hacer clic en **Añadir** y luego **Guardar y Liberar**.",
+        "path_to_item": {"Hospitalización Enfermería": "HCE ➡️ Evaluaciones / Escalas", "Hospitalización Multiprofesional": "HCE ➡️ Evaluaciones"},
+        "actions": ["Revisar el manual para detalles específicos."],
         "possible_errors": [],
         "tips": ["Pendiente."],
         "video_link": {"title": "Sin video", "url": "#"},
@@ -119,33 +119,33 @@
 
     "response_template_informe_final": {
         "title": "Informe Final / Epicrisis (PLACEHOLDER - PENDIENTE)",
-        "description": "Plantilla pendiente de desarrollo. Revisa el manual de tu perfil.",
+        "description": "Para generar el Informe Final, se utiliza la función **Central de Informes** desde el menú principal o la llamada externa.",
         "path_to_item": {"Hospitalización Enfermería": "No Aplica", "Hospitalización Multiprofesional": "Función Central de Informes ➡️ Informe Final"},
-        "actions": ["Revisar el manual."],
+        "actions": ["El estatus debe ser 'realizado'. Clic derecho > Ejecutar > Incluir interpretación PDF."],
         "possible_errors": [],
-        "tips": ["Pendiente."],
+        "tips": ["Pendiente de tips específicos."],
         "video_link": {"title": "Sin video", "url": "#"},
         "footer": "¿Deseas consultar otro tema?"
     },
 
     "response_template_ged": {
         "title": "GED / Gestión de Documentos (PLACEHOLDER - PENDIENTE)",
-        "description": "Plantilla pendiente de desarrollo. Este ítem se usa para adjuntar archivos.",
-        "path_to_item": {"Hospitalización Enfermería": "HCE ➡️ GED", "Hospitalización Multiprofesional": "HCE ➡️ GED"},
-        "actions": ["Revisar el manual."],
+        "description": "Este ítem se usa para adjuntar archivos. Puedes cargar informes iniciales y finales desde aquí.",
+        "path_to_item": {"Hospitalización Enfermería": "HCE ➡️ Gestión de Documentos", "Hospitalización Multiprofesional": "HCE ➡️ Gestión de Documentos"},
+        "actions": ["Clic en **Añadir**, sube el archivo y **clasifícalo** como 'informe inicial'."],
         "possible_errors": [],
-        "tips": ["Pendiente."],
+        "tips": ["Pendiente de tips específicos."],
         "video_link": {"title": "Sin video", "url": "#"},
         "footer": "¿Deseas consultar otro tema?"
     },
     
     "response_template_signos_vitales": {
         "title": "Signos Vitales y APAP (PLACEHOLDER - PENDIENTE)",
-        "description": "Plantilla pendiente de desarrollo. Se usa para registrar signos y ver APAP.",
-        "path_to_item": {"Hospitalización Enfermería": "HCE ➡️ APAP", "Hospitalización Multiprofesional": "HCE ➡️ APAP"},
-        "actions": ["Revisar el manual."],
+        "description": "Sección para registrar signos vitales y parámetros respiratorios. Recuerda marcar **APAP** si quieres que los datos se visualicen en la grilla.",
+        "path_to_item": {"Hospitalización Enfermería": "HCE ➡️ Signos Vitales", "Hospitalización Multiprofesional": "HCE ➡️ APAP (Solo visualización)"},
+        "actions": ["Clic en **Añadir**, completa campos y luego **Guardar y Liberar**."],
         "possible_errors": [],
-        "tips": ["Pendiente."],
+        "tips": ["Pendiente de tips específicos."],
         "video_link": {"title": "Sin video", "url": "#"},
         "footer": "¿Deseas consultar otro tema?"
     }
