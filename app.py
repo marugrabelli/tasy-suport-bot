@@ -53,7 +53,7 @@ ENFERMERIA_TAGS = {
     "Contraseña y Usuario NO Coinciden": {"color": "#AFEEEE", "query": "contraseña y usuario no coinciden", "response_key": "response_template_login"},
     "Pase de Guardia": {"color": "#FFDAB9", "query": "pase de guardia", "response_key": "response_template_resumen_electronico"},
     
-    # CORRECCIÓN: Se cambia a 'response_template_evaluaciones' para que mapee a un template existente.
+    # CORRECCIÓN DE MAPPING: Apunta a Evaluaciones para usar un template existente.
     "Otros (Pendientes/Escalas)": {"color": "#20B2AA", "query": "otros temas enfermeria", "response_key": "response_template_evaluaciones"},
 }
 
@@ -336,9 +336,13 @@ def buscar_solucion(consulta, rol):
     if rol == "Enfermería":
         if any(x in q for x in ["signos", "vitales", "presion", "temperatura", "apap", "respiratoria"]): template_key = "response_template_signos_vitales"
         if any(x in q for x in ["balance", "hidrico", "ingreso", "egreso", "liquido"]): template_key = "response_template_balance_hidrico"
-        if any(x in q for x in ["adep", "administrar", "medicacion", "droga", "glucemia", "revertir"]): template_key = "response_template_adep_med"
+        if any(x in q for x in ["adep", "administrar", "medicacion", "droga", "glucemia", "revertir"]): 
+            # Glucemia tiene su propio template
+            if any(x in q for x in ["glucemia", "protocolo"]):
+                 template_key = "response_template_adep_glucemia"
+            else:
+                 template_key = "response_template_adep_med"
         if any(x in q for x in ["dispositivo", "sonda", "via", "cateter", "equipo", "rotar"]): template_key = "response_template_dispositivos"
-        # SE AGREGA BUSQUEDA DE EVALUACIONES PARA COINCIDIR CON LA CORRECCIÓN DEL TAG
         if any(x in q for x in ["pendiente", "tarea", "evaluacion", "escala", "score", "otros temas"]): template_key = "response_template_evaluaciones"
     
     # Médico / Otros Profesionales
@@ -411,8 +415,11 @@ if st.session_state.rol_usuario is not None:
 
 # 1. ONBOARDING (Se mantiene)
 if st.session_state.conversation_step == "onboarding":
-    # Asumiendo que las imágenes existen en el directorio. Se usa el tag para referencia.
-    st.markdown("", unsafe_allow_html=True)
+    # Muestra el logo o imagen de bienvenida si existe
+    if os.path.exists("image_39540a.png"):
+        st.image("image_39540a.png", use_column_width="auto")
+    elif os.path.exists("image_3950c3.png"):
+        st.image("image_3950c3.png", use_column_width="auto")
     
     st.info("👋 ¡Hola! Soy Flenisito. Para ayudarte mejor, selecciona tu perfil:")
     
