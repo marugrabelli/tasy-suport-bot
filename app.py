@@ -42,7 +42,6 @@ if KNOWLEDGE_BASE is None:
 ENFERMERIA_TAGS = {
     "Cargar Glucemia": {"color": "#FFC0CB", "query": "cargar glucemia", "response_key": "response_template_adep_glucemia"},
     "Ver Glucemia": {"color": "#ADD8E6", "query": "ver glucemia", "response_key": "response_template_adep_glucemia"},
-    # Mapeo a la nueva clave de registro
     "Cargar Signos Vitales": {"color": "#90EE90", "query": "cargar signos vitales (registro)", "response_key": "response_template_signos_vitales_registro"}, 
     "Ver Signos Vitales/APAP": {"color": "#87CEFA", "query": "ver signos vitales/apap", "response_key": "response_template_signos_vitales"}, 
     "Balance por Turno/Día": {"color": "#F08080", "query": "balance hidrico", "response_key": "response_template_balance_hidrico"},
@@ -208,17 +207,17 @@ def render_footer():
         st.markdown("""
 ### 💡 Antes de llamar, ¡revisa estos puntos!
 
-* [cite_start]**💻 Navegador Ideal:** Usa siempre **Google Chrome**[cite: 1, 2].
-* [cite_start]**🧹 Limpieza:** Si algo no carga, prueba a **limpiar la caché** (`Ctrl + H`)[cite: 1, 2].
-* [cite_start]**👤 Perfil:** Verifica que tu **Log In** esté en el **establecimiento y perfil correcto** (Ej: Hospitalización Multi/Enfermería)[cite: 1, 2].
-* **🔍 Zoom:** ¿Pantalla cortada? [cite_start]Ajusta el zoom: **`Ctrl + +`** (agrandar) o **`Ctrl + -`** (minimizar)[cite: 1, 2].
+* **💻 Navegador Ideal:** Usa siempre **Google Chrome**.
+* **🧹 Limpieza:** Si algo no carga, prueba a **limpiar la caché** (`Ctrl + H`).
+* **👤 Perfil:** Verifica que tu **Log In** esté en el **establecimiento y perfil correcto** (Ej: Hospitalización Multi/Enfermería).
+* **🔍 Zoom:** ¿Pantalla cortada? Ajusta el zoom: **`Ctrl + +`** (agrandar) o **`Ctrl + -`** (minimizar).
 
 ---
 **¿Aún tienes dudas?**
 
-* [cite_start]🖋️ **Firmas Digitales:** Envía tu firma en **formato JPG (fondo blanco)** a **soportesidca@fleni.org.ar**[cite: 1, 2].
-* [cite_start]📞 **Soporte Telefónico:** Llama al interno **5006**[cite: 1, 2].
-* [cite_start]🎫 **Alta de Usuarios/VPN:** Deja un ticket en **solicitudes.fleni.org**[cite: 1, 2].
+* 🖋️ **Firmas Digitales:** Envía tu firma en **formato JPG (fondo blanco)** a **soportesidca@fleni.org.ar**.
+* 📞 **Soporte Telefónico:** Llama al interno **5006**.
+* 🎫 **Alta de Usuarios/VPN:** Deja un ticket en **solicitudes.fleni.org**.
 """)
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -364,8 +363,8 @@ def buscar_solucion(consulta, rol):
             template_key = "response_template_dispositivos"
             
         # Signos Vitales: Manejo diferenciado por intento de registro o visualización
-        if any(x in q for x in ["signos", "vitales", "presion", "temperatura", "dolor", "peso"]): 
-            if any(x in q for x in ["cargar", "registro", "ingreso", "agregar"]):
+        if any(x in q for x in ["signos", "vitales", "presion", "temperatura", "dolor", "peso", "sv"]): 
+            if any(x in q for x in ["cargar", "registro", "ingreso", "agregar", "nuevo"]):
                 template_key = "response_template_signos_vitales_registro"
             else:
                 template_key = "response_template_signos_vitales" # APAP Visualización
@@ -591,3 +590,4 @@ elif st.session_state.conversation_step in ["free_input", "viewing_response", "f
              
              render_footer()
              show_navigation_buttons(st.session_state.rol_usuario)
+
