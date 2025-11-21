@@ -229,12 +229,9 @@ def show_navigation_buttons(rol):
     
     # Lógica de Navegación Corregida
     target_step = "tags"
-    if rol == "Enfermería":
-        back_label = "💉 Volver a Opciones de Enfermería"
-    elif rol == "Médico":
-        back_label = "🩺 Volver a Opciones de Médicos"
-    else: # Otros profesionales
-        back_label = "👥 Volver a Opciones"
+    
+    # Renombramos el botón principal para todos los perfiles
+    back_label = "⬅️ Volver al Menú de Dudas y Temas"
     
     # Caso especial: Si estamos en la pantalla de "Dejar mensaje", ajustamos la etiqueta y el destino
     if st.session_state.conversation_step == "free_input_after_msg":
@@ -255,7 +252,8 @@ def show_navigation_buttons(rol):
             st.session_state.response_key = None
             st.session_state.last_prompt = None
             st.session_state.processing_prompt = None
-            st.session_state.messages.append({"role": "assistant", "content": "Entendido. Por favor, describe tu problema con más detalle para que podamos ayudarte a encontrar la respuesta o derivar tu consulta al equipo de soporte."})
+            # Mensaje modificado para el nuevo flujo de "Dejar Mensaje"
+            st.session_state.messages.append({"role": "assistant", "content": "Entendido. Por favor, describe tu problema y **deja tu email** para poder comunicarnos con vos, o te ayudaremos a encontrar la respuesta si es un tema técnico."})
             st.rerun()
 
     st.markdown('</div>', unsafe_allow_html=True)
@@ -534,16 +532,17 @@ if st.session_state.response_key is not None:
             respuesta_core = render_response(template_data, st.session_state.rol_usuario)
             st.markdown(respuesta_core, unsafe_allow_html=True)
             
-            # --- PIE DE PÁGINA Y NAVEGACIÓN (Se saca del chat message para asegurar renderizado) ---
-            log_interaction(st.session_state.rol_usuario, prompt_from_tag, key)
-            st.session_state.messages.append({"role": "assistant", "content": respuesta_core})
-            st.session_state.response_key = None
-            st.session_state.conversation_step = "tags" 
+            # Limpiamos el estado después de la respuesta de tag
+            if prompt_from_tag:
+                log_interaction(st.session_state.rol_usuario, prompt_from_tag, key)
+                st.session_state.messages.append({"role": "assistant", "content": respuesta_core})
+                st.session_state.response_key = None
+                st.session_state.conversation_step = "tags" 
             
+    # --- PIE DE PÁGINA Y NAVEGACIÓN (FUERA DEL CHAT MESSAGE) ---
     render_footer() 
     show_navigation_buttons(st.session_state.rol_usuario)
     st.stop()
-
 
 # B. Procesar RESPUESTA POR TEXTO LIBRE (Input en el chat)
 elif st.session_state.processing_prompt is not None:
@@ -553,6 +552,23 @@ elif st.session_state.processing_prompt is not None:
     # Limpiamos el estado de procesamiento inmediatamente
     st.session_state.processing_prompt = None
 
+    # Caso especial: Manejo del flujo "Dejar Mensaje"
+    if st.session_state.conversation_step == "free_input_after_msg":
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
+        
+        with st.chat_message("assistant"):
+            st.markdown("¡Muchas gracias por tu duda! Hemos registrado tu mensaje y la información de contacto. Nos pondremos en comunicación a la brevedad. 💬")
+            st.session_state.messages.append({"role": "assistant", "content": "¡Muchas gracias por tu duda! Hemos registrado tu mensaje y la información de contacto. Nos pondremos en comunicación a la brevedad. 💬"})
+            st.session_state.conversation_step = "tags" # Volvemos a tags después de agradecer
+        
+        render_footer()
+        show_navigation_buttons(st.session_state.rol_usuario)
+        st.stop()
+
+
+    # Procesamiento normal de búsqueda libre
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
@@ -563,11 +579,11 @@ elif st.session_state.processing_prompt is not None:
             respuesta_core = buscar_solucion(prompt, st.session_state.rol_usuario)
             st.markdown(respuesta_core, unsafe_allow_html=True)
             
-            # --- PIE DE PÁGINA Y NAVEGACIÓN (Se saca del chat message para asegurar renderizado) ---
             log_interaction(st.session_state.rol_usuario, prompt, respuesta_core[:100] + "...")
             st.session_state.messages.append({"role": "assistant", "content": respuesta_core})
             st.session_state.conversation_step = "viewing_response" 
             
+    # --- PIE DE PÁGINA Y NAVEGACIÓN (FUERA DEL CHAT MESSAGE) ---
     render_footer() 
     show_navigation_buttons(st.session_state.rol_usuario)
     st.stop()
@@ -589,5 +605,9 @@ elif st.session_state.conversation_step in ["free_input", "viewing_response", "f
              if st.session_state.messages and st.session_state.messages[-1]["role"] == "assistant":
                  st.markdown(st.session_state.messages[-1]["content"], unsafe_allow_html=True)
              
-             render_footer()
-             show_navigation_buttons(st.session_state.rol_usuario)
+             # El footer y botones se renderizan a continuación, fuera del chat message
+             pass
+        
+        render_footer()
+        show_navigation_buttons(st.session_state.rol_usuario)
+
