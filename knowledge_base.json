@@ -39,20 +39,29 @@
     
     "response_template_login": {
         "title": "Login / Acceso a Tasy 🔐",
-        "description": "Este ítem te guía en la solución de problemas básicos de acceso.",
+        "description": "Este ítem te guía en el proceso de **inicio de sesión** y la solución de problemas básicos de acceso. Tu usuario en Tasy es el **mismo que en SIDCA** y la sesión queda abierta por **45 minutos**.",
         "path_to_item": {"Hospitalización Enfermería": "URL: https://tasy.fleni.org.ar/#/login", "Hospitalización Multiprofesional": "URL: https://tasy.fleni.org.ar/#/login"},
         "actions": [
-          "**Verificar Usuario y Contraseña**.",
-          "**Verificar Perfil Asignado** 👤: Asegúrate de estar en el *Establecimiento* (Belgrano/Escobar), *Sector* y *Perfil* correctos, sin esos datos no podrás visualizar pacientes y/o registrar.",
-          "**Cerrar Sesión** ➡️: Para desloguearte haz clic en **Salir**."
+          "**Iniciar Sesión** ✅: Coloca tu usuario y contraseña.",
+          "**Verificar Perfil Asignado** 👤: Siempre verifica estar en el **establecimiento** (Belgrano/Escobar), **sector correspondiente** y **perfil designado**.",
+          "**Cerrar Sesión (Logout)** ➡️: Es **IMPRESCINDIBLE** hacer clic en **Salir** al finalizar. Si cierras la pestaña de Chrome, la sesión sigue abierta.",
+          "**Cambiar de Sector** 🔄: Si rotas, modifica el sector haciendo clic debajo de tu nombre de usuario."
         ],
         "possible_errors": [
-            {"error": "No puedo visualizar pacientes.", "solution": "Esto sucede si no estás en el **establecimiento/sector/perfil** designado."}
+            {
+              "error": "Mi usuario y contraseña no coincide.", 
+              "solution": "Significa que la contraseña o el usuario están **mal escritos**. Verifica las mayúsculas/minúsculas."
+            },
+            {
+              "error": "No tengo usuario Tasy/SIDCA.", 
+              "solution": "Debes generar un ticket en **solicitudes.fleni.org** para solicitar el alta."
+            }
         ],
         "tips": [
-          "Verifica siempre el nombre de tu usuario con el establecimiento, sector y perfil asignado en el lado superior derecho."
+          "**Seguridad y Compañerismo** 🤝: Desloguéate siempre. Si encuentras una máquina con una sesión abierta, sé buen compañero y desloguéala.",
+          "Verifica siempre el establecimiento (Belgrano/Escobar) y el perfil designado (Hospitalización Enfermeria / Hospitalización Multi)."
         ],
-        "video_link": {"title": "Sin video", "url": "#"},
+        "video_link": {"title": "▶️ Video Tutorial (Pendiente)", "url": "#"},
         "footer": ""
     },
     
