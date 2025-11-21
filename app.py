@@ -39,10 +39,12 @@ if KNOWLEDGE_BASE is None:
 
 
 # Definición de Tags (Mapeo Final Corregido)
+# Nota: La clave "Cargar Signos Vitales" y "Ver Signos Vitales" mapean a response_template_signos_vitales 
+# (APAP: Visualización) ya que no tenemos un template de REGISTRO puro.
 ENFERMERIA_TAGS = {
     "Cargar Glucemia": {"color": "#FFC0CB", "query": "cargar glucemia", "response_key": "response_template_adep_glucemia"},
     "Ver Glucemia": {"color": "#ADD8E6", "query": "ver glucemia", "response_key": "response_template_adep_glucemia"},
-    "Cargar Signos Vitales": {"color": "#90EE90", "query": "cargar signos vitales", "response_key": "response_template_signos_vitales"}, # Mapeado temporalmente a APAP/SV (Visualización)
+    "Cargar Signos Vitales": {"color": "#90EE90", "query": "cargar signos vitales", "response_key": "response_template_signos_vitales"}, 
     "Ver Signos Vitales/APAP": {"color": "#87CEFA", "query": "ver signos vitales/apap", "response_key": "response_template_signos_vitales"}, 
     "Balance por Turno/Día": {"color": "#F08080", "query": "balance hidrico", "response_key": "response_template_balance_hidrico"},
     "Adm. Medicación": {"color": "#DDA0DD", "query": "administración de medicación", "response_key": "response_template_adep_glucemia"}, 
@@ -125,7 +127,7 @@ st.markdown(f"""
         ])
     }
     
-    /* MEJORA: Aseguramos que el texto del botón sea visible y forzamos el contraste */
+    /* Aseguramos que el texto del botón sea visible y forzamos el contraste */
     .tag-pink button, .tag-lightblue button, .tag-lightgreen button, .tag-skyblue button, 
     .tag-lightcoral button, .tag-lightsalmon button, .tag-thistle button, .tag-lightyellow button, 
     .tag-slategray button, .tag-turquoise button, .tag-peach button, .tag-seafoam button,
@@ -322,7 +324,7 @@ def render_response(template_data, user_profile):
         response += f"[{video['title']}]({video['url']})\n\n"
     
     # --- FOOTER / MENSAJE FINAL ---
-    # Se eliminó el footer del JSON, por lo que este campo se omite, dejando solo el render_footer()
+    # El footer se eliminó del JSON, se usa el render_footer()
     
     return response
 
@@ -333,13 +335,14 @@ def buscar_solucion(consulta, rol):
     q = consulta.lower()
     template_key = None
     
-    # 1. TEMAS GENÉRICOS (Login, Resumen)
-    # Palabras clave de Login: salir de tasy, salir, loguearme, clave, error clave
-    if any(x in q for x in ["contraseña", "usuario", "login", "acceso", "perfil", "salir", "loguearme", "clave"]): 
+    # 1. TEMAS GENÉRICOS (Login, Resumen, SIDCA)
+    
+    # Login: salir de tasy, salir, loguearme, clave, error clave, contraseña, usuario, acceso
+    if any(x in q for x in ["contraseña", "usuario", "login", "acceso", "perfil", "salir", "loguearme", "clave", "error clave"]): 
         template_key = "response_template_login"
         
-    # Palabras clave de Resumen: pase de guardia, resumen electronico, resumen electronico de paciente
-    if any(x in q for x in ["pase de guardia", "resumen", "paciente", "cama", "sector", "navegacion", "historia clínica"]): 
+    # Resumen: pase de guardia, resumen electronico, historia clínica
+    if any(x in q for x in ["pase de guardia", "resumen electronico", "historia clínica", "resumen", "pase"]): 
         template_key = "response_template_resumen_electronico"
         
     # Placeholder para SIDCA
@@ -350,23 +353,23 @@ def buscar_solucion(consulta, rol):
     
     # Enfermería
     if rol == "Enfermería":
-        # Palabras clave de Glucemia/ADEP: glucemia, glucemico, insulina, bomba de insulina, protocolo de glucemia, sin protocolo, administrar medicacion, adep
-        if any(x in q for x in ["glucemia", "insulina", "bomba", "protocolo", "adep", "medicacion"]): 
+        # Glucemia/ADEP: glucemia, insulina, bomba, protocolo, adep, medicacion, administrar
+        if any(x in q for x in ["glucemia", "insulina", "bomba", "protocolo", "adep", "medicacion", "administrar", "glucemico"]): 
             template_key = "response_template_adep_glucemia"
             
-        # Palabras clave de Balance Hídrico: ingreso, egreso, orina, diuresis, Multistick, balance hidrico
+        # Balance Hídrico: ingreso, egreso, orina, diuresis, Multistick, balance hidrico
         if any(x in q for x in ["balance", "hidrico", "ingreso", "egreso", "orina", "diuresis", "multistick"]): 
             template_key = "response_template_balance_hidrico"
             
-        # Palabras clave de Dispositivos: cateter, via, sonda, retirar dispositivo, retirar via, colocar via, grafico dispositivos, grafico dispositivo, rotar
+        # Dispositivos: cateter, dispositivo, sonda, via, rotar, retirar, grafico
         if any(x in q for x in ["cateter", "dispositivo", "sonda", "via", "rotar", "equipo", "retirar", "grafico"]): 
             template_key = "response_template_dispositivos"
             
-        # Palabras clave de Signos Vitales/APAP: signos vitales, presion, temperatura, mointoreo respiratorio, apap, dolor
+        # Signos Vitales/APAP: signos vitales, apap, presion, temperatura, mointoreo, dolor, peso
         if any(x in q for x in ["signos", "vitales", "apap", "presion", "temperatura", "mointoreo", "dolor", "peso"]): 
             template_key = "response_template_signos_vitales"
             
-        # Palabras clave de Evaluaciones: escalas, evaluaciones, escala bradden, arnell, evaluacion inicial
+        # Evaluaciones: escalas, evaluaciones, braden, arnell, inicial, score, pendientes
         if any(x in q for x in ["evaluacion", "escalas", "braden", "arnell", "inicial", "score", "pendientes"]): 
             template_key = "response_template_evaluaciones"
     
@@ -389,7 +392,7 @@ def buscar_solucion(consulta, rol):
     return "⚠️ No encontré un tema exacto para esa consulta. Te sugiero usar las opciones guiadas o revisar los manuales descargables."
 
 
-# --- 5. INTERFAZ DE USUARIO (El resto del código se mantiene) ---
+# --- 5. INTERFAZ DE USUARIO (El flujo principal se modifica) ---
 
 st.title("🏥 Flenisito")
 st.markdown("**Tu Asistente Virtual para Tasy en FLENI**")
@@ -405,6 +408,8 @@ if "conversation_step" not in st.session_state:
     st.session_state.conversation_step = "onboarding"
 if "last_prompt" not in st.session_state:
     st.session_state.last_prompt = None
+if "processing_prompt" not in st.session_state: # Nuevo estado para manejar el prompt de la misma sesión
+    st.session_state.processing_prompt = None
 
 # LÓGICA DE BARRA LATERAL (Se mantiene)
 if st.session_state.rol_usuario is not None:
@@ -422,11 +427,12 @@ if st.session_state.rol_usuario is not None:
             st.session_state.rol_usuario = None
             st.session_state.messages = []
             st.session_state.conversation_step = "onboarding"
-            for key in ["manual_file", "manual_label", "response_key", "last_prompt"]:
+            for key in ["manual_file", "manual_label", "response_key", "last_prompt", "processing_prompt"]:
                 if key in st.session_state: del st.session_state[key]
             st.rerun()
         if st.button("🗑️ Borrar Chat"):
             st.session_state.messages = []
+            st.session_state.processing_prompt = None
             st.rerun()
             
         st.markdown("---")
@@ -444,10 +450,7 @@ if st.session_state.rol_usuario is not None:
 
 # 1. ONBOARDING (Se mantiene)
 if st.session_state.conversation_step == "onboarding":
-    if os.path.exists("image_39540a.png"):
-        st.image("image_39540a.png", use_column_width="auto")
-    elif os.path.exists("image_3950c3.png"):
-        st.image("image_3950c3.png", use_column_width="auto")
+    # ... (código de onboarding)
     
     st.info("👋 ¡Hola! Soy Flenisito. Para ayudarte mejor, selecciona tu perfil:")
     
@@ -486,13 +489,41 @@ if st.session_state.rol_usuario is not None:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
 
-# --- 3. FLUJO GUIADO POR TAGS (Se mantiene) ---
-if st.session_state.conversation_step == "tags":
+# --- 3. FLUJO GUIADO POR TAGS (Solución al doble input) ---
+
+# Si hay un prompt escrito, lo procesamos AHORA como búsqueda libre antes de mostrar tags.
+if st.session_state.conversation_step == "tags" and (st.session_state.get('processing_prompt') or st.session_state.get('prompt_from_input')):
+    
+    prompt = st.session_state.get('processing_prompt') or st.session_state.get('prompt_from_input')
+    
+    # Limpiamos el estado de procesamiento inmediatamente para evitar bucles
+    st.session_state.processing_prompt = None
+    st.session_state.prompt_from_input = None 
+
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    with st.chat_message("assistant"):
+        with st.spinner("Flenisito está buscando la solución..."):
+            
+            respuesta_core = buscar_solucion(prompt, st.session_state.rol_usuario)
+            st.markdown(respuesta_core, unsafe_allow_html=True)
+            
+            render_footer() 
+            show_navigation_buttons(st.session_state.rol_usuario)
+
+            log_interaction(st.session_state.rol_usuario, prompt, respuesta_core[:100] + "...")
+            st.session_state.messages.append({"role": "assistant", "content": respuesta_core})
+            st.session_state.conversation_step = "viewing_response" 
+            st.rerun()
+
+
+elif st.session_state.conversation_step == "tags":
     
     current_rol = st.session_state.rol_usuario
     
     if current_rol == "Enfermería":
-        # Se elimina la lógica de eliminar tags unificados aquí, se usa la lista limpia de ENFERMERIA_TAGS
         show_tags(ENFERMERIA_TAGS, 3, "Temas Específicos de Enfermería")
     elif current_rol == "Médico":
         show_tags(MEDICOS_TAGS, 3, "Temas Frecuentes de Médicos")
@@ -500,13 +531,15 @@ if st.session_state.conversation_step == "tags":
         show_tags(OTROS_TAGS, 3, "Temas Frecuentes de Otros Profesionales")
     
     st.markdown("---")
+    # Capturamos el input y lo guardamos para procesarlo en la siguiente ejecución
     prompt = st.chat_input("O escribe directamente aquí 'Otros' o tu consulta...")
     
     if prompt:
-        st.session_state.conversation_step = "free_input" 
+        st.session_state.processing_prompt = prompt 
+        st.session_state.conversation_step = "tags" # Nos quedamos en tags para procesar
         st.rerun()
 
-# --- 4. MOSTRAR RESPUESTA ESTRUCTURADA POR TAG (LÓGICA DE NAVEGACIÓN CORREGIDA) ---
+# --- 4. MOSTRAR RESPUESTA ESTRUCTURADA POR TAG (Mantiene la lógica de tag click) ---
 elif st.session_state.response_key is not None:
     
     key = st.session_state.response_key
@@ -534,35 +567,21 @@ elif st.session_state.response_key is not None:
                 st.session_state.conversation_step = "tags" 
             st.rerun()
 
-# --- 5. MODO LIBRE (FREE INPUT) ---
+# --- 5. MODO LIBRE (Simplificado) ---
 elif st.session_state.conversation_step in ["free_input", "viewing_response", "free_input_after_msg"]:
     
     if st.session_state.conversation_step in ["free_input", "free_input_after_msg"]:
         prompt = st.chat_input("Escribe tu consulta aquí...")
-    else: 
-        prompt = None 
         
-    if prompt:
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        with st.chat_message("user"):
-            st.markdown(prompt)
+        if prompt:
+            st.session_state.prompt_from_input = prompt # Usamos esta clave para pasar el prompt a la siguiente ejecución
+            st.session_state.conversation_step = "tags" # Volvemos a tags para que lo procese el flujo principal
+            st.rerun()
 
+    if st.session_state.conversation_step == "viewing_response":
+        # Se asegura que el footer y los botones se vean después de una búsqueda libre.
         with st.chat_message("assistant"):
-            with st.spinner("Flenisito está buscando la solución..."):
-                
-                respuesta_core = buscar_solucion(prompt, st.session_state.rol_usuario)
-                st.markdown(respuesta_core, unsafe_allow_html=True)
-                
-                render_footer() 
-                show_navigation_buttons(st.session_state.rol_usuario)
-
-                log_interaction(st.session_state.rol_usuario, prompt, respuesta_core[:100] + "...")
-                st.session_state.messages.append({"role": "assistant", "content": respuesta_core})
-                st.session_state.conversation_step = "viewing_response" 
-                st.rerun()
-
-    elif st.session_state.conversation_step == "viewing_response":
-        with st.chat_message("assistant"):
+             # Se repite el último mensaje del asistente para mantener el contexto visual
              if st.session_state.messages and st.session_state.messages[-1]["role"] == "assistant":
                  st.markdown(st.session_state.messages[-1]["content"], unsafe_allow_html=True)
              
