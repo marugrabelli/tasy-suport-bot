@@ -20,8 +20,6 @@ KNOWLEDGE_FILE = "knowledge_base.json"
 def load_knowledge_base():
     """Carga la base de conocimiento desde el archivo JSON al iniciar."""
     try:
-        # Nota del Asistente: Asumimos que el archivo real se llama 'knowledge_base.json' 
-        # y que contiene la información de 'knowledge_base (3).json'
         with open(KNOWLEDGE_FILE, 'r', encoding='utf-8') as f:
             return json.load(f)
     except FileNotFoundError:
@@ -40,38 +38,35 @@ if KNOWLEDGE_BASE is None:
     st.stop()
 
 
-# Definición de Tags (¡Actualizadas para usar las claves JSON existentes!)
-# Las claves que faltan en el JSON (como balance_hidrico) se han mapeado 
-# a una clave existente (ej. response_template_dispositivos) o se asume su existencia futura.
+# Definición de Tags (¡Actualizadas para usar las claves JSON consolidadas!)
 ENFERMERIA_TAGS = {
-    # Estas claves apuntan a las que faltan en tu JSON actual. Se deja la estructura.
-    "Cargar Glucemia": {"color": "#FFC0CB", "query": "cargar glucemia", "response_key": "response_template_dispositivos"}, # Placeholder
-    "Ver Glucemia": {"color": "#ADD8E6", "query": "ver glucemia", "response_key": "response_template_dispositivos"}, # Placeholder
+    "Cargar Glucemia": {"color": "#FFC0CB", "query": "cargar glucemia", "response_key": "response_template_adep_glucemia"},
+    "Ver Glucemia": {"color": "#ADD8E6", "query": "ver glucemia", "response_key": "response_template_adep_glucemia"},
     "Cargar Signos Vitales": {"color": "#90EE90", "query": "cargar signos vitales", "response_key": "response_template_signos_vitales"},
     "Ver Signos Vitales/APAP": {"color": "#87CEFA", "query": "ver signos vitales", "response_key": "response_template_signos_vitales"},
-    "Balance por Turno/Día": {"color": "#F08080", "query": "balance hidrico", "response_key": "response_template_dispositivos"}, # Placeholder
-    "Adm. Medicación": {"color": "#DDA0DD", "query": "adm medicación", "response_key": "response_template_dispositivos"}, # Placeholder
+    "Balance por Turno/Día": {"color": "#F08080", "query": "balance hidrico", "response_key": "response_template_balance_hidrico"},
+    "Adm. Medicación": {"color": "#DDA0DD", "query": "adm medicación", "response_key": "response_template_adep_glucemia"}, # Se usa Glucemia ya que es el flujo más cercano a ADEP
     
     "Agregar un Nuevo Catéter": {"color": "#FAFAD2", "query": "agregar un nuevo catéter", "response_key": "response_template_dispositivos"},
     "Retirar Catéter": {"color": "#B0C4DE", "query": "retirar catéter", "response_key": "response_template_dispositivos"},
-    "Contraseña y Usuario NO Coinciden": {"color": "#AFEEEE", "query": "contraseña y usuario no coinciden", "response_key": "response_template_dispositivos"}, # Placeholder
-    "Pase de Guardia/Resumen": {"color": "#FFDAB9", "query": "pase de guardia", "response_key": "response_template_dispositivos"}, # Placeholder
+    "Contraseña y Usuario NO Coinciden": {"color": "#AFEEEE", "query": "contraseña y usuario no coinciden", "response_key": "response_template_dispositivos"}, # Placeholder genérico
+    "Pase de Guardia/Resumen": {"color": "#FFDAB9", "query": "pase de guardia", "response_key": "response_template_dispositivos"}, # Placeholder genérico
     
     "Otros (Pendientes/Escalas)": {"color": "#20B2AA", "query": "otros temas enfermeria", "response_key": "response_template_evaluaciones"},
 }
 
 MEDICOS_TAGS = {
-    "Evolucionar (Nota Clínica)": {"color": "#4682B4", "query": "evolucionar medico", "response_key": "response_template_nota_clinica"}, # ✅ Existe
-    "Cargar Antecedentes": {"color": "#6A5ACD", "query": "cargar antecedentes", "response_key": "response_template_nota_clinica"}, # Apunta a Nota Clínica temporalmente
-    "Epicrisis / Informe Final": {"color": "#DC143C", "query": "epicrisis informe final", "response_key": "response_template_informe_final"}, # ✅ Existe
-    "Consultar Evaluaciones": {"color": "#9ACD32", "query": "consultar evaluaciones", "response_key": "response_template_evaluaciones"}, # ✅ Existe
+    "Evolucionar (Nota Clínica)": {"color": "#4682B4", "query": "evolucionar medico", "response_key": "response_template_nota_clinica"}, 
+    "Cargar Antecedentes": {"color": "#6A5ACD", "query": "cargar antecedentes", "response_key": "response_template_nota_clinica"},
+    "Epicrisis / Informe Final": {"color": "#DC143C", "query": "epicrisis informe final", "response_key": "response_template_informe_final"}, 
+    "Consultar Evaluaciones": {"color": "#9ACD32", "query": "consultar evaluaciones", "response_key": "response_template_evaluaciones"}, 
 }
 
 OTROS_TAGS = {
-    "Cargar Documentos (GED)": {"color": "#9ACD32", "query": "cargar informe inicial", "response_key": "response_template_ged"}, # ✅ Existe
-    "Cargar Informe Final": {"color": "#FF8C00", "query": "cargar informe final", "response_key": "response_template_informe_final"}, # ✅ Existe
-    "Evolucionar (Nota Clínica)": {"color": "#48D1CC", "query": "evolucionar otros", "response_key": "response_template_nota_clinica"}, # ✅ Existe
-    "Realizar Evaluaciones": {"color": "#48D1CC", "query": "realizar evaluaciones", "response_key": "response_template_evaluaciones"}, # ✅ Existe
+    "Cargar Documentos (GED)": {"color": "#9ACD32", "query": "cargar informe inicial", "response_key": "response_template_ged"}, 
+    "Cargar Informe Final": {"color": "#FF8C00", "query": "cargar informe final", "response_key": "response_template_informe_final"}, 
+    "Evolucionar (Nota Clínica)": {"color": "#48D1CC", "query": "evolucionar otros", "response_key": "response_template_nota_clinica"}, 
+    "Realizar Evaluaciones": {"color": "#48D1CC", "query": "realizar evaluaciones", "response_key": "response_template_evaluaciones"}, 
 }
 
 # Mapping para CSS: Se mantiene
@@ -87,7 +82,7 @@ COLOR_MAP = {
 }
 
 
-# Estilos CSS (Se mantiene)
+# Estilos CSS (Se mantiene con mejora de contraste para los tags)
 st.markdown(f"""
     <style>
     .stChatMessage {{ border-radius: 10px; }}
@@ -127,12 +122,12 @@ st.markdown(f"""
     
     {
         "".join([
-            f".{cls} button {{ background-color: {hex_color}; border-color: {hex_color}; color: white !important; }}"
+            f".{cls} button {{ background-color: {hex_color}; border-color: {hex_color}; }}"
             for hex_color, cls in COLOR_MAP.items()
         ])
     }
     
-    /* Nota del Asistente: Añadimos un selector más específico para forzar el color de texto a negro */
+    /* MEJORA: Aseguramos que el texto del botón sea visible contra colores claros */
     .tag-pink button, .tag-lightblue button, .tag-lightgreen button, .tag-skyblue button, 
     .tag-lightcoral button, .tag-lightsalmon button, .tag-thistle button, .tag-lightyellow button, 
     .tag-slategray button, .tag-turquoise button, .tag-peach button, .tag-seafoam button,
@@ -167,11 +162,9 @@ def log_interaction(rol, pregunta, respuesta):
             if not file_exists:
                 writer.writerow(["Fecha", "Hora", "Rol", "Pregunta", "Respuesta_Bot"])
             now = datetime.now()
-            # Nota del Asistente: Registramos el uso del template key o el inicio del free input.
             log_response = respuesta if len(respuesta) < 100 else respuesta[:100] + "..."
             writer.writerow([now.date(), now.strftime("%H:%M:%S"), rol, pregunta, log_response]) 
     except Exception as e:
-        # st.warning(f"Error al escribir en el log: {e}")
         pass
 
 def show_tags(tag_list, columns_count, title):
@@ -186,7 +179,6 @@ def show_tags(tag_list, columns_count, title):
         button_key = f"tag_{label.replace(' ', '_').replace('/', '_').replace('.', '').lower()}"
         
         with cols[i % columns_count]:
-            # Nota del Asistente: Inyectamos la clase de color alrededor del botón.
             st.markdown(
                 f'<div class="{css_class}">', 
                 unsafe_allow_html=True
@@ -238,8 +230,6 @@ def show_navigation_buttons(rol):
     col_back, col_msg = st.columns(2)
     
     # *** Lógica de Navegación Corregida ***
-    # Si acabamos de mostrar una respuesta (response_key is not None), volvemos al menú de Tags.
-    # Si estamos en el modo de entrada libre, volvemos al menú de Tags.
     target_step = "tags"
     if rol == "Enfermería":
         back_label = "💉 Volver a Opciones de Enfermería"
@@ -349,24 +339,25 @@ def buscar_solucion(consulta, rol):
 
     # Mapeo de búsqueda libre a claves de respuesta JSON
     if any(x in q for x in ["contraseña", "usuario", "no veo paciente", "perfil", "login"]): 
-        template_key = "response_template_dispositivos" # Placeholder
+        template_key = "response_template_dispositivos"
     if any(x in q for x in ["pase de guardia", "resumen", "cama", "sector", "navegacion"]): 
-        template_key = "response_template_dispositivos" # Placeholder
+        template_key = "response_template_dispositivos"
     if any(x in q for x in ["sidca", "historia vieja", "anterior", "ces"]): 
-        template_key = "response_template_dispositivos" # Placeholder
+        template_key = "response_template_dispositivos"
 
     # Enfermería
     if rol == "Enfermería":
         if any(x in q for x in ["signos", "vitales", "presion", "temperatura", "apap", "respiratoria"]): template_key = "response_template_signos_vitales"
-        if any(x in q for x in ["balance", "hidrico", "ingreso", "egreso", "liquido"]): template_key = "response_template_dispositivos" # Placeholder
-        if any(x in q for x in ["adep", "administrar", "medicacion", "droga", "glucemia", "revertir"]): template_key = "response_template_dispositivos" # Placeholder
+        if any(x in q for x in ["balance", "hidrico", "ingreso", "egreso", "liquido"]): template_key = "response_template_balance_hidrico"
+        if any(x in q for x in ["adep", "administrar", "medicacion", "droga", "revertir"]): template_key = "response_template_adep_glucemia"
+        if any(x in q for x in ["glucemia", "glucosa"]): template_key = "response_template_adep_glucemia"
         if any(x in q for x in ["dispositivo", "sonda", "via", "cateter", "equipo", "rotar"]): template_key = "response_template_dispositivos"
         if any(x in q for x in ["pendiente", "tarea", "evaluacion", "escala", "score", "otros temas"]): template_key = "response_template_evaluaciones"
     
     # Médico / Otros Profesionales
     if rol in ["Médico", "Otros profesionales"]:
         if any(x in q for x in ["evolucionar", "nota", "escribir", "duplicar", "plantilla"]): template_key = "response_template_nota_clinica"
-        if any(x in q for x in ["antecedentes", "cargar antecedentes"]): template_key = "response_template_nota_clinica" # Se apunta a nota clínica temporalmente
+        if any(x in q for x in ["antecedentes", "cargar antecedentes"]): template_key = "response_template_nota_clinica"
         if any(x in q for x in ["informe final", "epicrisis", "cargar informe"]): template_key = "response_template_informe_final"
         if any(x in q for x in ["cargar informe inicial", "ged", "documento"]): template_key = "response_template_ged"
 
@@ -433,7 +424,6 @@ if st.session_state.rol_usuario is not None:
 
 # 1. ONBOARDING (Se mantiene)
 if st.session_state.conversation_step == "onboarding":
-    # Nota del Asistente: Las imágenes se asumen estar presentes para la UX
     if os.path.exists("image_39540a.png"):
         st.image("image_39540a.png", use_column_width="auto")
     elif os.path.exists("image_3950c3.png"):
@@ -520,7 +510,7 @@ elif st.session_state.response_key is not None:
                 log_interaction(st.session_state.rol_usuario, prompt_from_tag, key)
                 st.session_state.messages.append({"role": "assistant", "content": respuesta_core})
                 st.session_state.response_key = None
-                st.session_state.conversation_step = "tags" # <--- ¡Vuelve al menú de tags!
+                st.session_state.conversation_step = "tags" # <--- Vuelve al menú de tags
             st.rerun()
 
 # --- 5. MODO LIBRE (FREE INPUT) ---
@@ -551,19 +541,10 @@ elif st.session_state.conversation_step in ["free_input", "viewing_response", "f
                 st.rerun()
 
     elif st.session_state.conversation_step == "viewing_response":
-        # Se asegura que el footer y los botones se vean después de una búsqueda libre.
         with st.chat_message("assistant"):
-             # Se repite el último mensaje del asistente para mantener el contexto visual
              if st.session_state.messages and st.session_state.messages[-1]["role"] == "assistant":
                  st.markdown(st.session_state.messages[-1]["content"], unsafe_allow_html=True)
              
              render_footer()
              show_navigation_buttons(st.session_state.rol_usuario)
-
-
-# Lógica para mostrar la entrada libre si el paso anterior fue 'free_input'
-if st.session_state.conversation_step == "free_input":
-    # El chat_input de arriba ya maneja esto, pero aseguramos el rerender.
-    pass
-
 
