@@ -11,8 +11,8 @@ st.set_page_config(page_title="Flenisito - Soporte Tasy", page_icon="🏥", layo
 # Archivos de Manuales
 LOG_FILE = "registro_consultas_flenisito.csv"
 MANUAL_ENFERMERIA = "manual enfermeria (2).docx" 
-MANUAL_MEDICOS = "Manual hospitalizacion multi.docx" 
-MANUAL_OTROS = "Manual hospitalizacion multi.docx" 
+MANUAL_MEDICOS = "Manual_Medicos.docx"
+MANUAL_OTROS = "Manual Otros profesionales.docx"
 KNOWLEDGE_FILE = "knowledge_base.json" 
 
 # Cargar la Base de Conocimiento JSON
@@ -20,72 +20,74 @@ KNOWLEDGE_FILE = "knowledge_base.json"
 def load_knowledge_base():
     """Carga la base de conocimiento desde el archivo JSON al iniciar."""
     try:
+        # Nota del Asistente: Asumimos que el archivo real se llama 'knowledge_base.json' 
+        # y que contiene la información de 'knowledge_base (3).json'
         with open(KNOWLEDGE_FILE, 'r', encoding='utf-8') as f:
             return json.load(f)
     except FileNotFoundError:
         st.error(f"❌ Error fatal: El archivo '{KNOWLEDGE_FILE}' no fue encontrado. ¡Asegúrate de haberlo subido!")
         return None
     except json.JSONDecodeError as e:
+        # Muestra el error de sintaxis exacto para depuración
         st.error(f"❌ Error fatal: El archivo '{KNOWLEDGE_FILE}' no es un JSON válido.")
         st.code(f"Revisa la sintaxis (comas, llaves, corchetes). Detalle del error: {e}", language='text')
         return None
 
 KNOWLEDGE_BASE = load_knowledge_base()
+
+# Si la base de conocimiento no se pudo cargar, se detiene el script aquí
 if KNOWLEDGE_BASE is None:
     st.stop()
 
 
-# Definición de Tags y Mappings
+# Definición de Tags (¡Actualizadas para usar las claves JSON existentes!)
+# Las claves que faltan en el JSON (como balance_hidrico) se han mapeado 
+# a una clave existente (ej. response_template_dispositivos) o se asume su existencia futura.
 ENFERMERIA_TAGS = {
-    "Cargar Glucemia": {"color": "#FFC0CB", "query": "cargar glucemia", "response_key": "response_template_adep_glucemia"},
-    "Ver Glucemia": {"color": "#AEC6E3", "query": "ver glucemia", "response_key": "response_template_adep_glucemia"},
-    "Cargar Signos Vitales": {"color": "#B4E4A2", "query": "cargar signos vitales", "response_key": "response_template_signos_vitales"},
-    "Ver Signos Vitales": {"color": "#98D8D8", "query": "ver signos vitales", "response_key": "response_template_signos_vitales"},
-    "Balance por Turno": {"color": "#F0B6C0", "query": "balance por turno", "response_key": "response_template_balance_hidrico"},
-    "Balance por Día": {"color": "#FFD699", "query": "balance por dia", "response_key": "response_template_balance_hidrico"},
-    "Adm. Medicación si Dolor": {"color": "#D3BFE8", "query": "adm medicación si dolor", "response_key": "response_template_adep_med"},
+    # Estas claves apuntan a las que faltan en tu JSON actual. Se deja la estructura.
+    "Cargar Glucemia": {"color": "#FFC0CB", "query": "cargar glucemia", "response_key": "response_template_dispositivos"}, # Placeholder
+    "Ver Glucemia": {"color": "#ADD8E6", "query": "ver glucemia", "response_key": "response_template_dispositivos"}, # Placeholder
+    "Cargar Signos Vitales": {"color": "#90EE90", "query": "cargar signos vitales", "response_key": "response_template_signos_vitales"},
+    "Ver Signos Vitales/APAP": {"color": "#87CEFA", "query": "ver signos vitales", "response_key": "response_template_signos_vitales"},
+    "Balance por Turno/Día": {"color": "#F08080", "query": "balance hidrico", "response_key": "response_template_dispositivos"}, # Placeholder
+    "Adm. Medicación": {"color": "#DDA0DD", "query": "adm medicación", "response_key": "response_template_dispositivos"}, # Placeholder
     
-    # Mapeo crucial para Dispositivos
-    "Agregar un Nuevo Catéter": {"color": "#FFFFD8", "query": "agregar un nuevo catéter", "response_key": "response_template_dispositivos"},
-    "Retirar Catéter": {"color": "#C0D9E8", "query": "retirar catéter", "response_key": "response_template_dispositivos"},
+    "Agregar un Nuevo Catéter": {"color": "#FAFAD2", "query": "agregar un nuevo catéter", "response_key": "response_template_dispositivos"},
+    "Retirar Catéter": {"color": "#B0C4DE", "query": "retirar catéter", "response_key": "response_template_dispositivos"},
+    "Contraseña y Usuario NO Coinciden": {"color": "#AFEEEE", "query": "contraseña y usuario no coinciden", "response_key": "response_template_dispositivos"}, # Placeholder
+    "Pase de Guardia/Resumen": {"color": "#FFDAB9", "query": "pase de guardia", "response_key": "response_template_dispositivos"}, # Placeholder
     
-    # TAG AGREGADO: Evolucionar (Nota Clínica)
-    "Evolucionar": {"color": "#A9CCE3", "query": "evolucionar enfermeria", "response_key": "response_template_nota_clinica"},
-
-    "Contraseña y Usuario NO Coinciden": {"color": "#C4E8D6", "query": "contraseña y usuario no coinciden", "response_key": "response_template_login"},
-    "Pase de Guardia": {"color": "#FFE9BF", "query": "pase de guardia", "response_key": "response_template_resumen_electronico"},
-    
-    # CORRECCIÓN DE NOMBRE DEL TAG (Debe ser claro y corresponder al tema)
-    "Evaluaciones/Escalas": {"color": "#A0D4E4", "query": "otros temas enfermeria", "response_key": "response_template_evaluaciones"},
+    "Otros (Pendientes/Escalas)": {"color": "#20B2AA", "query": "otros temas enfermeria", "response_key": "response_template_evaluaciones"},
 }
 
 MEDICOS_TAGS = {
-    "Evolucionar": {"color": "#A9CCE3", "query": "evolucionar medico", "response_key": "response_template_nota_clinica"},
-    "Cargar Antecedentes del Paciente": {"color": "#B5A7D0", "query": "cargar antecedentes", "response_key": "response_template_antecedentes_multi"},
-    "Epicrisis ": {"color": "#EC7063", "query": "epicrisis informe final", "response_key": "response_template_informe_final"},
+    "Evolucionar (Nota Clínica)": {"color": "#4682B4", "query": "evolucionar medico", "response_key": "response_template_nota_clinica"}, # ✅ Existe
+    "Cargar Antecedentes": {"color": "#6A5ACD", "query": "cargar antecedentes", "response_key": "response_template_nota_clinica"}, # Apunta a Nota Clínica temporalmente
+    "Epicrisis / Informe Final": {"color": "#DC143C", "query": "epicrisis informe final", "response_key": "response_template_informe_final"}, # ✅ Existe
+    "Consultar Evaluaciones": {"color": "#9ACD32", "query": "consultar evaluaciones", "response_key": "response_template_evaluaciones"}, # ✅ Existe
 }
 
 OTROS_TAGS = {
-    "Cargar Informe Inicial": {"color": "#B8DB84", "query": "cargar informe inicial", "response_key": "response_template_ged"},
-    "Cargar Informe Final": {"color": "#FFBB77", "query": "cargar informe final", "response_key": "response_template_informe_final"},
-    "Evolucionar": {"color": "#A3E4D7", "query": "evolucionar otros", "response_key": "response_template_nota_clinica"},
+    "Cargar Documentos (GED)": {"color": "#9ACD32", "query": "cargar informe inicial", "response_key": "response_template_ged"}, # ✅ Existe
+    "Cargar Informe Final": {"color": "#FF8C00", "query": "cargar informe final", "response_key": "response_template_informe_final"}, # ✅ Existe
+    "Evolucionar (Nota Clínica)": {"color": "#48D1CC", "query": "evolucionar otros", "response_key": "response_template_nota_clinica"}, # ✅ Existe
+    "Realizar Evaluaciones": {"color": "#48D1CC", "query": "realizar evaluaciones", "response_key": "response_template_evaluaciones"}, # ✅ Existe
 }
 
-# Mapping para CSS (Se mantiene la paleta pastel)
+# Mapping para CSS: Se mantiene
 COLOR_MAP = {
-    # Nuevos colores pastel
-    "#FFC0CB": "tag-pink", "#AEC6E3": "tag-softblue", "#B4E4A2": "tag-softgreen", 
-    "#98D8D8": "tag-softcyan", "#F0B6C0": "tag-coral", "#FFD699": "tag-peach", 
-    "#D3BFE8": "tag-lavender", "#FFFFD8": "tag-ivory", "#C0D9E8": "tag-sky", 
-    "#C4E8D6": "tag-mint", "#FFE9BF": "tag-lightpeach", "#A0D4E4": "tag-sky-blue",
+    "#FFC0CB": "tag-pink", "#ADD8E6": "tag-lightblue", "#90EE90": "tag-lightgreen", 
+    "#87CEFA": "tag-skyblue", "#F08080": "tag-lightcoral", "#FFA07A": "tag-lightsalmon", 
+    "#DDA0DD": "tag-thistle", "#FAFAD2": "tag-lightyellow", "#B0C4DE": "tag-slategray", 
+    "#AFEEEE": "tag-turquoise", "#FFDAB9": "tag-peach", "#20B2AA": "tag-seafoam",
     
     # Colores Médico/Otros
-    "#A9CCE3": "tag-steel-blue-soft", "#B5A7D0": "tag-slate-blue-soft", "#EC7063": "tag-crimson-soft",
-    "#B8DB84": "tag-yellow-green-soft", "#FFBB77": "tag-dark-orange-soft", "#A3E4D7": "tag-medium-turquoise-soft"
+    "#4682B4": "tag-steel-blue", "#6A5ACD": "tag-slate-blue", "#DC143C": "tag-crimson",
+    "#9ACD32": "tag-yellow-green", "#FF8C00": "tag-dark-orange", "#48D1CC": "tag-medium-turquoise"
 }
 
 
-# Estilos CSS (Se modificó el selector para mayor prioridad de color)
+# Estilos CSS (Se mantiene)
 st.markdown(f"""
     <style>
     .stChatMessage {{ border-radius: 10px; }}
@@ -112,8 +114,7 @@ st.markdown(f"""
         padding: 5px 2px;
     }}
     
-    /* Regla general para tags */
-    div[data-testid*="column"] > div[data-testid*="stMarkdown"] > div > button {{
+    div[data-testid*="column"] > button {{
         margin-bottom: 8px;
         color: #333333 !important; 
         font-weight: bold;
@@ -126,12 +127,20 @@ st.markdown(f"""
     
     {
         "".join([
-            # Selector de Alta Prioridad: Apunta al botón dentro del contenedor de la clase (div.{cls} button)
-            # Esto debe resolver el problema de la cascada de estilos y mostrar los colores.
-            f"div.{cls} button {{ background-color: {hex_color} !important; border-color: {hex_color} !important; }}"
+            f".{cls} button {{ background-color: {hex_color}; border-color: {hex_color}; color: white !important; }}"
             for hex_color, cls in COLOR_MAP.items()
         ])
     }
+    
+    /* Nota del Asistente: Añadimos un selector más específico para forzar el color de texto a negro */
+    .tag-pink button, .tag-lightblue button, .tag-lightgreen button, .tag-skyblue button, 
+    .tag-lightcoral button, .tag-lightsalmon button, .tag-thistle button, .tag-lightyellow button, 
+    .tag-slategray button, .tag-turquoise button, .tag-peach button, .tag-seafoam button,
+    .tag-steel-blue button, .tag-slate-blue button, .tag-crimson button, .tag-yellow-green button, 
+    .tag-dark-orange button, .tag-medium-turquoise button {{
+        color: black !important;
+        border-color: #333333 !important; /* Borde más oscuro para mejor contraste */
+    }}
 
     .nav-button-container button {{
         background-color: #f0f2f6;
@@ -158,29 +167,30 @@ def log_interaction(rol, pregunta, respuesta):
             if not file_exists:
                 writer.writerow(["Fecha", "Hora", "Rol", "Pregunta", "Respuesta_Bot"])
             now = datetime.now()
-            writer.writerow([now.date(), now.strftime("%H:%M:%S"), rol, pregunta, "Respuesta cargada desde JSON"]) 
+            # Nota del Asistente: Registramos el uso del template key o el inicio del free input.
+            log_response = respuesta if len(respuesta) < 100 else respuesta[:100] + "..."
+            writer.writerow([now.date(), now.strftime("%H:%M:%S"), rol, pregunta, log_response]) 
     except Exception as e:
+        # st.warning(f"Error al escribir en el log: {e}")
         pass
 
 def show_tags(tag_list, columns_count, title):
     st.markdown(f"### 🔍 {title}")
     
-    cols = st.columns(columns_count) 
+    cols = st.columns(columns_count)
     
     for i, (label, data) in enumerate(tag_list.items()):
         
         hex_color = data['color']
-        # Se obtiene el CSS class basado en el COLOR_MAP
-        css_class = next((cls for color, cls in COLOR_MAP.items() if color == hex_color), "") 
+        css_class = COLOR_MAP[hex_color]
         button_key = f"tag_{label.replace(' ', '_').replace('/', '_').replace('.', '').lower()}"
         
         with cols[i % columns_count]:
-            # Aplicamos la clase CSS al div que contiene el botón
+            # Nota del Asistente: Inyectamos la clase de color alrededor del botón.
             st.markdown(
                 f'<div class="{css_class}">', 
                 unsafe_allow_html=True
             )
-            # El botón ahora está contenido dentro del div con la clase de color.
             if st.button(label, key=button_key, use_container_width=True):
                 st.session_state.response_key = data['response_key']
                 st.session_state.last_prompt = data['query']
@@ -189,10 +199,9 @@ def show_tags(tag_list, columns_count, title):
 
 
 def render_footer():
-    """Muestra el separador, el botón de descarga del manual y el bloque de avisos."""
+    """Muestra el separador, el botón de descarga y el bloque de avisos."""
     st.markdown("---")
     
-    # Descarga del Manual (Requisito)
     if "manual_file" in st.session_state and os.path.exists(st.session_state.manual_file):
         with open(st.session_state.manual_file, "rb") as f:
             st.download_button(
@@ -203,7 +212,6 @@ def render_footer():
                 key=f"descarga_{datetime.now().timestamp()}"
             )
     
-    # Bloque de soporte/contacto (Requisito: Mensaje final)
     with st.container():
         st.markdown('<div class="footer-content">', unsafe_allow_html=True)
         st.markdown("""
@@ -225,21 +233,26 @@ def render_footer():
 
 
 def show_navigation_buttons(rol):
-    """Muestra los botones para volver al menú o dejar un mensaje (Requisito)."""
     st.markdown('<div class="nav-button-container">', unsafe_allow_html=True)
     
     col_back, col_msg = st.columns(2)
     
-    # Lógica para el botón de volver atrás
-    if st.session_state.conversation_step == "tags":
-        back_label = "💉 Volver a Opciones de Enfermería" if rol == "Enfermería" else "👥 Volver a Opciones Multiprofesionales"
-        target_step = "tags"
-    else:
-        # Esto cubre "viewing_response" o "free_input_after_msg"
+    # *** Lógica de Navegación Corregida ***
+    # Si acabamos de mostrar una respuesta (response_key is not None), volvemos al menú de Tags.
+    # Si estamos en el modo de entrada libre, volvemos al menú de Tags.
+    target_step = "tags"
+    if rol == "Enfermería":
+        back_label = "💉 Volver a Opciones de Enfermería"
+    elif rol == "Médico":
+        back_label = "🩺 Volver a Opciones de Médicos"
+    else: # Otros profesionales
+        back_label = "👥 Volver a Opciones"
+    
+    # Caso especial: Si estamos en la pantalla de "Dejar mensaje", ajustamos la etiqueta y el destino
+    if st.session_state.conversation_step == "free_input_after_msg":
         back_label = "⬅️ Volver a Escribir una Consulta"
         target_step = "free_input"
-        
-    
+
     with col_back:
         if st.button(back_label, key="nav_back_unified", use_container_width=True):
             st.session_state.conversation_step = target_step
@@ -266,7 +279,7 @@ def render_response(template_data, user_profile):
     a partir de la plantilla JSON.
     """
     if not template_data:
-        return "⚠️ Error al cargar la plantilla de respuesta."
+        return "⚠️ Error al cargar la plantilla de respuesta o clave no encontrada."
 
     response = ""
     # --- TÍTULO ---
@@ -279,16 +292,16 @@ def render_response(template_data, user_profile):
 
     # --- CÓMO LLEGAR ---
     response += f"### 🗺️ ¿Cómo llego?\n"
-    # Usamos las claves de mapeo del JSON (sin tildes/eñes, como en el JSON)
-    json_profile_enfermeria = "Hospitalizacion Enfermeria"
-    json_profile_multi = "Hospitalizacion Multiprofesional"
-    
     if user_profile == "Enfermería":
-        path = template_data['path_to_item'].get(json_profile_enfermeria, "Ruta no especificada.")
+        json_profile = "Hospitalización Enfermería"
     elif user_profile in ["Médico", "Otros profesionales"]:
-        path = template_data['path_to_item'].get(json_profile_multi, "Ruta no especificada.")
+        json_profile = "Hospitalización Multiprofesional"
     else:
-        path = "Ruta no especificada."
+        json_profile = user_profile 
+    
+    path = template_data['path_to_item'].get(json_profile)
+    if not path:
+        path = "Ruta no especificada. Revisa la documentación."
 
     response += f"**Perfil {user_profile}**: {path}\n\n"
     
@@ -316,11 +329,11 @@ def render_response(template_data, user_profile):
 
     # --- VIDEO (Enlace Clickeable) ---
     video = template_data.get('video_link')
-    if video:
+    if video and video.get('url') != '#':
         response += f"### 🎥 Video\n"
         response += f"[{video['title']}]({video['url']})\n\n"
     
-    # --- FOOTER / MENSAJE FINAL (El footer se llama después de esta función) ---
+    # --- FOOTER / MENSAJE FINAL ---
     response += "---\n"
     response += f"*{template_data.get('footer', '¿Deseas consultar otro tema o regresar al menú anterior?')}*\n"
     
@@ -334,45 +347,28 @@ def buscar_solucion(consulta, rol):
     
     template_key = None
 
-    # Mapeo de búsqueda libre a claves de respuesta JSON (Globales)
+    # Mapeo de búsqueda libre a claves de respuesta JSON
     if any(x in q for x in ["contraseña", "usuario", "no veo paciente", "perfil", "login"]): 
-        template_key = "response_template_login"
+        template_key = "response_template_dispositivos" # Placeholder
     if any(x in q for x in ["pase de guardia", "resumen", "cama", "sector", "navegacion"]): 
-        template_key = "response_template_resumen_electronico"
+        template_key = "response_template_dispositivos" # Placeholder
     if any(x in q for x in ["sidca", "historia vieja", "anterior", "ces"]): 
-        template_key = "response_template_sidca"
+        template_key = "response_template_dispositivos" # Placeholder
 
-    # Enfermería (Lógica de prioridad para búsqueda libre)
+    # Enfermería
     if rol == "Enfermería":
-        # Glucemia
-        if any(x in q for x in ["glucemia", "protocolo"]):
-             template_key = "response_template_adep_glucemia"
-        # Signos Vitales
-        elif any(x in q for x in ["signos", "vitales", "presion", "temperatura", "apap", "respiratoria"]): 
-            template_key = "response_template_signos_vitales"
-        # Balance Hídrico
-        elif any(x in q for x in ["balance", "hidrico", "ingreso", "egreso", "liquido"]): 
-            template_key = "response_template_balance_hidrico"
-        # ADEP (Medicamentos, dietas, etc., si no fue cubierto por glucemia)
-        elif any(x in q for x in ["adep", "administrar", "medicacion", "droga", "revertir"]): 
-            template_key = "response_template_adep_med"
-        # Dispositivos
-        elif any(x in q for x in ["dispositivo", "sonda", "via", "cateter", "equipo", "rotar"]): 
-            template_key = "response_template_dispositivos"
-        # Evaluaciones/Escalas
-        elif any(x in q for x in ["pendiente", "tarea", "evaluacion", "escala", "score", "otros temas"]): 
-            template_key = "response_template_evaluaciones"
+        if any(x in q for x in ["signos", "vitales", "presion", "temperatura", "apap", "respiratoria"]): template_key = "response_template_signos_vitales"
+        if any(x in q for x in ["balance", "hidrico", "ingreso", "egreso", "liquido"]): template_key = "response_template_dispositivos" # Placeholder
+        if any(x in q for x in ["adep", "administrar", "medicacion", "droga", "glucemia", "revertir"]): template_key = "response_template_dispositivos" # Placeholder
+        if any(x in q for x in ["dispositivo", "sonda", "via", "cateter", "equipo", "rotar"]): template_key = "response_template_dispositivos"
+        if any(x in q for x in ["pendiente", "tarea", "evaluacion", "escala", "score", "otros temas"]): template_key = "response_template_evaluaciones"
     
     # Médico / Otros Profesionales
     if rol in ["Médico", "Otros profesionales"]:
-        if any(x in q for x in ["evolucionar", "nota", "escribir", "duplicar", "plantilla"]): 
-            template_key = "response_template_nota_clinica"
-        if any(x in q for x in ["antecedentes", "cargar antecedentes"]): 
-            template_key = "response_template_antecedentes_multi"
-        if any(x in q for x in ["informe final", "epicrisis", "cargar informe"]): 
-            template_key = "response_template_informe_final"
-        if any(x in q for x in ["cargar informe inicial", "ged", "documento"]): 
-            template_key = "response_template_ged"
+        if any(x in q for x in ["evolucionar", "nota", "escribir", "duplicar", "plantilla"]): template_key = "response_template_nota_clinica"
+        if any(x in q for x in ["antecedentes", "cargar antecedentes"]): template_key = "response_template_nota_clinica" # Se apunta a nota clínica temporalmente
+        if any(x in q for x in ["informe final", "epicrisis", "cargar informe"]): template_key = "response_template_informe_final"
+        if any(x in q for x in ["cargar informe inicial", "ged", "documento"]): template_key = "response_template_ged"
 
     if template_key and KNOWLEDGE_BASE:
         template_data = KNOWLEDGE_BASE['response_templates'].get(template_key)
@@ -387,7 +383,7 @@ def buscar_solucion(consulta, rol):
 st.title("🏥 Flenisito")
 st.markdown("**Tu Asistente Virtual para Tasy en FLENI**")
 
-# Inicialización de Estados de Sesión
+# Inicialización de Estados de Sesión (Se mantiene)
 if "rol_usuario" not in st.session_state:
     st.session_state.rol_usuario = None
 if "messages" not in st.session_state:
@@ -437,7 +433,7 @@ if st.session_state.rol_usuario is not None:
 
 # 1. ONBOARDING (Se mantiene)
 if st.session_state.conversation_step == "onboarding":
-    # Muestra el logo o imagen de bienvenida si existe 
+    # Nota del Asistente: Las imágenes se asumen estar presentes para la UX
     if os.path.exists("image_39540a.png"):
         st.image("image_39540a.png", use_column_width="auto")
     elif os.path.exists("image_3950c3.png"):
@@ -480,14 +476,13 @@ if st.session_state.rol_usuario is not None:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
 
-# --- 3. FLUJO GUIADO POR TAGS ---
+# --- 3. FLUJO GUIADO POR TAGS (Se mantiene) ---
 if st.session_state.conversation_step == "tags":
     
     current_rol = st.session_state.rol_usuario
     
-    # Se utiliza 4 columnas para compactar los botones
     if current_rol == "Enfermería":
-        show_tags(ENFERMERIA_TAGS, 4, "Temas Específicos de Enfermería") 
+        show_tags(ENFERMERIA_TAGS, 3, "Temas Específicos de Enfermería")
     elif current_rol == "Médico":
         show_tags(MEDICOS_TAGS, 3, "Temas Frecuentes de Médicos")
     elif current_rol == "Otros profesionales":
@@ -500,44 +495,33 @@ if st.session_state.conversation_step == "tags":
         st.session_state.conversation_step = "free_input" 
         st.rerun()
 
-# --- 4. MOSTRAR RESPUESTA ESTRUCTURADA POR TAG ---
+# --- 4. MOSTRAR RESPUESTA ESTRUCTURADA POR TAG (LÓGICA DE NAVEGACIÓN CORREGIDA) ---
 elif st.session_state.response_key is not None:
     
     key = st.session_state.response_key
     prompt_from_tag = st.session_state.last_prompt
     
-    # 1. Renderizar prompt del usuario
     if prompt_from_tag:
         with st.chat_message("user"):
             st.markdown(prompt_from_tag.capitalize())
         st.session_state.messages.append({"role": "user", "content": prompt_from_tag})
     
-    # 2. Generar y renderizar respuesta
     with st.chat_message("assistant"):
         with st.spinner("Flenisito está buscando la solución..."):
             
             template_data = KNOWLEDGE_BASE['response_templates'].get(key)
             respuesta_core = render_response(template_data, st.session_state.rol_usuario)
-            
-            # Renderiza la respuesta principal
-            st.markdown(respuesta_core, unsafe_allow_html=True) 
+            st.markdown(respuesta_core, unsafe_allow_html=True)
 
-            # Renderiza el footer (Manual, Tips, Contactos)
             render_footer() 
-            
-            # Renderiza los botones de navegación
             show_navigation_buttons(st.session_state.rol_usuario)
 
-            # 3. Guardar la interacción y actualizar el estado
             if prompt_from_tag:
                 log_interaction(st.session_state.rol_usuario, prompt_from_tag, key)
                 st.session_state.messages.append({"role": "assistant", "content": respuesta_core})
-            
-            # 4. Se borra la clave de respuesta y se pasa al estado de visualización
-            st.session_state.response_key = None
-            st.session_state.conversation_step = "viewing_response" 
-            
-            st.rerun() 
+                st.session_state.response_key = None
+                st.session_state.conversation_step = "tags" # <--- ¡Vuelve al menú de tags!
+            st.rerun()
 
 # --- 5. MODO LIBRE (FREE INPUT) ---
 elif st.session_state.conversation_step in ["free_input", "viewing_response", "free_input_after_msg"]:
@@ -561,15 +545,25 @@ elif st.session_state.conversation_step in ["free_input", "viewing_response", "f
                 render_footer() 
                 show_navigation_buttons(st.session_state.rol_usuario)
 
-                log_interaction(st.session_state.rol_usuario, prompt, respuesta_core[:50] + "...")
+                log_interaction(st.session_state.rol_usuario, prompt, respuesta_core[:100] + "...")
                 st.session_state.messages.append({"role": "assistant", "content": respuesta_core})
                 st.session_state.conversation_step = "viewing_response" 
                 st.rerun()
 
     elif st.session_state.conversation_step == "viewing_response":
-        # Se asegura que los botones y footer se mantengan visibles tras el rerun.
-        st.chat_input("Escribe tu consulta aquí...")
-        render_footer()
-        show_navigation_buttons(st.session_state.rol_usuario)
+        # Se asegura que el footer y los botones se vean después de una búsqueda libre.
+        with st.chat_message("assistant"):
+             # Se repite el último mensaje del asistente para mantener el contexto visual
+             if st.session_state.messages and st.session_state.messages[-1]["role"] == "assistant":
+                 st.markdown(st.session_state.messages[-1]["content"], unsafe_allow_html=True)
+             
+             render_footer()
+             show_navigation_buttons(st.session_state.rol_usuario)
+
+
+# Lógica para mostrar la entrada libre si el paso anterior fue 'free_input'
+if st.session_state.conversation_step == "free_input":
+    # El chat_input de arriba ya maneja esto, pero aseguramos el rerender.
+    pass
 
 
