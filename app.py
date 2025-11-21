@@ -533,17 +533,17 @@ if st.session_state.response_key is not None:
             template_data = KNOWLEDGE_BASE['response_templates'].get(key)
             respuesta_core = render_response(template_data, st.session_state.rol_usuario)
             st.markdown(respuesta_core, unsafe_allow_html=True)
+            
+            # --- PIE DE PÁGINA Y NAVEGACIÓN (Se saca del chat message para asegurar renderizado) ---
+            log_interaction(st.session_state.rol_usuario, prompt_from_tag, key)
+            st.session_state.messages.append({"role": "assistant", "content": respuesta_core})
+            st.session_state.response_key = None
+            st.session_state.conversation_step = "tags" 
+            
+    render_footer() 
+    show_navigation_buttons(st.session_state.rol_usuario)
+    st.stop()
 
-            render_footer() 
-            show_navigation_buttons(st.session_state.rol_usuario)
-
-            # Limpiamos el estado después de la respuesta de tag
-            if prompt_from_tag:
-                log_interaction(st.session_state.rol_usuario, prompt_from_tag, key)
-                st.session_state.messages.append({"role": "assistant", "content": respuesta_core})
-                st.session_state.response_key = None
-                st.session_state.conversation_step = "tags" 
-            st.rerun()
 
 # B. Procesar RESPUESTA POR TEXTO LIBRE (Input en el chat)
 elif st.session_state.processing_prompt is not None:
@@ -563,13 +563,14 @@ elif st.session_state.processing_prompt is not None:
             respuesta_core = buscar_solucion(prompt, st.session_state.rol_usuario)
             st.markdown(respuesta_core, unsafe_allow_html=True)
             
-            render_footer() 
-            show_navigation_buttons(st.session_state.rol_usuario)
-
+            # --- PIE DE PÁGINA Y NAVEGACIÓN (Se saca del chat message para asegurar renderizado) ---
             log_interaction(st.session_state.rol_usuario, prompt, respuesta_core[:100] + "...")
             st.session_state.messages.append({"role": "assistant", "content": respuesta_core})
             st.session_state.conversation_step = "viewing_response" 
-            st.rerun()
+            
+    render_footer() 
+    show_navigation_buttons(st.session_state.rol_usuario)
+    st.stop()
 
 # C. MODO LIBRE/VIEWING RESPONSE (Se mantiene la lógica para la pantalla de "viewing_response" y "free_input_after_msg")
 elif st.session_state.conversation_step in ["free_input", "viewing_response", "free_input_after_msg"]:
@@ -590,4 +591,3 @@ elif st.session_state.conversation_step in ["free_input", "viewing_response", "f
              
              render_footer()
              show_navigation_buttons(st.session_state.rol_usuario)
-
