@@ -37,199 +37,235 @@
   
   "response_templates": {
     
+    "response_template_login": {
+        "title": "Login / Acceso a Tasy 🔐",
+        "description": "Este ítem te guía en la solución de problemas básicos de acceso.",
+        "path_to_item": {"Hospitalización Enfermería": "URL: https://tasy.fleni.org.ar/#/login", "Hospitalización Multiprofesional": "URL: https://tasy.fleni.org.ar/#/login"},
+        "actions": [
+          "**Verificar Usuario y Contraseña**.",
+          [cite_start]"**Verificar Perfil Asignado** 👤: Asegúrate de estar en el *Establecimiento* (Belgrano/Escobar), *Sector* y *Perfil* correctos, sin esos datos no podrás visualizar pacientes y/o registrar[cite: 5, 6].",
+          [cite_start]"**Cerrar Sesión** ➡️: Para desloguearte haz clic en **Salir**[cite: 8]."
+        ],
+        "possible_errors": [
+            [cite_start]{"error": "No puedo visualizar pacientes.", "solution": "Esto sucede si no estás en el **establecimiento/sector/perfil** designado[cite: 6]."}
+        ],
+        "tips": [
+          [cite_start]"Verifica siempre el nombre de tu usuario con el establecimiento, sector y perfil asignado en el lado superior derecho[cite: 4, 5]."
+        ],
+        "video_link": {"title": "Sin video", "url": "#"},
+        "footer": ""
+    },
+    
+    "response_template_resumen_electronico": {
+        "title": "Pase de Guardia / Resumen Electrónico 📝",
+        [cite_start]"description": "El **Resumen Electrónico de Paciente** agrupa toda la información necesaria para conocer al paciente brevemente y facilita el pase de guardia[cite: 48, 179]. [cite_start]Permite ver los últimos registros y dirigirte al ítem de interés[cite: 47, 178].",
+        "path_to_item": {"Hospitalización Enfermería": "HCE ➡️ Resumen electrónico de paciente", "Hospitalización Multiprofesional": "HCE ➡️ Resumen electrónico de paciente"},
+        "actions": [
+          [cite_start]"**Visualizar Resumen** 🔎: Da un resumen de los ítems de toda la historia clínica[cite: 47, 178].",
+          [cite_start]"**Acceder a Ítem** ➡️: Haz clic en la flecha de cada bloque para ingresar al ítem de interés[cite: 49, 180]."
+        ],
+        "possible_errors": [],
+        "tips": [
+          [cite_start]"Puedes aumentar el tamaño para mejor visualización[cite: 50, 181].",
+          [cite_start]"Es un ítem esencial para hacer el pase de guardia[cite: 179]."
+        ],
+        "video_link": {"title": "Sin video", "url": "#"},
+        "footer": ""
+    },
+    
     "response_template_dispositivos": {
       "title": "Dispositivos (Agregar y Retirar Catéteres/Vías) 🚀",
-      "description": "Este ítem te permite **visualizar, agregar o retirar catéteres, vías y equipos** del paciente, asegurando un registro actualizado de todos los dispositivos.",
+      [cite_start]"description": "Este ítem te permite **visualizar, agregar o retirar catéteres, vías y equipos** del paciente, asegurando un registro actualizado de todos los dispositivos[cite: 268].",
       "path_to_item": {
         "Hospitalización Enfermería": "HCE ➡️ Dispositivos",
         "Hospitalización Multiprofesional": "No aplica, el registro de dispositivos/equipos se realiza desde Enfermería. Desde el perfil Multi solo se visualizaría indirectamente en el Resumen Electrónico o Antecedentes."
       },
       "actions": [
-        "**Agregar dispositivo** ➕: Ir a *Gráfico de dispositivo* ➡️ *Nuevo dispositivo*",
-        "**Retirar dispositivo** ❌: Ir a *Acciones de dispositivo* ➡️ *Retirar* ➡️ *Justificar* el motivo y haz clic en Ok",
-        "**Rotar dispositivo** 🔄: Ir a *Acciones de dispositivo* ➡️ *Seleccionar dispositivo* ➡️ *Sustituir*",
-        "**Ver listado de dispositivos** 📋: Desde la solapa *Dispositivos*. También puedes ver equipos desde la solapa *Equipos*."
+        [cite_start]"**Agregar dispositivo** ➕: Ir a *Gráfico de dispositivo* ➡️ *Nuevo dispositivo*[cite: 271].",
+        [cite_start]"**Retirar dispositivo** ❌: Ir a *Acciones de dispositivo* ➡️ **Retirar** ➡️ *Justificar* el motivo y haz clic en Ok[cite: 274, 276].",
+        [cite_start]"**Rotar dispositivo** 🔄: Ir a *Acciones de dispositivo* ➡️ **Seleccionar dispositivo** ➡️ **Sustituir**[cite: 274, 277].",
+        "**Ver listado de dispositivos** 📋: Desde la solapa **Dispositivos**. [cite_start]También puedes ver equipos desde la solapa **Equipos**[cite: 278, 281]."
       ],
       "possible_errors": [
         {
           "error": "No puedo ver los dispositivos cargados.",
-          "solution": "Revisa el **filtro aplicado**. Limpia los filtros y verifica las fechas seleccionadas. La visualización del listado dependerá de los filtros aplicados."
+          "solution": "Revisa el **filtro aplicado**. Limpia los filtros y verifica las fechas seleccionadas. [cite_start]La visualización del listado dependerá de los filtros aplicados[cite: 269, 280]."
         }
       ],
       "tips": [
         "**Recuerda** registrar el retiro de los catéteres del paciente y colocar la fecha de finalización del mismo.",
-        "Puedes ver todos los dispositivos que **ha tenido** el paciente o solo los de **esta internación** usando el filtro."
+        [cite_start]"Puedes ver todos los dispositivos que **ha tenido** el paciente o solo los de **esta internación** usando el filtro[cite: 270]."
       ],
       "video_link": {
         "title": "▶️ Ver Video Explicativo",
         "url": "https://www.youtube.com/watchv=Y3ywicffOj4&list=RDY3ywicffOj4&start_radio=1"
       },
-      "footer": "Espero que esta información haya sido útil. ¿Deseas consultar otro tema o regresar a la selección de perfil? 💬"
+      "footer": ""
     },
     
     "response_template_nota_clinica": {
       "title": "Notas Clínicas (Evoluciones) 📝",
-      "description": "Este ítem permite generar la **Nota Clínica** de tu disciplina y consultar las evoluciones previas de otros profesionales. Es esencial para dejar registro de la evolución diaria del paciente.",
+      "description": "Este ítem permite generar la **Nota Clínica** de tu disciplina y consultar las evoluciones previas de otros profesionales. [cite_start]Es esencial para dejar registro de la evolución diaria del paciente[cite: 67, 301].",
       "path_to_item": {
         "Hospitalización Enfermería": "HCE ➡️ Nota Clínica",
         "Hospitalización Multiprofesional": "HCE ➡️ Nota Clínica"
       },
       "actions": [
-        "**Comenzar una nueva nota** ➕: Clic en **Añadir**.",
-        "**Usar Plantilla** 📄: En el pop-up, selecciona **Tipo de nota clínica** para elegir la plantilla de tu especialidad.",
-        "**Finalizar y Publicar** 🔓: Completa los datos y haz clic en **Liberar**.",
-        "**Duplicar nota previa** 👯: Clic derecho sobre la nota deseada ➡️ **Duplicar nota clínica** (permite modificar solo los datos necesarios).",
-        "**Resumen de HC (Médico/Multi)** 📋: Usa el tipo de nota **Resumen de HC** para la evolución de cada disciplina involucrada para el médico de alta."
+        [cite_start]"**Comenzar una nueva nota** ➕: Clic en **Añadir**[cite: 68, 301].",
+        [cite_start]"**Usar Plantilla** 📄: En el pop-up, selecciona **Tipo de nota clínica** para elegir la plantilla de tu especialidad[cite: 69, 302].",
+        [cite_start]"**Finalizar y Publicar** 🔓: Completa los datos y haz clic en **Liberar**[cite: 70, 76, 303, 306].",
+        [cite_start]"**Duplicar nota previa** 👯: Clic derecho sobre la nota deseada ➡️ **Duplicar nota clínica** (permite modificar solo los datos necesarios)[cite: 79].",
+        [cite_start]"**Resumen de HC (Multi)** 📋: Usa el tipo de nota **Resumen de HC** para la evolución de cada disciplina involucrada y que el médico pueda realizar un resumen de alta[cite: 71, 72]."
       ],
       "possible_errors": [
         {
           "error": "Mi nota no es visible para otros profesionales.",
-          "solution": "Esto ocurre si solo la **Guardaste**. Debes recordar **Liberar** la nota clínica para finalizarla, de lo contrario no será visible ni efectiva."
+          [cite_start]"solution": "Esto ocurre si solo la **Guardaste**[cite: 74]. [cite_start]Debes recordar **Liberar** la nota clínica para finalizarla, de lo contrario no será visible ni efectiva[cite: 75, 76, 306]."
         },
         {
           "error": "Necesito corregir una nota ya liberada.",
-          "solution": "No se puede editar una nota liberada. Selecciona la nota, haz clic en **Inactivar** y justifica el motivo. El registro no se pierde, queda inactivado."
+          [cite_start]"solution": "No se puede editar una nota liberada[cite: 194]. Selecciona la nota, haz clic en **Inactivar** y justifica el motivo. [cite_start]El registro no se pierde, queda inactivado[cite: 77, 78, 307, 308]."
         },
         {
           "error": "Al duplicar una nota, aparece la firma de otro profesional.",
-          "solution": "Si duplicaste una nota que no es tuya, es necesario **borrar la firma** que trae del profesional original y colocar la tuya."
+          [cite_start]"solution": "Si duplicaste una nota que no es tuya, es necesario **borrar la firma** que trae del profesional original y colocar la tuya[cite: 81]."
         }
       ],
       "tips": [
-        "Para editar o continuar en otro momento, utiliza el botón **Guardar**. De esta manera, solo tú ves el borrador.",
-        "Puedes usar el filtro (fecha, especialidad) para consultar notas clínicas previas."
+        "Para editar o continuar en otro momento, utiliza el botón **Guardar**. [cite_start]De esta manera, solo tú ves el borrador[cite: 74, 304, 305].",
+        [cite_start]"Puedes usar el filtro (fecha, especialidad) para consultar notas clínicas previas[cite: 67]."
       ],
       "video_link": {
         "title": "▶️ Ver Video Explicativo de Nota Clínica (Pendiente)",
         "url": "#"
       },
-      "footer": "Espero que esta información haya sido útil. ¿Deseas consultar otro tema o regresar a la selección de perfil? 💬"
+      "footer": ""
     },
     
     "response_template_evaluaciones": {
       "title": "Evaluaciones / Escalas (Scores) 📋",
-      "description": "Este ítem te permite **realizar escalas de valoración** (como riesgo de UPP, dolor, etc.) y consultar las evaluaciones que hayan registrado otros profesionales de la salud. Es clave para la seguridad y continuidad del cuidado del paciente.",
+      [cite_start]"description": "Este ítem te permite **realizar escalas de valoración** (como riesgo de UPP, dolor, etc.) y consultar las evaluaciones que hayan registrado otros profesionales de la salud[cite: 89, 91, 198]. Es clave para la seguridad y continuidad del cuidado del paciente.",
       "path_to_item": {
         "Hospitalización Enfermería": "HCE ➡️ Evaluaciones / Escalas",
         "Hospitalización Multiprofesional": "HCE ➡️ Evaluaciones"
       },
       "actions": [
-        "**Nueva Evaluación** ➕: Clic en **Añadir** ➡️ Elegir el *Tipo de Evaluación* ➡️ **Completar** los campos, **Guardar** y **Liberar**.",
-        "**Duplicar Evaluación** 👯: Clic derecho sobre una evaluación ya realizada ➡️ **Duplicar** ➡️ Modificar los valores que necesites ➡️ **Guardar** y **Liberar** (Queda registrada con el horario actual).",
-        "**Agregar Imágenes/Adjuntos** 📎: **Añadir** ➡️ Completar la evaluación y **Guardar** (No liberar) ➡️ Ir a la solapa **Anexos** para adjuntar el archivo ➡️ Finalmente, **Liberar**.",
-        "**Eliminar Evaluación** 🗑️: Solo puedes **Eliminar** evaluaciones que estén **Guardadas** (borrador) y no liberadas. Selecciona la evaluación y haz clic en *Eliminar*.",
-        "**Corregir Evaluación Liberada** 🚫: No se puede editar. Selecciona la evaluación ➡️ **Inactivar** ➡️ Justifica el motivo de la acción."
+        [cite_start]"**Nueva Evaluación** ➕: Clic en **Añadir** [cite: 90, 199] [cite_start]➡️ Elegir el *Tipo de Evaluación* [cite: 94, 203] [cite_start]➡️ **Completar**, **Guardar** y **Liberar**[cite: 95, 204].",
+        [cite_start]"**Duplicar Evaluación** 👯: Clic derecho sobre una evaluación ya realizada ➡️ **Duplicar** ➡️ Modificar los valores que necesites ➡️ **Guardar** y **Liberar**[cite: 99, 100, 208, 209].",
+        [cite_start]"**Agregar Imágenes/Adjuntos** 📎: **Añadir** ➡️ Completar la evaluación y **Guardar** (No liberar) [cite: 97, 206] [cite_start]➡️ Ir a la solapa **Anexos** para adjuntar el archivo ➡️ Finalmente, **Liberar**[cite: 98, 207].",
+        [cite_start]"**Corregir Evaluación Liberada** 🚫: No se puede editar[cite: 194]. [cite_start]Selecciona la evaluación ➡️ **Inactivar** ➡️ Justifica el motivo de la acción[cite: 196]."
       ],
       "possible_errors": [
         {
           "error": "No puedo ver evaluaciones de mi servicio o de fechas anteriores.",
-          "solution": "Revisa el **Filtro Aplicado**. Haz clic en el ícono de filtro, *Limpia los filtros* y verifica las fechas y el *Tipo de Evaluación* seleccionado."
+          "solution": "Revisa el **Filtro Aplicado**. [cite_start]Puedes buscar por **rango de fechas** (considerar fechas) o por *Tipo de Evaluación*[cite: 93, 102, 202, 211]."
         }
       ],
       "tips": [
-        "Puedes buscar evaluaciones previas por **rango de fechas** o por el **tipo de evaluación** usando el filtro (solo debes hacer clic en *Considerar Fechas*)."
+        [cite_start]"Puedes ver las evaluaciones realizadas por **todos** los profesionales en el listado desplegable[cite: 102, 211]."
       ],
       "video_link": {
         "title": "▶️ Video Tutorial (Pendiente)",
         "url": "#"
       },
-      "footer": "Espero que esta información haya sido útil. ¿Deseas consultar otro tema o regresar al menú? 💬"
+      "footer": ""
     },
 
     "response_template_informe_final": {
       "title": "Informe Final (Profesional) 📄",
-      "description": "Este ítem se utiliza para generar y gestionar el **Informe Final de tu disciplina**. Para acceder a él, se utiliza la función *Central de Informes* desde el menú principal de Tasy.",
+      "description": "Este ítem se utiliza para generar y gestionar el **Informe Final de tu disciplina**. [cite_start]Para acceder a él, se utiliza la función *Central de Informes* desde el menú principal de Tasy[cite: 134, 135].",
       "path_to_item": {
         "Hospitalización Enfermería": "No Aplica",
-        "Hospitalización Multiprofesional": "Función Central de Informes ➡️ Informe Final (O a través de la Llamada Externa si estás en HCE)"
+        [cite_start]"Hospitalización Multiprofesional": "Función Central de Informes ➡️ Informe Final (O a través de la Llamada Externa si estás en HCE [cite: 136])"
       },
       "actions": [
-        "**Buscar el Informe** 🔍: En *Central de Informes*, busca la prestación interna 'Informe Final'.",
-        "**Ejecutar Informe** ✅: El estatus del informe debe ser 'realizado'. Clic derecho > **Ejecutar** > **Incluir interpretación PDF**.",
-        "**Adjuntar PDF** 📎: Selecciona el PDF, agrega el profesional a cargo y haz clic en **Ok**. Esto cambia el estatus a *en interpretación liberada*.",
-        "**Enviar por Email** 📧: Con el estatus *en interpretación liberada*, haz clic derecho > **Enviar** > **Email**. También puedes usar *Email Electivo* para un correo no cargado."
+        [cite_start]"**Buscar el Informe** 🔍: En *Central de Informes*, busca la prestación interna 'Informe Final'[cite: 137, 139].",
+        [cite_start]"**Ejecutar Informe** ✅: El estatus debe ser 'realizado'[cite: 140]. [cite_start]Clic derecho > **Ejecutar** > **Incluir interpretación PDF**[cite: 141].",
+        "**Adjuntar PDF** 📎: Selecciona el PDF, agrega el profesional a cargo y haz clic en **Ok**. [cite_start]Esto cambia el estatus a *en interpretación liberada*[cite: 142].",
+        [cite_start]"**Enviar por Email** 📧: Con el estatus *en interpretación liberada*, haz clic derecho > **Enviar** > **Email**[cite: 143]. [cite_start]También puedes usar *Email Electivo* para un correo no cargado[cite: 145]."
       ],
       "possible_errors": [
         {
           "error": "No encuentro el informe final de mi profesión en la lista.",
-          "solution": "Revisa el **Filtro Avanzado** aplicado. Debes seleccionar *Prestación interna* y buscar 'Informe Final'."
+          "solution": "Revisa el **Filtro Avanzado** aplicado. [cite_start]Debes seleccionar *Prestación interna* y buscar 'Informe Final'[cite: 138, 139]."
         },
         {
           "error": "No puedo enviar el informe por email al paciente.",
-          "solution": "Verifica si el paciente tiene el email cargado. Si no se visualiza, avisa a Secretaría."
+          "solution": "Verifica si el paciente tiene el email cargado. [cite_start]Si no se visualiza, avisa a Secretaría[cite: 144]."
         }
       ],
       "tips": [
-        "Puedes visualizar el informe una vez realizado desde: HCE ➡️ **Resultados de estudios y prácticas**."
+        [cite_start]"Puedes visualizar el informe una vez realizado desde: HCE ➡️ **Resultados de estudios y prácticas**[cite: 146, 148]."
       ],
       "video_link": {
         "title": "▶️ Video Tutorial (Pendiente)",
         "url": "#"
       },
-      "footer": "Espero que esta información haya sido útil. ¿Deseas consultar otro tema o regresar al menú? 💬"
+      "footer": ""
     },
 
     "response_template_ged": {
       "title": "GED / Gestión Electrónica de Documentos 📁",
-      "description": "Este ítem te permite **visualizar, adjuntar y gestionar archivos** del paciente, como informes externos o, en el caso de Enfermería, cargar el **ECG**. Los archivos pueden ser cargados por administrativos o por profesionales de la salud.",
+      "description": "Este ítem te permite **visualizar, adjuntar y gestionar archivos** del paciente. [cite_start]Los archivos pueden ser cargados por administrativos (solapa Anexos) o por profesionales (solapa Documentos)[cite: 126, 328].",
       "path_to_item": {
         "Hospitalización Enfermería": "HCE ➡️ Gestión de Documentos",
         "Hospitalización Multiprofesional": "HCE ➡️ Gestión de Documentos"
       },
       "actions": [
-        "**Agregar un Archivo (Ej. ECG)** ➕: Clic en **Añadir** ➡️ Colocar Título ➡️ Seleccionar el *Tipo de Archivo* ➡️ Seleccionar el archivo ➡️ **Guardar y Liberar**.",
-        "**Buscar Archivos Viejos** 🔍: Utiliza el **filtro** para buscar por *Tipo de Archivo* y revisar el rango de **fechas**."
+        [cite_start]"**Agregar un Archivo** ➕: Clic en **Añadir** [cite: 129, 330] ➡️ Colocar Título ➡️ Seleccionar el *Tipo de Archivo* ➡️ Seleccionar el archivo ➡️ **Guardar y Liberar**.",
+        [cite_start]"**Cargar Informe Inicial** 📥: Al agregar un archivo, elige en *Tipo de Archivo* la opción **Informe Inicial**[cite: 130].",
+        [cite_start]"**Buscar Archivos Viejos** 🔍: Utiliza el **filtro** con fechas y *Tipo de Archivo*[cite: 132, 332]."
       ],
       "possible_errors": [
         {
           "error": "No puedo ver archivos de mi servicio o de fechas anteriores.",
-          "solution": "Revisa el **filtro aplicado**. Limpia los filtros y verifica las fechas y el *Tipo de Archivo* seleccionados."
+          "solution": "Revisa el **filtro aplicado**. [cite_start]Limpia los filtros y verifica las fechas y el *Tipo de Archivo* seleccionados[cite: 132, 332]."
         },
         {
           "error": "No encuentro un documento que sé que cargó el administrativo.",
-          "solution": "Los archivos cargados por administrativos (Ej. en Admisión) se encuentran en la solapa **Anexos de la atención**. Los cargados por profesionales de la salud están en la solapa **Documentos**."
+          "solution": "Los archivos cargados por administrativos están en la solapa **Anexos de la atención**. [cite_start]Los cargados por profesionales de la salud están en la solapa **Documentos**[cite: 126, 328]."
         }
       ],
       "tips": [
-        "**Clasificación es clave** ✨: Recuerda cargar el archivo seleccionando el **Tipo de Archivo** correcto para facilitar la búsqueda a todos los profesionales.",
-        "Los informes iniciales se deben clasificar como **Informe Inicial** para una correcta gestión."
+        [cite_start]"**Clasificación es clave** ✨: Recuerda cargar el archivo seleccionando el **Tipo de Archivo** correcto para facilitar la búsqueda a todos los profesionales[cite: 129, 330]."
       ],
       "video_link": {
         "title": "▶️ Video Tutorial (Pendiente)",
         "url": "#"
       },
-      "footer": "Espero que esta información haya sido útil. ¿Deseas consultar otro tema o regresar al menú? 💬"
+      "footer": ""
     },
     
     "response_template_signos_vitales": {
       "title": "APAP: Signos Vitales y Balance (Visualización) 📊",
-      "description": "El Análisis de Parámetros Asistenciales (**APAP**) es la grilla que te permite **visualizar** de forma gráfica y tabulada los datos que han sido cargados en los ítems de **Signos Vitales** y **Balance Hídrico**.",
+      [cite_start]"description": "El Análisis de Parámetros Asistenciales (**APAP**) es la grilla que te permite **visualizar** de forma gráfica y tabulada los datos que han sido cargados en los ítems de **Signos Vitales** y **Balance Hídrico**[cite: 53, 247].",
       "path_to_item": {
         "Hospitalización Enfermería": "HCE ➡️ APAP", 
         "Hospitalización Multiprofesional": "HCE ➡️ APAP"
       },
       "actions": [
-        "**Visualizar Parámetros** 🔎: Por defecto, verás los parámetros del día. Puedes cambiar el rango de fechas haciendo clic en *Día Anterior* o ajustando los **filtros**.",
-        "**Configurar la Vista** ⚙️: Utiliza los filtros para seleccionar los parámetros específicos que deseas analizar."
+        [cite_start]"**Visualizar Parámetros** 🔎: Por defecto, verás los parámetros del día[cite: 55]. [cite_start]Puedes cambiar el rango de fechas haciendo clic en *Día Anterior* o ajustando los **filtros**[cite: 55, 249].",
+        [cite_start]"**Ver Valores Detallados** 📈: Los valores se ven en el detalle por horario[cite: 56, 250]."
       ],
       "possible_errors": [
         {
           "error": "No veo los datos que acabo de cargar en Signos Vitales o Balance Hídrico.",
-          "solution": "Verifica que el personal de Enfermería haya hecho clic en el **check APAP** al momento de registrar los datos. Si no se tildó, el dato no se visualiza aquí. En tal caso, puedes corroborar los valores directamente en los ítems **Signos Vitales** y **Balance Hídrico**."
+          [cite_start]"solution": "Verifica que el personal de Enfermería haya hecho clic en el **check APAP** al momento de registrar los datos[cite: 188, 247]. Si no se tildó, el dato no se visualiza aquí. En tal caso, puedes corroborar los valores directamente en los ítems **Signos Vitales** y **Balance Hídrico**."
         },
         {
           "error": "El filtro aplicado no me muestra la información correcta.",
-          "solution": "Haz clic en **Limpiar Filtros** y vuelve a seleccionar el rango de fechas y los parámetros que necesitas visualizar."
+          [cite_start]"solution": "Haz clic en **Limpiar Filtros** y vuelve a seleccionar el rango de fechas y los parámetros que necesitas visualizar[cite: 55, 249]."
         }
       ],
       "tips": [
-        "**Recuerda**: Los profesionales de Enfermería son los encargados de registrar los datos y tildar el **check APAP** para que tú, como Médico u Otro Profesional, puedas visualizar los parámetros en la grilla."
+        [cite_start]"**Recuerda**: Los profesionales de Enfermería son los encargados de registrar los datos y tildar el **check APAP** para su correcta visualización[cite: 188, 247].",
+        [cite_start]"Puedes recorrer los datos por horas desplazándote hacia la derecha[cite: 54, 248]."
       ],
       "video_link": {
         "title": "▶️ Video Tutorial (Pendiente)",
         "url": "#"
       },
-      "footer": "Espero que esta información haya sido útil. ¿Deseas consultar otro tema o regresar al menú? 💬"
+      "footer": ""
     },
 
     "response_template_adep_glucemia": {
@@ -240,60 +276,60 @@
         "Hospitalización Multiprofesional": "HCE ➡️ ADEP (Solo visualización)"
       },
       "actions": [
-        "**Cargar Control Aislado (Signos Vitales)** ➕: Ir a *Signos Vitales* ➡️ **Añadir** ➡️ Colocar el *Horario* y tildar el **Check APAP** ➡️ Cargar la glucemia ➡️ **Guardar y Liberar**.",
-        "**Ver Indicación Médica** 📝: Ir a *ADEP* ➡️ Sección **Recomendaciones** para verificar si la indicación es *con* o *sin* protocolo.",
-        "**Control SIN Protocolo (ADEP)** 📉: En *Recomendaciones* ➡️ Clic derecho sobre el indicación > **Administrar/Revertir Evento** (Solo registra que se realizó el control).",
-        "**Control CON Protocolo (ADEP)** 📈: Clic derecho > **Administrar/Revertir Evento** ➡️ Ir a la solapa **Control Glucémico** ➡️ En el lado izquierdo, seleccionar el protocolo ➡️ Clic derecho > **Registrar Nivel de Glucemia** ➡️ En el lado derecho, seleccionar el protocolo ➡️ Clic derecho > **Confirmar Adm**.",
-        "**Bomba de Insulina** 💉: En *ADEP* ➡️ Sección **Medicamentos** ➡️ Clic derecho sobre la bomba > **Administrar/Revertir Evento** (Solo inicia la infusión. Los valores de glucemia se registran aparte por SV o ADEP)."
+        [cite_start]"**Cargar Control Aislado (Signos Vitales)** ➕: Ir a *Signos Vitales* ➡️ **Añadir** ➡️ Colocar el *Horario* y tildar el **Check APAP** [cite: 189] [cite_start]➡️ Cargar la glucemia ➡️ **Guardar y Liberar**[cite: 191].",
+        [cite_start]"**Control SIN Protocolo (ADEP)** 📉: En *Recomendaciones* ➡️ Clic derecho sobre la indicación > **Administrar/Revertir Evento** (Solo registra que se realizó el control)[cite: 234, 243].",
+        [cite_start]"**Control CON Protocolo (ADEP)** 📈: Ir a *Exámenes y procedimientos* ➡️ Clic derecho sobre el control glucémico ➡️ **Registrar Nivel de Glucemia** [cite: 238, 239] [cite_start]➡️ En el *Control de Glucemia*, clic derecho > **Confirmar el control**[cite: 241].",
+        "**Bomba de Insulina** 💉: En *ADEP* ➡️ Sección **Medicamentos** ➡️ Clic derecho sobre la bomba > **Administrar/Revertir Evento** (Solo inicia la infusión). [cite_start]Los valores de glucemia se registran aparte por SV o ADEP[cite: 219]."
       ],
       "possible_errors": [
         {
           "error": "Al cargar la glucemia CON Protocolo, el sistema no sugiere la corrección.",
-          "solution": "Asegúrate de haber completado todos los campos requeridos en el registro de glucemia. Tasy sugiere la corrección, pero debes confirmarla manualmente según el protocolo."
+          "solution": "Asegúrate de haber completado los campos necesarios. [cite_start]Según el valor de glucemia, se **sugerirá** la corrección[cite: 240]."
         }
       ],
       "tips": [
-        "**Evita Duplicidades** ✨: Si cargas la glucemia en **ADEP** o en **Signos Vitales**, el valor impacta en ambos ítems. **No es necesario cargarlo en los dos lados**."
+        [cite_start]"**Evita Duplicidades** ✨: Si cargas la glucemia en **ADEP** o en **Signos Vitales**, el valor impacta en ambos ítems (**APAP** y **Signos Vitales**)[cite: 242, 247]. **No es necesario cargarlo en los dos lados**.",
+        [cite_start]"La glucemia sin protocolo se carga en **Signos Vitales**[cite: 244]."
       ],
       "video_link": {
         "title": "▶️ Video Tutorial de Glucemia (Pendiente)",
         "url": "#"
       },
-      "footer": "Espero que esta información haya sido útil. ¿Deseas consultar otro tema o regresar al menú? 💬"
+      "footer": ""
     },
 
     "response_template_balance_hidrico": {
       "title": "Balance Hídrico (Registro y Análisis) 💧",
-      "description": "Este ítem te permite **cargar y visualizar** el balance hídrico del paciente, segmentado por turno, por día o por un rango de días específico. Es esencial para el control de ingresos y egresos.",
+      [cite_start]"description": "Este ítem te permite **cargar y visualizar** el balance hídrico del paciente, segmentado por turno, por día o por un rango de días específico[cite: 253, 265].",
       "path_to_item": {
         "Hospitalización Enfermería": "HCE ➡️ Balance Hídrico",
         "Hospitalización Multiprofesional": "HCE ➡️ APAP (Solo visualización)"
       },
       "actions": [
-        "**Cargar Ingresos/Egresos** ➕: Ir a la solapa **Ingresos y Egresos** ➡️ **Añadir** ➡️ En el lado izquierdo, selecciona si es *Ingreso* o *Egreso* y su clasificación (Grupo/Tipo) ➡️ Presionar la **Flecha Derecha** ➡️ Colocar el **Volumen** ➡️ **OK**.",
-        "**Ver Balance por Turno** 🔄: Ir a la solapa **Análisis de Balance** (pantalla del medio).",
-        "**Ver Balance Diario (Total)** 🔢: Ir a la solapa **Análisis de Balance** (lado izquierdo).",
-        "**Ver Detalle de Balance** 🔎: Selecciona el registro en el lado izquierdo (Diario) o medio (Turno) y verás el detalle completo en el lado derecho.",
-        "**Cargar Multistick** 🧪: Al registrar un Egreso, clasifícalo como **Toma de Muestras**. Luego de colocar el volumen de pérdida, registra los valores del Multistick en el pop-up correspondiente."
+        [cite_start]"**Cargar Ingresos/Egresos** ➕: Ir a la solapa **Ingresos y Egresos** [cite: 257] [cite_start]➡️ **Añadir** [cite: 258] [cite_start]➡️ Selecciona *Ingreso* o *Egreso* y su clasificación [cite: 259] [cite_start]➡️ Clic en **Derecha** [cite: 261] [cite_start]➡️ Colocar el **Volumen** [cite: 263] [cite_start]➡️ **Finalizar**[cite: 264].",
+        [cite_start]"**Ver Balance por Turno** 🔄: Ir a la solapa **Análisis de Balance** (pantalla del medio)[cite: 255].",
+        [cite_start]"**Ver Balance Diario (Total)** 🔢: Ir a la solapa **Análisis de Balance** (lado izquierdo)[cite: 254].",
+        "**Cargar Multistick** 🧪: Al registrar un Egreso, clasifícalo como **Toma de Muestras**."
       ],
       "possible_errors": [
         {
           "error": "El balance diario total no es correcto.",
-          "solution": "Revisa la solapa **Análisis de Balance** y verifica que el **filtro de día** aplicado sea el correcto."
+          [cite_start]"solution": "Revisa la solapa **Análisis de Balance** y verifica el **filtro** aplicado[cite: 266]."
         },
         {
           "error": "El dato de Balance no se ve en APAP (Análisis de Parámetros Asistenciales).",
-          "solution": "Verifica que hayas **Liberado** el registro del Balance. Además, recuerda que el Balance Hídrico es un parámetro clave que impacta directamente en la grilla APAP."
+          [cite_start]"solution": "Verifica que el Balance Hídrico impacta en **APAP** [cite: 247] y que hayas **Liberado** el registro."
         }
       ],
       "tips": [
-        "**Registros Cualitativos** ✨: En algunos registros de egresos, el sistema permite colocar **registros cualitativos** (ej. emesis, catarsis), además del volumen, para un registro más completo."
+        [cite_start]"**Detalle del Registro** 🔎: Al seleccionar el turno en el medio, se visualiza el detalle a la derecha[cite: 256].",
+        [cite_start]"Puedes usar el buscador al cargar ingresos/egresos[cite: 262]."
       ],
       "video_link": {
         "title": "▶️ Video Tutorial de Balance Hídrico (Pendiente)",
         "url": "#"
       },
-      "footer": "Espero que esta información haya sido útil. ¿Deseas consultar otro tema o regresar al menú? 💬"
+      "footer": ""
     }
   }
 }
