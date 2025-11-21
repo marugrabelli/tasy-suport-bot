@@ -563,8 +563,9 @@ elif st.session_state.processing_prompt is not None:
             final_msg = "¡Muchas gracias por tu duda! Hemos registrado tu mensaje y la información de contacto. Nos pondremos en comunicación a la brevedad. 💬"
             st.markdown(final_msg)
             st.session_state.messages.append({"role": "assistant", "content": final_msg})
-            st.session_state.conversation_step = "tags" # Volvemos a tags después de agradecer
-        
+            st.session_state.conversation_step = "message_sent" # Nuevo estado final
+
+        # El flujo termina aquí y se pasa al estado message_sent
         render_footer()
         show_navigation_buttons(st.session_state.rol_usuario)
         st.stop()
@@ -590,8 +591,8 @@ elif st.session_state.processing_prompt is not None:
     show_navigation_buttons(st.session_state.rol_usuario)
     st.stop()
 
-# C. MODO LIBRE/VIEWING RESPONSE (Se mantiene la lógica para la pantalla de "viewing_response" y "free_input_after_msg")
-elif st.session_state.conversation_step in ["free_input", "viewing_response", "free_input_after_msg"]:
+# C. MODO LIBRE/VIEWING RESPONSE (Incluye el nuevo estado message_sent)
+elif st.session_state.conversation_step in ["free_input", "viewing_response", "free_input_after_msg", "message_sent"]:
     
     if st.session_state.conversation_step in ["free_input", "free_input_after_msg"]:
         prompt = st.chat_input("Escribe tu consulta aquí...")
@@ -601,9 +602,10 @@ elif st.session_state.conversation_step in ["free_input", "viewing_response", "f
             st.session_state.conversation_step = "tags" # Volvemos a tags para que lo procese el flujo de texto libre
             st.rerun()
 
-    elif st.session_state.conversation_step == "viewing_response":
-        # Aseguramos que el footer y los botones se vean después de una búsqueda libre.
+    elif st.session_state.conversation_step == "viewing_response" or st.session_state.conversation_step == "message_sent":
+        # Aseguramos que el footer y los botones se vean después de una búsqueda libre o de enviar mensaje.
         with st.chat_message("assistant"):
+             # Se repite el último mensaje para mantener la visualización
              if st.session_state.messages and st.session_state.messages[-1]["role"] == "assistant":
                  st.markdown(st.session_state.messages[-1]["content"], unsafe_allow_html=True)
              
