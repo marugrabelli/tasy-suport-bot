@@ -208,17 +208,17 @@ def render_footer():
         st.markdown("""
 ### 💡 Antes de llamar, ¡revisa estos puntos!
 
-* **💻 Navegador Ideal:** Usa siempre **Google Chrome**.
-* **🧹 Limpieza:** Si algo no carga, prueba a **limpiar la caché** (`Ctrl + H`).
-* **👤 Perfil:** Verifica que tu **Log In** esté en el **establecimiento y perfil correcto** (Ej: Hospitalización Multi/Enfermería).
-* **🔍 Zoom:** ¿Pantalla cortada? Ajusta el zoom: **`Ctrl + +`** (agrandar) o **`Ctrl + -`** (minimizar).
+* [cite_start]**💻 Navegador Ideal:** Usa siempre **Google Chrome**[cite: 1, 2].
+* [cite_start]**🧹 Limpieza:** Si algo no carga, prueba a **limpiar la caché** (`Ctrl + H`)[cite: 1, 2].
+* [cite_start]**👤 Perfil:** Verifica que tu **Log In** esté en el **establecimiento y perfil correcto** (Ej: Hospitalización Multi/Enfermería)[cite: 1, 2].
+* **🔍 Zoom:** ¿Pantalla cortada? [cite_start]Ajusta el zoom: **`Ctrl + +`** (agrandar) o **`Ctrl + -`** (minimizar)[cite: 1, 2].
 
 ---
 **¿Aún tienes dudas?**
 
-* 🖋️ **Firmas Digitales:** Envía tu firma en **formato JPG (fondo blanco)** a **soportesidca@fleni.org.ar**.
-* 📞 **Soporte Telefónico:** Llama al interno **5006**.
-* 🎫 **Alta de Usuarios/VPN:** Deja un ticket en **solicitudes.fleni.org**.
+* [cite_start]🖋️ **Firmas Digitales:** Envía tu firma en **formato JPG (fondo blanco)** a **soportesidca@fleni.org.ar**[cite: 1, 2].
+* [cite_start]📞 **Soporte Telefónico:** Llama al interno **5006**[cite: 1, 2].
+* [cite_start]🎫 **Alta de Usuarios/VPN:** Deja un ticket en **solicitudes.fleni.org**[cite: 1, 2].
 """)
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -591,4 +591,3 @@ elif st.session_state.conversation_step in ["free_input", "viewing_response", "f
              
              render_footer()
              show_navigation_buttons(st.session_state.rol_usuario)
-
