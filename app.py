@@ -559,8 +559,10 @@ elif st.session_state.processing_prompt is not None:
             st.markdown(prompt)
         
         with st.chat_message("assistant"):
-            st.markdown("¡Muchas gracias por tu duda! Hemos registrado tu mensaje y la información de contacto. Nos pondremos en comunicación a la brevedad. 💬")
-            st.session_state.messages.append({"role": "assistant", "content": "¡Muchas gracias por tu duda! Hemos registrado tu mensaje y la información de contacto. Nos pondremos en comunicación a la brevedad. 💬"})
+            # Mensaje de agradecimiento final
+            final_msg = "¡Muchas gracias por tu duda! Hemos registrado tu mensaje y la información de contacto. Nos pondremos en comunicación a la brevedad. 💬"
+            st.markdown(final_msg)
+            st.session_state.messages.append({"role": "assistant", "content": final_msg})
             st.session_state.conversation_step = "tags" # Volvemos a tags después de agradecer
         
         render_footer()
@@ -605,9 +607,5 @@ elif st.session_state.conversation_step in ["free_input", "viewing_response", "f
              if st.session_state.messages and st.session_state.messages[-1]["role"] == "assistant":
                  st.markdown(st.session_state.messages[-1]["content"], unsafe_allow_html=True)
              
-             # El footer y botones se renderizan a continuación, fuera del chat message
-             pass
-        
         render_footer()
         show_navigation_buttons(st.session_state.rol_usuario)
-
