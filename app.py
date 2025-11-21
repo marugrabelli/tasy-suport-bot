@@ -42,7 +42,8 @@ if KNOWLEDGE_BASE is None:
 ENFERMERIA_TAGS = {
     "Cargar Glucemia": {"color": "#FFC0CB", "query": "cargar glucemia", "response_key": "response_template_adep_glucemia"},
     "Ver Glucemia": {"color": "#ADD8E6", "query": "ver glucemia", "response_key": "response_template_adep_glucemia"},
-    "Cargar Signos Vitales": {"color": "#90EE90", "query": "cargar signos vitales", "response_key": "response_template_signos_vitales"}, 
+    # Mapeo a la nueva clave de registro
+    "Cargar Signos Vitales": {"color": "#90EE90", "query": "cargar signos vitales (registro)", "response_key": "response_template_signos_vitales_registro"}, 
     "Ver Signos Vitales/APAP": {"color": "#87CEFA", "query": "ver signos vitales/apap", "response_key": "response_template_signos_vitales"}, 
     "Balance por Turno/Día": {"color": "#F08080", "query": "balance hidrico", "response_key": "response_template_balance_hidrico"},
     "Adm. Medicación": {"color": "#DDA0DD", "query": "administración de medicación", "response_key": "response_template_adep_glucemia"}, 
@@ -362,13 +363,19 @@ def buscar_solucion(consulta, rol):
         if any(x in q for x in ["cateter", "dispositivo", "sonda", "via", "rotar", "equipo", "retirar", "grafico"]): 
             template_key = "response_template_dispositivos"
             
-        # Signos Vitales/APAP: signos vitales, apap, presion, temperatura, mointoreo, dolor, peso
-        if any(x in q for x in ["signos", "vitales", "apap", "presion", "temperatura", "mointoreo", "dolor", "peso"]): 
-            template_key = "response_template_signos_vitales"
+        # Signos Vitales: Manejo diferenciado por intento de registro o visualización
+        if any(x in q for x in ["signos", "vitales", "presion", "temperatura", "dolor", "peso"]): 
+            if any(x in q for x in ["cargar", "registro", "ingreso", "agregar"]):
+                template_key = "response_template_signos_vitales_registro"
+            else:
+                template_key = "response_template_signos_vitales" # APAP Visualización
+        
+        # APAP (solo visualización)
+        if "apap" in q:
+             template_key = "response_template_signos_vitales"
             
         # Evaluaciones: escalas, evaluaciones, braden, arnell, inicial, score, pendientes
-        # La clave para EVALUACIONES debe ser MÁS ESPECÍFICA para evitar colisiones con "dispositivos"
-        if any(x in q for x in ["evaluacion", "escalas", "braden", "arnell", "score", "pendientes"]): 
+        if any(x in q for x in ["evaluacion", "escalas", "braden", "arnell", "inicial", "score", "pendientes"]): 
             template_key = "response_template_evaluaciones"
     
     # Médico / Otros Profesionales (Multi)
@@ -406,9 +413,7 @@ if "conversation_step" not in st.session_state:
     st.session_state.conversation_step = "onboarding"
 if "last_prompt" not in st.session_state:
     st.session_state.last_prompt = None
-# Usaremos 'response_key' para disparar la respuesta de TAGS/CLICKS, 
-# y 'processing_prompt' para disparar la respuesta de TEXTO LIBRE.
-if "processing_prompt" not in st.session_state:
+if "processing_prompt" not in st.session_state: 
     st.session_state.processing_prompt = None 
 
 
@@ -434,7 +439,7 @@ if st.session_state.rol_usuario is not None:
         if st.button("🗑️ Borrar Chat"):
             st.session_state.messages = []
             st.session_state.processing_prompt = None
-            st.session_state.response_key = None # Aseguramos limpiar ambos
+            st.session_state.response_key = None 
             st.rerun()
             
         st.markdown("---")
@@ -508,7 +513,7 @@ if st.session_state.conversation_step == "tags":
     
     if prompt:
         st.session_state.processing_prompt = prompt 
-        st.rerun() # Dispara la lógica de procesamiento en la siguiente ejecución.
+        st.rerun()
 
 # --- 4. PROCESAMIENTO DE RESPUESTAS (ÚNICO PUNTO DE SALIDA) ---
 
@@ -586,3 +591,4 @@ elif st.session_state.conversation_step in ["free_input", "viewing_response", "f
              
              render_footer()
              show_navigation_buttons(st.session_state.rol_usuario)
+
