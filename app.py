@@ -38,27 +38,19 @@ if KNOWLEDGE_BASE is None:
     st.stop()
 
 
-# Definición de Tags (¡CORREGIDOS Y RE-MAPEDOS!)
+# Definición de Tags (Mapeo Final Corregido)
 ENFERMERIA_TAGS = {
-    # 1. Cargar y Ver Glucemia -> Glucemia
     "Cargar Glucemia": {"color": "#FFC0CB", "query": "cargar glucemia", "response_key": "response_template_adep_glucemia"},
     "Ver Glucemia": {"color": "#ADD8E6", "query": "ver glucemia", "response_key": "response_template_adep_glucemia"},
-    # 2. Signos Vitales -> SV (Carga) / APAP (Ver)
-    "Cargar Signos Vitales": {"color": "#90EE90", "query": "cargar signos vitales", "response_key": "response_template_dispositivos"}, # Asumo que Signos Vitales (registro) requiere un nuevo template. Uso Dispositivos temporalmente.
-    "Ver Signos Vitales/APAP": {"color": "#87CEFA", "query": "ver signos vitales/apap", "response_key": "response_template_signos_vitales"}, # Mapeado a APAP (Visualización)
-    # 3. Balance Hídrico
+    "Cargar Signos Vitales": {"color": "#90EE90", "query": "cargar signos vitales", "response_key": "response_template_signos_vitales"}, # Mapeado temporalmente a APAP/SV (Visualización)
+    "Ver Signos Vitales/APAP": {"color": "#87CEFA", "query": "ver signos vitales/apap", "response_key": "response_template_signos_vitales"}, 
     "Balance por Turno/Día": {"color": "#F08080", "query": "balance hidrico", "response_key": "response_template_balance_hidrico"},
-    # 4. Adm. Medicación -> Sin información, mapeado a ADEP Glucemia por flujo.
     "Adm. Medicación": {"color": "#DDA0DD", "query": "administración de medicación", "response_key": "response_template_adep_glucemia"}, 
     
-    # 5. Agregar/Retirar Catéter -> Unificado a Dispositivos
     "Agregar/Retirar Catéter": {"color": "#FAFAD2", "query": "gestión de catéter", "response_key": "response_template_dispositivos"},
-    # 6. Contraseña y Usuario -> Login
     "Contraseña y Usuario NO Coinciden": {"color": "#AFEEEE", "query": "problemas de login", "response_key": "response_template_login"},
-    # 7. Pase de Guardia -> Resumen Electrónico
     "Pase de Guardia/Resumen": {"color": "#FFDAB9", "query": "pase de guardia", "response_key": "response_template_resumen_electronico"},
     
-    # 8. Evaluaciones/Escalas (Nombre y mapeo corregido)
     "Evaluaciones / Escalas": {"color": "#20B2AA", "query": "evaluaciones y escalas", "response_key": "response_template_evaluaciones"},
 }
 
@@ -89,7 +81,7 @@ COLOR_MAP = {
 }
 
 
-# Estilos CSS (Corregido para forzar el color de fondo y borde)
+# Estilos CSS (Con corrección de colores y botones)
 st.markdown(f"""
     <style>
     .stChatMessage {{ border-radius: 10px; }}
@@ -101,7 +93,20 @@ st.markdown(f"""
         font-size: 0.9em;
         opacity: 0.9;
     }}
-    /* ... otros estilos se mantienen ... */
+    .stDownloadButton button {{
+        border: 1px solid #005490;
+        color: #005490;
+        background-color: #f0f8ff;
+        margin-bottom: 10px;
+    }}
+    .stDownloadButton button:hover {{
+        background-color: #005490;
+        color: white;
+    }}
+    
+    div[data-testid*="stHorizontalBlock"] > div[data-testid*="stVerticalBlock"] > div[data-testid*="column"] > div {{
+        padding: 5px 2px;
+    }}
     
     div[data-testid*="column"] > button {{
         margin-bottom: 8px;
@@ -115,13 +120,12 @@ st.markdown(f"""
     
     {
         "".join([
-            # Se fuerza color de fondo y borde para los tags
             f".{cls} button {{ background-color: {hex_color}; border-color: {hex_color}; }}"
             for hex_color, cls in COLOR_MAP.items()
         ])
     }
     
-    /* Aseguramos que el texto del botón sea negro para contraste y eliminamos el color base del selector general */
+    /* MEJORA: Aseguramos que el texto del botón sea visible y forzamos el contraste */
     .tag-pink button, .tag-lightblue button, .tag-lightgreen button, .tag-skyblue button, 
     .tag-lightcoral button, .tag-lightsalmon button, .tag-thistle button, .tag-lightyellow button, 
     .tag-slategray button, .tag-turquoise button, .tag-peach button, .tag-seafoam button,
@@ -165,9 +169,6 @@ def show_tags(tag_list, columns_count, title):
     st.markdown(f"### 🔍 {title}")
     
     cols = st.columns(columns_count)
-    
-    # Se eliminan los tags "Agregar un Nuevo Catéter" y "Retirar Catéter" ya que están unificados
-    # La lista de tags_enfermeria debe ser actualizada en el JSON
     
     for i, (label, data) in enumerate(tag_list.items()):
         
@@ -321,48 +322,68 @@ def render_response(template_data, user_profile):
         response += f"[{video['title']}]({video['url']})\n\n"
     
     # --- FOOTER / MENSAJE FINAL ---
-    # Se elimina el footer de la plantilla y se usa el genérico de la función render_footer()
+    # Se eliminó el footer del JSON, por lo que este campo se omite, dejando solo el render_footer()
     
     return response
 
 
-# --- 4. MOTOR DE BÚSQUEDA (Corregido para evitar duplicidad de "Dispositivos") ---
+# --- 4. MOTOR DE BÚSQUEDA (FINAL Y OPTIMIZADO CON PALABRAS CLAVE) ---
 def buscar_solucion(consulta, rol):
     """Busca una solución basada en el texto libre, mapeando a una clave de template JSON."""
     q = consulta.lower()
-    
     template_key = None
     
-    # ORDEN DE IMPORTANCIA: Temas de acceso
-    if any(x in q for x in ["contraseña", "usuario", "login", "perfil"]): 
+    # 1. TEMAS GENÉRICOS (Login, Resumen)
+    # Palabras clave de Login: salir de tasy, salir, loguearme, clave, error clave
+    if any(x in q for x in ["contraseña", "usuario", "login", "acceso", "perfil", "salir", "loguearme", "clave"]): 
         template_key = "response_template_login"
         
-    # ORDEN DE IMPORTANCIA: Temas Médicos/Multi
-    if rol in ["Médico", "Otros profesionales"]:
-        if any(x in q for x in ["evolucionar", "nota", "plantilla"]): template_key = "response_template_nota_clinica"
-        if any(x in q for x in ["informe final", "epicrisis"]): template_key = "response_template_informe_final"
-        if any(x in q for x in ["ged", "documento"]): template_key = "response_template_ged"
-        if any(x in q for x in ["evaluacion", "escala"]): template_key = "response_template_evaluaciones"
-        if any(x in q for x in ["pase de guardia", "resumen"]): template_key = "response_template_resumen_electronico"
+    # Palabras clave de Resumen: pase de guardia, resumen electronico, resumen electronico de paciente
+    if any(x in q for x in ["pase de guardia", "resumen", "paciente", "cama", "sector", "navegacion", "historia clínica"]): 
+        template_key = "response_template_resumen_electronico"
+        
+    # Placeholder para SIDCA
+    if any(x in q for x in ["sidca", "historia vieja", "anterior", "ces"]): 
+        template_key = "response_template_dispositivos" 
+        
+    # 2. TEMAS ESPECÍFICOS POR ROL
     
-    # ORDEN DE IMPORTANCIA: Temas de Enfermería
+    # Enfermería
     if rol == "Enfermería":
-        if any(x in q for x in ["glucemia", "glucosa", "adep", "administrar medicacion"]): template_key = "response_template_adep_glucemia"
-        if any(x in q for x in ["balance", "hidrico", "ingreso", "egreso"]): template_key = "response_template_balance_hidrico"
-        if any(x in q for x in ["cateter", "dispositivo", "sonda", "via"]): template_key = "response_template_dispositivos"
-        if any(x in q for x in ["signos", "vitales", "apap"]): template_key = "response_template_signos_vitales"
-        if any(x in q for x in ["evaluacion", "escala"]): template_key = "response_template_evaluaciones"
-        if any(x in q for x in ["pase de guardia", "resumen"]): template_key = "response_template_resumen_electronico"
+        # Palabras clave de Glucemia/ADEP: glucemia, glucemico, insulina, bomba de insulina, protocolo de glucemia, sin protocolo, administrar medicacion, adep
+        if any(x in q for x in ["glucemia", "insulina", "bomba", "protocolo", "adep", "medicacion"]): 
+            template_key = "response_template_adep_glucemia"
+            
+        # Palabras clave de Balance Hídrico: ingreso, egreso, orina, diuresis, Multistick, balance hidrico
+        if any(x in q for x in ["balance", "hidrico", "ingreso", "egreso", "orina", "diuresis", "multistick"]): 
+            template_key = "response_template_balance_hidrico"
+            
+        # Palabras clave de Dispositivos: cateter, via, sonda, retirar dispositivo, retirar via, colocar via, grafico dispositivos, grafico dispositivo, rotar
+        if any(x in q for x in ["cateter", "dispositivo", "sonda", "via", "rotar", "equipo", "retirar", "grafico"]): 
+            template_key = "response_template_dispositivos"
+            
+        # Palabras clave de Signos Vitales/APAP: signos vitales, presion, temperatura, mointoreo respiratorio, apap, dolor
+        if any(x in q for x in ["signos", "vitales", "apap", "presion", "temperatura", "mointoreo", "dolor", "peso"]): 
+            template_key = "response_template_signos_vitales"
+            
+        # Palabras clave de Evaluaciones: escalas, evaluaciones, escala bradden, arnell, evaluacion inicial
+        if any(x in q for x in ["evaluacion", "escalas", "braden", "arnell", "inicial", "score", "pendientes"]): 
+            template_key = "response_template_evaluaciones"
     
-    # Si la búsqueda libre NO encontró un tema específico de enfermería/multi, pero sí encontró un tema genérico
-    if template_key is None:
-        if any(x in q for x in ["sidca", "historia vieja", "anterior", "ces"]): 
-            template_key = "response_template_dispositivos" # Se mantiene como placeholder
+    # Médico / Otros Profesionales (Multi)
+    if rol in ["Médico", "Otros profesionales"]:
+        if any(x in q for x in ["evolucionar", "nota", "plantilla", "resumen de hc"]): 
+            template_key = "response_template_nota_clinica"
+        if any(x in q for x in ["informe final", "epicrisis", "cargar informe"]): 
+            template_key = "response_template_informe_final"
+        if any(x in q for x in ["ged", "documento", "adjunto", "informe inicial", "archivos"]): 
+            template_key = "response_template_ged"
+        if any(x in q for x in ["evaluacion", "escala", "score"]): 
+            template_key = "response_template_evaluaciones"
 
     if template_key and KNOWLEDGE_BASE:
         template_data = KNOWLEDGE_BASE['response_templates'].get(template_key)
         if template_data:
-            # Si el tag es genérico y el perfil es multiprofesional, usa la info del multi (ya resuelta arriba)
             return render_response(template_data, rol)
     
     return "⚠️ No encontré un tema exacto para esa consulta. Te sugiero usar las opciones guiadas o revisar los manuales descargables."
@@ -471,6 +492,7 @@ if st.session_state.conversation_step == "tags":
     current_rol = st.session_state.rol_usuario
     
     if current_rol == "Enfermería":
+        # Se elimina la lógica de eliminar tags unificados aquí, se usa la lista limpia de ENFERMERIA_TAGS
         show_tags(ENFERMERIA_TAGS, 3, "Temas Específicos de Enfermería")
     elif current_rol == "Médico":
         show_tags(MEDICOS_TAGS, 3, "Temas Frecuentes de Médicos")
@@ -546,4 +568,3 @@ elif st.session_state.conversation_step in ["free_input", "viewing_response", "f
              
              render_footer()
              show_navigation_buttons(st.session_state.rol_usuario)
-
