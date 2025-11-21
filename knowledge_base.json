@@ -39,7 +39,7 @@
     
     "response_template_login": {
         "title": "Login / Acceso a Tasy 🔐",
-        "description": "Este ítem te guía en el proceso de **inicio de sesión** y la solución de problemas básicos de acceso. Tu usuario en Tasy es el **mismo que en SIDCA** y la sesión queda abierta por **45 minutos**.",
+        "description": "Aca te guiamos en el proceso de **inicio de sesión** y la solución de problemas básicos de acceso. Tu usuario en Tasy es el **mismo que en SIDCA** y la sesión queda abierta por **45 minutos**.",
         "path_to_item": {"Hospitalización Enfermería": "URL: https://tasy.fleni.org.ar/#/login", "Hospitalización Multiprofesional": "URL: https://tasy.fleni.org.ar/#/login"},
         "actions": [
           "**Iniciar Sesión** ✅: Coloca tu usuario y contraseña.",
@@ -53,13 +53,13 @@
               "solution": "Significa que la contraseña o el usuario están **mal escritos**. Verifica las mayúsculas/minúsculas."
             },
             {
-              "error": "No tengo usuario Tasy/SIDCA.", 
+              "error": "No tengo usuario en Tasy.", 
               "solution": "Debes generar un ticket en **solicitudes.fleni.org** para solicitar el alta."
             }
         ],
         "tips": [
           "**Seguridad y Compañerismo** 🤝: Desloguéate siempre. Si encuentras una máquina con una sesión abierta, sé buen compañero y desloguéala.",
-          "Verifica siempre el establecimiento (Belgrano/Escobar) y el perfil designado (Hospitalización Enfermeria / Hospitalización Multi)."
+          "Verifica siempre el establecimiento (Belgrano/Escobar) y el perfil designado (Hospitalización Enfermeria )."
         ],
         "video_link": {"title": "▶️ Video Tutorial (Pendiente)", "url": "#"},
         "footer": ""
