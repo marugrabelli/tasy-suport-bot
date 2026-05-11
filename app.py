@@ -8,21 +8,21 @@ from docx import Document
 # --- 1. CONFIGURACIÓN INICIAL ---
 st.set_page_config(page_title="Soporte Tasy Philips", layout="wide")
 
-# Validación de Key
+# Validación de Key con el nombre exacto de tus Secrets
 if "GOOGLE_API_KEY" not in st.secrets:
-    st.error("⚠️ Error: No se encontró la GOOGLE_API_KEY en los Secrets.")
+    st.error("⚠️ Error: No se encontró la GOOGLE_API_KEY en los Secrets de Streamlit.")
     st.stop()
 
 genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
 
-# --- 2. GESTIÓN DE MEMORIA Y LOGS ---
+# --- 2. GESTIÓN DE ESTADO ---
 if "messages" not in st.session_state:
     st.session_state.messages = []
 if "perfil" not in st.session_state:
     st.session_state.perfil = None
 LOG_FILE = "consultas_tasy.xlsx"
 
-# --- 3. FUNCIONES TÉCNICAS (LECTURA Y LOGS) ---
+# --- 3. FUNCIONES TÉCNICAS ---
 def leer_docx(ruta):
     try:
         doc = Document(ruta)
@@ -32,7 +32,7 @@ def leer_docx(ruta):
 
 def cargar_manual_por_perfil(perfil):
     ruta_base = "manuales"
-    # Mapeo exacto según tus nombres de archivos en GitHub
+    # Mapeo exacto según tus nombres de archivos en la carpeta de GitHub
     archivos = {
         "Enfermería": "manual enfermeria (2).docx",
         "Médico": "Manual_Medicos.docx",
@@ -72,10 +72,10 @@ if st.sidebar.checkbox("Modo Administrador"):
         st.sidebar.success("Acceso Admin concedido")
         if os.path.exists(LOG_FILE):
             df_logs = pd.read_excel(LOG_FILE)
-            st.sidebar.write("### Registro Histórico")
+            st.sidebar.write("### Registro Histórico de Consultas")
             st.sidebar.dataframe(df_logs)
             with open(LOG_FILE, "rb") as f:
-                st.sidebar.download_button("Descargar Registro (Excel)", f, file_name=LOG_FILE)
+                st.sidebar.download_button("Descargar Reporte (Excel)", f, file_name=LOG_FILE)
     elif clave:
         st.sidebar.error("Contraseña incorrecta")
 
@@ -86,7 +86,7 @@ if st.sidebar.button("🔄 Cambiar Perfil / Nueva Sesión"):
 
 # --- 5. FLUJO DE USUARIO ---
 if st.session_state.perfil is None:
-    st.title("🤖 Soporte Funcional Tasy")
+    st.title("🤖 Soporte Funcional Tasy Philips")
     st.subheader("Bienvenido/a. Para comenzar, indica tu perfil:")
     
     c1, c2, c3 = st.columns(3)
@@ -101,7 +101,7 @@ if st.session_state.perfil is None:
 # --- 6. CHAT INTERACTIVO ---
 st.title(f"Soporte Tasy - {st.session_state.perfil}")
 
-# Carga de contexto del manual según perfil
+# Carga de contexto del manual según perfil seleccionado
 with st.spinner("Sincronizando con manuales institucionales..."):
     contexto_manual = cargar_manual_por_perfil(st.session_state.perfil)
 
@@ -120,27 +120,29 @@ if prompt := st.chat_input("¿En qué puedo ayudarte con el sistema Tasy?"):
         try:
             model = genai.GenerativeModel('gemini-1.5-flash')
             
-            # Construcción del prompt con el contenido del Word
+            # Construcción del prompt incluyendo el contenido del Word
             prompt_con_contexto = f"""
-            Eres un asistente técnico experto en Tasy Philips.
+            Eres un asistente técnico experto en el sistema Tasy Philips.
             Tu conocimiento base es el siguiente MANUAL DE PROCEDIMIENTOS:
             ---
             {contexto_manual[:15000]}
             ---
-            Instrucciones:
-            1. Responde a un usuario con perfil: {st.session_state.perfil}.
-            2. Usa EXCLUSIVAMENTE la información del manual de arriba.
-            3. Si la respuesta no está en el manual, responde: 'Lo siento, esa información no figura en el manual institucional. Por favor, consulta con el referente de Sistemas.'
+            Instrucciones de respuesta:
+            1. Responde a un usuario con perfil profesional de: {st.session_state.perfil}.
+            2. Usa EXCLUSIVAMENTE la información contenida en el manual de arriba.
+            3. Si la respuesta no figura en el manual, responde exactamente: 'Lo siento, esa información no figura en el manual institucional actual. Por favor, consulta con el referente de Sistemas de tu sector.'
             
-            Pregunta: {prompt}
+            Pregunta del usuario: {prompt}
             """
             
             response = model.generate_content(prompt_con_contexto)
-            st.markdown(response.text)
+            respuesta_texto = response.text
             
-            st.session_state.messages.append({"role": "assistant", "content": response.text})
-            # Registro en el Excel
-            guardar_consulta_excel(st.session_state.perfil, prompt, response.text)
+            st.markdown(respuesta_texto)
+            st.session_state.messages.append({"role": "assistant", "content": respuesta_texto})
+            
+            # Registro automático en el archivo Excel
+            guardar_consulta_excel(st.session_state.perfil, prompt, respuesta_texto)
             
         except Exception as e:
-            st.error(f"Error en la respuesta de la IA: {e}")
+            st.error(f"Hubo un problema al procesar la respuesta: {e}")
