@@ -5,6 +5,7 @@ import google.generativeai as genai
 st.set_page_config(page_title="Asistente de Soporte Tasy", layout="wide")
 
 # 2. Validación de Seguridad de la API Key en Secrets
+# Asegúrate de que en Streamlit Secrets diga: GOOGLE_API_KEY = "tu_clave"
 if "GOOGLE_API_KEY" not in st.secrets:
     st.error("Error: No se encontró la clave GOOGLE_API_KEY en los Secrets de Streamlit.")
     st.stop()
@@ -35,30 +36,24 @@ if st.session_state.perfil is None:
         if st.button("Otro"):
             st.session_state.perfil = "General"
             st.rerun()
-    st.stop() # Detiene la ejecución hasta que elijan un perfil
+    st.stop() 
 
 # --- INTERFAZ PRINCIPAL DEL CHAT ---
 st.title(f"🤖 Soporte Tasy - Perfil: {st.session_state.perfil}")
 st.caption(f"Consultando manuales específicos para el área de {st.session_state.perfil.lower()}.")
 
-# Botón para limpiar chat
-if st.sidebar.button("Limpiar conversación"):
+# Botón para reiniciar en la barra lateral
+if st.sidebar.button("Reiniciar Sesión / Cambiar Perfil"):
     st.session_state.messages = []
     st.session_state.perfil = None
     st.rerun()
 
-# 4. Instrucción de Sistema (Contexto para Gemini)
-# Aquí defines cómo debe comportarse según el manual
-system_instruction = f"""
-Actúa como un experto en el sistema Tasy Philips. Tu usuario tiene el perfil de {st.session_state.perfil}.
-Debes responder de forma técnica, clara y empática, basándote en los flujos de trabajo de los manuales institucionales.
-Si la duda es de {st.session_state.perfil}, prioriza los pasos específicos para esa área.
-Si no conoces la respuesta exacta, sugiere contactar al equipo de sistemas local.
-"""
-
+# 4. Configuración del Modelo con Instrucciones de Sistema
+# Esto soluciona el comportamiento del bot para que use los manuales
+instruction = f"Eres un experto en Tasy Philips. Tu usuario es {st.session_state.perfil}. Responde dudas técnicas basadas en manuales."
 model = genai.GenerativeModel(
     model_name='gemini-1.5-flash',
-    system_instruction=system_instruction
+    system_instruction=instruction
 )
 
 # 5. Mostrar historial de mensajes
@@ -68,6 +63,28 @@ for message in st.session_state.messages:
 
 # 6. Entrada del usuario y lógica de respuesta
 if prompt := st.chat_input("Escribe tu duda sobre el sistema aquí..."):
-    # Guardar mensaje del usuario
+    # Guardar y mostrar mensaje del usuario
     st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    # Generar respuesta de Gemini
+    with st.chat_message("assistant"):
+        with st.spinner("Consultando manuales..."):
+            try:
+                # Iniciamos el chat con el historial para que tenga memoria
+                chat = model.start_chat(history=[
+                    {"role": m["role"] if m["role"] == "user" else "model", "parts": [m["content"]]} 
+                    for m in st.session_state.messages[:-1]
+                ])
+                
+                response = chat.send_message(prompt)
+                full_response = response.text
+                
+                st.markdown(full_response)
+                
+                # Guardar respuesta en el historial
+                st.session_state.messages.append({"role": "assistant", "content": full_response})
+                
+            except Exception as e:
+                st.error(f"Hubo un error con la API: {str(e)}")
