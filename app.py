@@ -3,7 +3,7 @@ import google.generativeai as genai
 
 # 1. Configuración de la página
 st.set_page_config(page_title="Asistente Pro Gemini", layout="centered")
-st.title("🤖 Asistente Inteligente")
+st.title("🤖 Hola! resuelvo tus dudas")
 
 # 2. Validación de Seguridad de la API Key
 if "GOOGLE_API_KEY" not in st.secrets:
