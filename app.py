@@ -3,9 +3,10 @@ import google.generativeai as genai
 import pandas as pd
 from datetime import datetime
 import os
+from docx import Document
 
-# --- 1. CONFIGURACIÓN Y SEGURIDAD ---
-st.set_page_config(page_title="Soporte Tasy Philips", layout="centered")
+# --- CONFIGURACIÓN ---
+st.set_page_config(page_title="Soporte Tasy Philips", layout="wide")
 
 if "GOOGLE_API_KEY" not in st.secrets:
     st.error("⚠️ Configura GOOGLE_API_KEY en los Secrets de Streamlit.")
@@ -13,105 +14,121 @@ if "GOOGLE_API_KEY" not in st.secrets:
 
 genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
 
-# --- 2. GESTIÓN DE ESTADO (MEMORIA) ---
+# --- PERSISTENCIA ---
 if "messages" not in st.session_state:
     st.session_state.messages = []
 if "perfil" not in st.session_state:
     st.session_state.perfil = None
-if "log_file" not in st.session_state:
-    st.session_state.log_file = "registro_consultas.xlsx"
+LOG_FILE = "registro_consultas.xlsx"
 
-# --- 3. FUNCIÓN PARA GUARDAR LOGS EN EXCEL ---
-def guardar_log(perfil, pregunta, respuesta):
-    nuevo_registro = {
-        "Fecha/Hora": [datetime.now().strftime("%Y-%m-%d %H:%M:%S")],
-        "Perfil": [perfil],
-        "Pregunta": [pregunta],
-        "Respuesta": [respuesta]
+# --- FUNCIONES TÉCNICAS ---
+def leer_docx(ruta):
+    try:
+        doc = Document(ruta)
+        return "\n".join([para.text for para in doc.paragraphs])
+    except Exception as e:
+        return f"Error al leer archivo: {e}"
+
+def cargar_contexto(perfil):
+    folder = "manuales"
+    # Mapeo exacto según tus archivos subidos
+    archivos = {
+        "Enfermería": "manual enfermeria (2).docx",
+        "Médico": "Manual_Medicos.docx",
+        "Otro": "Manual Otros profesionales.docx"
     }
-    df_nuevo = pd.DataFrame(nuevo_registro)
     
-    if not os.path.isfile(st.session_state.log_file):
-        df_nuevo.to_excel(st.session_state.log_file, index=False)
+    file_path = os.path.join(folder, archivos.get(perfil, ""))
+    if os.path.exists(file_path):
+        return leer_docx(file_path)
+    return "No se encontró el manual específico para este perfil."
+
+def guardar_log(perfil, pregunta, respuesta):
+    nuevo = pd.DataFrame([{
+        "Fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "Perfil": perfil,
+        "Pregunta": pregunta,
+        "Respuesta": respuesta
+    }])
+    if not os.path.isfile(LOG_FILE):
+        nuevo.to_excel(LOG_FILE, index=False)
     else:
-        with pd.ExcelWriter(st.session_state.log_file, mode="a", engine="openpyxl", if_sheet_exists="overlay") as writer:
-            # Leer el archivo actual para añadir al final
-            df_actual = pd.read_excel(st.session_state.log_file)
-            df_final = pd.concat([df_actual, df_nuevo], ignore_index=True)
-            df_final.to_excel(writer, index=False)
+        try:
+            actual = pd.read_excel(LOG_FILE)
+            pd.concat([actual, nuevo], ignore_index=True).to_excel(LOG_FILE, index=False)
+        except:
+            nuevo.to_excel(LOG_FILE, index=False)
 
-# --- 4. SELECCIÓN DE PERFIL PROFESIONAL ---
-if st.session_state.perfil is None:
-    st.title("🤖 Soporte Tasy Philips")
-    st.subheader("Para comenzar, indica tu perfil:")
-    
-    # Restablecidos los 3 perfiles originales
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        if st.button("Enfermero/a"): 
-            st.session_state.perfil = "Enfermería"
-            st.rerun()
-    with col2:
-        if st.button("Médico/a"): 
-            st.session_state.perfil = "Médico"
-            st.rerun()
-    with col3:
-        if st.button("Otro Profesional"): 
-            st.session_state.perfil = "Otro"
-            st.rerun()
-    st.stop()
+# --- PANEL ADMINISTRADOR (Barra Lateral) ---
+st.sidebar.title("⚙️ Administración")
+if st.sidebar.checkbox("Acceso Admin"):
+    clave = st.sidebar.text_input("Password", type="password")
+    if clave == "tasy2024":
+        st.sidebar.success("Sesión Admin Activa")
+        if os.path.exists(LOG_FILE):
+            df = pd.read_excel(LOG_FILE)
+            st.sidebar.write("### Registro de Consultas")
+            st.sidebar.dataframe(df)
+            with open(LOG_FILE, "rb") as f:
+                st.sidebar.download_button("Descargar Excel", f, file_name=LOG_FILE)
+    elif clave:
+        st.sidebar.error("Clave incorrecta")
 
-# --- 5. CONFIGURACIÓN DEL MODELO (Basado en Manuales) ---
-# Se le instruye al modelo que su conocimiento base son los manuales cargados en el repositorio
-instruccion_base = f"""
-Actúa como un experto soporte funcional de Tasy Philips. 
-Tu base de conocimiento son los manuales institucionales cargados en este repositorio.
-El usuario es un {st.session_state.perfil}. 
-Responde de forma técnica, precisa y basada estrictamente en los procesos de los manuales.
-Si no estás seguro, pide que se contacte al líder de proyecto Tasy.
-"""
-
-model = genai.GenerativeModel(
-    model_name='gemini-1.5-flash',
-    system_instruction=instruccion_base
-)
-
-# --- 6. INTERFAZ DE CHAT ---
-st.title(f"Soporte Tasy - {st.session_state.perfil}")
-
-if st.sidebar.button("Nueva Consulta / Cambiar Perfil"):
+if st.sidebar.button("🔄 Reiniciar App"):
     st.session_state.messages = []
     st.session_state.perfil = None
     st.rerun()
 
-# Mostrar historial
-for msg in st.session_state.messages:
-    with st.chat_message(msg["role"]):
-        st.markdown(msg["content"])
+# --- INTERFAZ DE USUARIO ---
+if st.session_state.perfil is None:
+    st.title("🤖 Soporte Funcional Tasy Philips")
+    st.subheader("Para comenzar, selecciona tu perfil profesional:")
+    c1, c2, c3 = st.columns(3)
+    if c1.button("Enfermero/a"): st.session_state.perfil = "Enfermería"
+    if c2.button("Médico/a"): st.session_state.perfil = "Médico"
+    if c3.button("Otro Profesional"): st.session_state.perfil = "Otro"
+    if st.session_state.perfil: st.rerun()
+    st.stop()
 
-# Entrada de usuario
-if prompt := st.chat_input("¿En qué puedo ayudarte con Tasy?"):
+# --- LÓGICA DE CHAT ---
+st.title(f"Soporte Tasy - Perfil: {st.session_state.perfil}")
+
+# Cargamos el manual correspondiente al perfil seleccionado
+with st.spinner("Procesando manual institucional..."):
+    contexto_actual = cargar_contexto(st.session_state.perfil)
+
+for m in st.session_state.messages:
+    with st.chat_message(m["role"]):
+        st.markdown(m["content"])
+
+if prompt := st.chat_input("Escribe tu duda aquí..."):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
     with st.chat_message("assistant"):
         try:
-            # Crear hilo de chat con memoria del hilo actual
-            chat_session = model.start_chat(history=[])
-            response = chat_session.send_message(prompt)
-            respuesta_texto = response.text
+            model = genai.GenerativeModel('gemini-1.5-flash')
             
-            st.markdown(respuesta_texto)
-            st.session_state.messages.append({"role": "assistant", "content": respuesta_texto})
+            prompt_instruccion = f"""
+            Eres un experto analista funcional del sistema Tasy Philips.
+            Tu conocimiento base es el siguiente MANUAL INSTITUCIONAL:
+            {contexto_actual[:15000]}
             
-            # Guardar automáticamente en el Excel
-            guardar_log(st.session_state.perfil, prompt, respuesta_texto)
+            Instrucciones:
+            1. Responde a un {st.session_state.perfil}.
+            2. Usa SOLO la información del manual proporcionado.
+            3. Si la respuesta no está en el manual, indícalo cortésmente.
+            
+            Pregunta del usuario: {prompt}
+            """
+            
+            response = model.generate_content(prompt_instruccion)
+            respuesta = response.text
+            st.markdown(respuesta)
+            
+            st.session_state.messages.append({"role": "assistant", "content": respuesta})
+            guardar_log(st.session_state.perfil, prompt, respuesta)
             
         except Exception as e:
-            st.error(f"Error en la consulta: {e}")
-
-# Botón opcional para descargar el Excel de logs
-if os.path.exists(st.session_state.log_file):
-    with open(st.session_state.log_file, "rb") as f:
-        st.sidebar.download_button("Descargar Registro de Consultas", f, file_name="consultas_tasy.xlsx")
+            st.error(f"Error: {e}")
