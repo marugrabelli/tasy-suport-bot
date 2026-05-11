@@ -1,103 +1,109 @@
 import streamlit as st
 import google.generativeai as genai
 import pandas as pd
-from datetime import datetime
 import os
+from datetime import datetime
+from PyPDF2 import PdfReader
 
-# Intentamos importar docx con manejo de error para diagnóstico
-try:
-    from docx import Document
-except ImportError:
-    st.error("⚠️ La librería 'python-docx' no está instalada. Revisá el requirements.txt.")
-    st.stop()
-
-# --- CONFIGURACIÓN ---
+# --- CONFIGURACIÓN DE AMBIENTE ---
 st.set_page_config(page_title="Soporte Tasy Philips", layout="wide")
 
 if "GOOGLE_API_KEY" not in st.secrets:
-    st.error("⚠️ No se encontró GOOGLE_API_KEY en Secrets.")
+    st.error("⚠️ Configura la API KEY en los Secrets de Streamlit.")
     st.stop()
 
 genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
 
+# --- GESTIÓN DE ESTADO ---
 if "messages" not in st.session_state:
     st.session_state.messages = []
 if "perfil" not in st.session_state:
     st.session_state.perfil = None
-LOG_FILE = "registro_consultas.xlsx"
 
-# --- FUNCIONES ---
-def leer_docx(ruta):
+# --- FUNCIONES DE LECTURA ---
+def leer_pdf(nombre_archivo):
+    ruta = os.path.join("manuales", nombre_archivo)
+    if not os.path.exists(ruta):
+        return f"Error: No se encuentra el archivo {nombre_archivo} en la carpeta /manuales."
     try:
-        doc = Document(ruta)
-        return "\n".join([p.text for p in doc.paragraphs])
+        reader = PdfReader(ruta)
+        texto_completo = ""
+        for page in reader.pages:
+            texto_completo += page.extract_text() + "\n"
+        return texto_completo
     except Exception as e:
-        return f"Error leyendo archivo: {e}"
-
-def cargar_contexto(perfil):
-    archivos = {
-        "Enfermería": "manual enfermeria (2).docx",
-        "Médico": "Manual_Medicos.docx",
-        "Otro": "Manual Otros profesionales.docx"
-    }
-    ruta = os.path.join("manuales", archivos.get(perfil, ""))
-    if os.path.exists(ruta):
-        return leer_docx(ruta)
-    return "Manual no encontrado."
+        return f"Error al procesar el PDF: {e}"
 
 def guardar_log(perfil, pregunta, respuesta):
-    nuevo = pd.DataFrame([{"Fecha": datetime.now(), "Perfil": perfil, "Pregunta": pregunta, "Respuesta": respuesta}])
-    if not os.path.exists(LOG_FILE):
-        nuevo.to_excel(LOG_FILE, index=False)
-    else:
-        try:
-            actual = pd.read_excel(LOG_FILE)
-            pd.concat([actual, nuevo], ignore_index=True).to_excel(LOG_FILE, index=False)
-        except: pass
+    log_file = "consultas_tasy.csv"
+    nuevo_log = pd.DataFrame([{
+        "Fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "Perfil": perfil,
+        "Pregunta": pregunta,
+        "Respuesta": respuesta
+    }])
+    nuevo_log.to_csv(log_file, mode='a', index=False, header=not os.path.exists(log_file))
 
-# --- UI SIDEBAR ---
-st.sidebar.title("Administración")
-if st.sidebar.checkbox("Acceso Admin"):
-    if st.sidebar.text_input("Password", type="password") == "tasy2024":
-        if os.path.exists(LOG_FILE):
-            st.sidebar.dataframe(pd.read_excel(LOG_FILE))
-            with open(LOG_FILE, "rb") as f:
-                st.sidebar.download_button("Descargar Excel", f, file_name=LOG_FILE)
+# --- SIDEBAR: ADMIN Y RESET ---
+with st.sidebar:
+    st.title("⚙️ Administración")
+    if st.checkbox("Acceso Administrador"):
+        clave = st.text_input("Contraseña", type="password")
+        if clave == "tasy2024":
+            if os.path.exists("consultas_tasy.csv"):
+                st.write("### Historial de Consultas")
+                st.dataframe(pd.read_csv("consultas_tasy.csv"))
+    
+    if st.button("🔄 Reiniciar Sesión"):
+        st.session_state.perfil = None
+        st.session_state.messages = []
+        st.rerun()
 
-if st.sidebar.button("Reiniciar"):
-    st.session_state.messages = []
-    st.session_state.perfil = None
-    st.rerun()
-
-# --- FLUJO PRINCIPAL ---
+# --- SELECCIÓN DE PERFIL ---
 if st.session_state.perfil is None:
-    st.title("🤖 Soporte Tasy")
+    st.title("🤖 Soporte Tasy Philips (PDF Mode)")
+    st.subheader("Selecciona tu perfil profesional para comenzar:")
     c1, c2, c3 = st.columns(3)
-    if c1.button("Enfermería"): st.session_state.perfil = "Enfermería"
-    if c2.button("Médico"): st.session_state.perfil = "Médico"
-    if c3.button("Otro"): st.session_state.perfil = "Otro"
+    if c1.button("Enfermero/a"): st.session_state.perfil = "Enfermería"
+    if c2.button("Médico/a"): st.session_state.perfil = "Médico"
+    if c3.button("Otro Profesional"): st.session_state.perfil = "Otro"
     if st.session_state.perfil: st.rerun()
     st.stop()
 
+# --- CARGA DE CONTEXTO ---
+archivos_pdf = {
+    "Enfermería": "enfermeria.pdf",
+    "Médico": "medico.pdf",
+    "Otro": "otro.pdf"
+}
+contexto_manual = leer_pdf(archivos_pdf.get(st.session_state.perfil))
+
+# --- CHAT INTERACTIVO ---
 st.title(f"Soporte Tasy - {st.session_state.perfil}")
-contexto = cargar_contexto(st.session_state.perfil)
 
 for m in st.session_state.messages:
     with st.chat_message(m["role"]): st.markdown(m["content"])
 
-if prompt := st.chat_input("¿Tu duda?"):
+if prompt := st.chat_input("¿Cuál es tu consulta sobre el sistema?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"): st.markdown(prompt)
 
     with st.chat_message("assistant"):
         try:
             model = genai.GenerativeModel('gemini-1.5-flash')
-            res = model.generate_content(f"Contexto: {contexto[:15000]}\nPregunta: {prompt}")
-            st.markdown(res.text)
-            st.session_state.messages.append({"role": "assistant", "content": res.text})
-            guardar_log(st.session_state.perfil, prompt, res.text)
-        except Exception as e:
-            st.error(f"Error IA: {e}")
+            # Instrucción de sistema inyectada en el prompt
+            full_prompt = f"""
+            Actúa como soporte técnico de Tasy Philips. 
+            CONTEXTO DEL MANUAL: {contexto_manual[:15000]}
             
+            PREGUNTA DEL USUARIO ({st.session_state.perfil}): {prompt}
+            
+            Responde basándote solo en el manual. Si no está, sugiere contactar a Sistemas.
+            """
+            response = model.generate_content(full_prompt)
+            st.markdown(response.text)
+            
+            st.session_state.messages.append({"role": "assistant", "content": response.text})
+            guardar_log(st.session_state.perfil, prompt, response.text)
         except Exception as e:
-            st.error(f"Hubo un problema al procesar la respuesta: {e}")
+            st.error(f"Error en la IA: {e}")
