@@ -1,80 +1,117 @@
 import streamlit as st
 import google.generativeai as genai
+import pandas as pd
+from datetime import datetime
+import os
 
-# 1. Configuración básica
-st.set_page_config(page_title="Soporte Tasy", layout="centered")
+# --- 1. CONFIGURACIÓN Y SEGURIDAD ---
+st.set_page_config(page_title="Soporte Tasy Philips", layout="centered")
 
-# 2. Conexión con la Key (Usa el nombre exacto de tus Secrets)
 if "GOOGLE_API_KEY" not in st.secrets:
-    st.error("Falta la GOOGLE_API_KEY en Secrets.")
+    st.error("⚠️ Configura GOOGLE_API_KEY en los Secrets de Streamlit.")
     st.stop()
 
 genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
 
-# 3. Estado de la sesión
+# --- 2. GESTIÓN DE ESTADO (MEMORIA) ---
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 if "perfil" not in st.session_state:
     st.session_state.perfil = None
-if "chat" not in st.session_state:
-    st.session_state.chat = []
+if "log_file" not in st.session_state:
+    st.session_state.log_file = "registro_consultas.xlsx"
 
-# --- PANTALLA DE INICIO: SELECCIÓN DE PERFIL ---
+# --- 3. FUNCIÓN PARA GUARDAR LOGS EN EXCEL ---
+def guardar_log(perfil, pregunta, respuesta):
+    nuevo_registro = {
+        "Fecha/Hora": [datetime.now().strftime("%Y-%m-%d %H:%M:%S")],
+        "Perfil": [perfil],
+        "Pregunta": [pregunta],
+        "Respuesta": [respuesta]
+    }
+    df_nuevo = pd.DataFrame(nuevo_registro)
+    
+    if not os.path.isfile(st.session_state.log_file):
+        df_nuevo.to_excel(st.session_state.log_file, index=False)
+    else:
+        with pd.ExcelWriter(st.session_state.log_file, mode="a", engine="openpyxl", if_sheet_exists="overlay") as writer:
+            # Leer el archivo actual para añadir al final
+            df_actual = pd.read_excel(st.session_state.log_file)
+            df_final = pd.concat([df_actual, df_nuevo], ignore_index=True)
+            df_final.to_excel(writer, index=False)
+
+# --- 4. SELECCIÓN DE PERFIL PROFESIONAL ---
 if st.session_state.perfil is None:
     st.title("🤖 Soporte Tasy Philips")
-    st.write("Seleccioná tu perfil para continuar:")
+    st.subheader("Para comenzar, indica tu perfil:")
     
-    col1, col2 = st.columns(2)
+    # Restablecidos los 3 perfiles originales
+    col1, col2, col3 = st.columns(3)
     with col1:
-        if st.button("Enfermería"):
+        if st.button("Enfermero/a"): 
             st.session_state.perfil = "Enfermería"
             st.rerun()
     with col2:
-        if st.button("Médico"):
+        if st.button("Médico/a"): 
             st.session_state.perfil = "Médico"
+            st.rerun()
+    with col3:
+        if st.button("Otro Profesional"): 
+            st.session_state.perfil = "Otro"
             st.rerun()
     st.stop()
 
-# --- INTERFAZ DE CHAT ---
+# --- 5. CONFIGURACIÓN DEL MODELO (Basado en Manuales) ---
+# Se le instruye al modelo que su conocimiento base son los manuales cargados en el repositorio
+instruccion_base = f"""
+Actúa como un experto soporte funcional de Tasy Philips. 
+Tu base de conocimiento son los manuales institucionales cargados en este repositorio.
+El usuario es un {st.session_state.perfil}. 
+Responde de forma técnica, precisa y basada estrictamente en los procesos de los manuales.
+Si no estás seguro, pide que se contacte al líder de proyecto Tasy.
+"""
+
+model = genai.GenerativeModel(
+    model_name='gemini-1.5-flash',
+    system_instruction=instruccion_base
+)
+
+# --- 6. INTERFAZ DE CHAT ---
 st.title(f"Soporte Tasy - {st.session_state.perfil}")
 
-# Botón para resetear
-if st.sidebar.button("Cambiar Perfil"):
+if st.sidebar.button("Nueva Consulta / Cambiar Perfil"):
+    st.session_state.messages = []
     st.session_state.perfil = None
-    st.session_state.chat = []
     st.rerun()
 
-# Configurar el modelo (usamos gemini-pro como alternativa si el flash falla)
-model_name = 'gemini-1.5-flash'
-model = genai.GenerativeModel(model_name)
-
-# Mostrar mensajes
-for msg in st.session_state.chat:
+# Mostrar historial
+for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
-        st.write(msg["content"])
+        st.markdown(msg["content"])
 
 # Entrada de usuario
-if prompt := st.chat_input("¿Cuál es tu duda?"):
-    # Guardar mensaje del usuario
-    st.session_state.chat.append({"role": "user", "content": prompt})
+if prompt := st.chat_input("¿En qué puedo ayudarte con Tasy?"):
+    st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
-        st.write(prompt)
+        st.markdown(prompt)
 
-    # Generar respuesta
     with st.chat_message("assistant"):
         try:
-            # Instrucción de contexto directa en la consulta
-            contexto = f"Actúa como soporte técnico de Tasy Philips para el área de {st.session_state.perfil}. Pregunta: {prompt}"
-            response = model.generate_content(contexto)
-            
+            # Crear hilo de chat con memoria del hilo actual
+            chat_session = model.start_chat(history=[])
+            response = chat_session.send_message(prompt)
             respuesta_texto = response.text
-            st.write(respuesta_texto)
-            st.session_state.chat.append({"role": "assistant", "content": respuesta_texto})
+            
+            st.markdown(respuesta_texto)
+            st.session_state.messages.append({"role": "assistant", "content": respuesta_texto})
+            
+            # Guardar automáticamente en el Excel
+            guardar_log(st.session_state.perfil, prompt, respuesta_texto)
             
         except Exception as e:
-            # Si falla el 1.5, intentamos con el Pro automáticamente
-            try:
-                model_alt = genai.GenerativeModel('gemini-pro')
-                response = model_alt.generate_content(contexto)
-                st.write(response.text)
-                st.session_state.chat.append({"role": "assistant", "content": response.text})
-            except Exception as e_final:
-                st.error(f"Error crítico: {e_final}")
+            st.error(f"Error en la consulta: {e}")
+
+# Botón opcional para descargar el Excel de logs
+if os.path.exists(st.session_state.log_file):
+    with open(st.session_state.log_file, "rb") as f:
+        st.sidebar.download_button("Descargar Registro de Consultas", f, file_name="consultas_tasy.xlsx")
